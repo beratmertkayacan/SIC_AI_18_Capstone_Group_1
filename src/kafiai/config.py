@@ -1,0 +1,33 @@
+"""Projedeki tüm eşikler burada durur.
+
+Bir değeri değiştirmek gerektiğinde kodun içinde aramak yerine bu dosyaya bakılır.
+Her değerin yanında neden seçildiği yazılıdır.
+"""
+
+SEED = 42
+
+# Modelin göreceği tur sayısı. Eklenti kullanıcının ilk iki mesajından sonra
+# karar verebilmeli; daha geç bir uyarı, döngü başladıktan sonra gelir.
+K_TURNS = 2
+
+# Etiket için gereken en az kullanıcı mesajı. İlk 2 tur girdi olduğundan
+# sonrasında en az 2 tur daha olmalı ki "sonradan döngüye girdi mi" sorusu anlamlı olsun.
+MIN_TURNS_FOR_LABEL = 4
+
+# İki mesajın "neredeyse aynı talep" sayılması için karakter benzerliği eşiği.
+# Bölüm 2'deki TF-IDF analizinde 0.7 kullanıldı; burada ağırlıksız karakter
+# n-gram kullandığımız için biraz daha yüksek tutuldu. Elle doğrulama setiyle yeniden ayarlanacak.
+REPEAT_SIM_THRESHOLD = 0.75
+
+# Zayıf etiket kuralı: k turdan sonraki kısımda en az bu kadar tekrar
+# ya da en az bu kadar onarım ifadesi görülürse sohbet "döngü" sayılır.
+LABEL_MIN_REPEATS = 2
+LABEL_MIN_REPAIRS = 2
+
+# Şablon tespiti: ilk mesajın ilk 80 karakteri örneklemde bu kadar veya
+# daha fazla tekrar ediyorsa sohbet otomatik gönderilmiş kabul edilir (Bölüm 2 ile aynı kural).
+TEMPLATE_PREFIX_CHARS = 80
+TEMPLATE_MIN_COUNT = 20
+
+# Çok uzun mesajlar (yapıştırılmış kod, metin) benzerliği bozmasın diye kesilir.
+MAX_CHARS = 1000
