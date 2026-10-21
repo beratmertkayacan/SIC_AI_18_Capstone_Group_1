@@ -422,6 +422,17 @@ describe("insertText (onarım cümlesi ekleme)", () => {
 });
 
 describe("readHistory (açılan sohbetteki eski mesajlar)", () => {
+  // jsdom yerleşim hesaplamaz; görünürlüğü işaretle taklit ediyoruz: data-gizli olan 0 kutu döner.
+  const original = HTMLElement.prototype.getClientRects;
+  beforeEach(() => {
+    HTMLElement.prototype.getClientRects = function (this: HTMLElement) {
+      return (this.hasAttribute("data-gizli") ? [] : [{}]) as unknown as DOMRectList;
+    };
+  });
+  afterEach(() => {
+    HTMLElement.prototype.getClientRects = original;
+  });
+
   it("kullanıcı mesajlarını sırayla okur, asistanı almaz", () => {
     document.body.innerHTML = `
       <div data-content-search-unit-key="fallback-turn-0:0:user"><p>ilk istek</p></div>
@@ -429,6 +440,13 @@ describe("readHistory (açılan sohbetteki eski mesajlar)", () => {
       <div data-content-search-unit-key="fallback-turn-1:0:user"><p> ikinci istek </p></div>
       <div data-content-search-unit-key="fallback-turn-1:2:assistant"><p>cevap 2</p></div>`;
     expect(chatgptAdapter.readHistory()).toEqual(["ilk istek", "ikinci istek"]);
+  });
+
+  it("önceki sohbetten kalan görünmez (yüksekliği 0) mesajı atlar", () => {
+    document.body.innerHTML = `
+      <div data-gizli data-content-search-unit-key="fallback-turn-0:0:user">önceki sohbetin mesajı</div>
+      <div data-content-search-unit-key="fallback-turn-0:0:user">bu sohbetin mesajı</div>`;
+    expect(chatgptAdapter.readHistory()).toEqual(["bu sohbetin mesajı"]);
   });
 
   it("boş (örneğin yalnızca dosya) mesajları atlar", () => {
