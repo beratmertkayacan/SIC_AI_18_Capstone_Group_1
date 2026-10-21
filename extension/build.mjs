@@ -11,6 +11,7 @@ const options = {
   entryPoints: {
     content: "src/content/index.ts",
     background: "src/background/index.ts",
+    popup: "src/popup/index.ts",
   },
   outdir: "dist",
   bundle: true,

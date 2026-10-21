@@ -1,6 +1,7 @@
 import { chatgptAdapter, findComposer, readComposerText } from "../adapters/chatgpt";
 import type { Adapter } from "../adapters/types";
 import { NAV_POLL_MS, POLL_MS } from "../config";
+import { chromeStorage } from "../core/chrome-storage";
 import { ExitCardPolicy } from "../core/exit-card-policy";
 import { buildFreshStartDraft } from "../core/fresh-start";
 import { HistoryWatcher } from "../core/history-watcher";
@@ -11,7 +12,6 @@ import {
   parseSettings,
   SETTINGS_KEY,
   SettingsStore,
-  type KeyValueStorage,
   type Settings,
 } from "../core/settings";
 import { copyToClipboard } from "../ui/clipboard";
@@ -19,12 +19,6 @@ import { ExitCard } from "../ui/exit-card";
 import { Strip } from "../ui/strip";
 
 const ADAPTERS: Adapter[] = [chatgptAdapter];
-
-const chromeStorage: KeyValueStorage = {
-  get: (keys) => chrome.storage.local.get(keys),
-  set: (items) => chrome.storage.local.set(items),
-  remove: (keys) => chrome.storage.local.remove(keys),
-};
 
 function main(): void {
   const url = new URL(location.href);

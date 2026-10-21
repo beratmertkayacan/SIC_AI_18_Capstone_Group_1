@@ -9,6 +9,7 @@
     "https://chat.openai.com/*",
     "https://gemini.google.com/*"
   ],
+  "action": { "default_title": "KafiAI", "default_popup": "popup.html" },
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
