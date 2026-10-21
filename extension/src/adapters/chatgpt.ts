@@ -127,6 +127,10 @@ export const chatgptAdapter: Adapter = {
     return true;
   },
 
+  newChatUrl() {
+    return `${location.origin}/`;
+  },
+
   readHistory() {
     // Sohbet değişince ChatGPT önceki sohbetin mesajını sayfada görünmez bir artık olarak
     // bırakabiliyor (canlı sayfada ölçüldü: yükseklik 0). Yalnızca ekranda yer kaplayanlar alınır.

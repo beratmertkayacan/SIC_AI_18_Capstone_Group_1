@@ -16,7 +16,7 @@ export interface StripActions {
   onRepair(sentence: string): void;
 }
 
-const CSS = `
+export const CSS = `
 :host { all: initial; }
 .strip {
   position: fixed; z-index: 2147483000; box-sizing: border-box;

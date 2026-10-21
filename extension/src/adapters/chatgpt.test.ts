@@ -531,3 +531,9 @@ describe("mesaj düzenleme kutusu (tur içindeki kutu) yok sayılır", () => {
     expect(findComposer()!.closest("form")!.id).toBe("real");
   });
 });
+
+describe("newChatUrl", () => {
+  it("yeni sohbetin adresini verir", () => {
+    expect(chatgptAdapter.newChatUrl()).toBe(`${location.origin}/`);
+  });
+});

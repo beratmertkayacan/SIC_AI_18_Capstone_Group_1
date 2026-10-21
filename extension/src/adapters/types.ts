@@ -38,4 +38,6 @@ export interface Adapter {
   insertText(text: string): boolean;
   /** Sayfada görünen önceki kullanıcı mesajlarının metinleri (eskiden yeniye). Yalnızca bellekte kullanılır. */
   readHistory(): string[];
+  /** Yeni (boş) bir sohbetin adresi. */
+  newChatUrl(): string;
 }

@@ -1,9 +1,13 @@
-import { chatgptAdapter, findComposer } from "../adapters/chatgpt";
+import { chatgptAdapter, findComposer, readComposerText } from "../adapters/chatgpt";
 import type { Adapter } from "../adapters/types";
 import { NAV_POLL_MS, POLL_MS } from "../config";
+import { ExitCardPolicy } from "../core/exit-card-policy";
+import { buildFreshStartDraft } from "../core/fresh-start";
 import { HistoryWatcher } from "../core/history-watcher";
 import { RepeatDetector } from "../core/repeat-detector";
 import { Session } from "../core/session";
+import { copyToClipboard } from "../ui/clipboard";
+import { ExitCard } from "../ui/exit-card";
 import { Strip } from "../ui/strip";
 
 const ADAPTERS: Adapter[] = [chatgptAdapter];
@@ -16,6 +20,29 @@ function main(): void {
   const session = new Session(adapter.conversationKey(url));
   const detector = new RepeatDetector(); // yalnızca bellekte; sohbet değişince silinir
   const strip = new Strip();
+  const exitCard = new ExitCard();
+  const policy = new ExitCardPolicy();
+
+  /** Cevap bitti: uzayan bir döngü varsa, kullanıcı yazmaya başlamadan çıkış kartını göster. */
+  const maybeShowExitCard = () => {
+    if (strip.visible || exitCard.visible || !policy.shouldShow(session.turns)) return;
+    const composer = findComposer();
+    if (!composer || readComposerText(composer) !== "") return; // kullanıcı zaten yazmaya başladı
+    console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns})`);
+    exitCard.show(composer.closest("form") ?? composer, session.turns, {
+      getDraft: () => buildFreshStartDraft(adapter.readHistory()),
+      onFreshStart: async (draft) => {
+        const copied = await copyToClipboard(draft);
+        if (copied) window.open(adapter.newChatUrl(), "_blank", "noopener");
+        console.log(`[KafiAI] taze başlat: ${copied ? "panoya kopyalandı, yeni sohbet açıldı" : "kopyalanamadı"}`);
+        return copied;
+      },
+      onDismiss: (kind) => {
+        policy.dismissed(session.turns);
+        console.log(`[KafiAI] çıkış kartı kapandı (${kind})`);
+      },
+    });
+  };
   const history = new HistoryWatcher(
     () => adapter.readHistory(),
     (texts) => {
@@ -39,6 +66,8 @@ function main(): void {
       const check = detector.check(text);
       if (!check.similar) return false;
       console.log(`[KafiAI] benzer mesaj, gönderim bekletildi (skor ${check.score.toFixed(2)})`);
+      policy.noteRepeat();
+      exitCard.hide();
       strip.show(anchor, {
         onSendAnyway: () => {
           console.log("[KafiAI] kullanıcı 'Yine de gönder' dedi");
@@ -60,6 +89,10 @@ function main(): void {
       history.cancel();
       strip.hide();
       const n = session.recordSend();
+      if (exitCard.visible) {
+        exitCard.hide(); // kartı yok sayıp yazmaya devam etti
+        policy.dismissed(n);
+      }
       const check = detector.check(text);
       detector.remember(text);
       const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : "farklı";
@@ -69,6 +102,7 @@ function main(): void {
     },
     onResponseComplete: () => {
       console.log("[KafiAI] cevap bitti");
+      maybeShowExitCard();
     },
     onNoSignal: () => {
       console.log("[KafiAI] cevap sinyali görülmedi (sayfa yapısı değişmiş olabilir)");
@@ -89,6 +123,8 @@ function main(): void {
     if (result === "reset") {
       detector.reset();
       strip.hide();
+      exitCard.hide();
+      policy.reset();
       history.cancel();
       if (session.key !== null) history.begin(Date.now()); // başka bir var olan sohbet açıldı
     }
