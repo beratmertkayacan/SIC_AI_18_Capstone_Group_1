@@ -31,3 +31,7 @@ export const EXIT_CARD_MIN_TURNS = 6; // sohbette en az bu kadar kullanıcı mes
 export const EXIT_CARD_MIN_REPEATS = 1; // bu sohbette en az bu kadar benzer mesaj denemesi
 export const EXIT_CARD_COOLDOWN_TURNS = 5; // kapatılınca / yok sayılınca bu kadar tur boyunca tekrar çıkmaz
 export const FRESH_START_MAX_CHARS = 400; // taslakta her istek en fazla bu kadar karakter
+
+// Ayarlar ve sayaçlar
+/** Günlük sayaçlar bu kadar gün saklanır, eskisi silinir. */
+export const COUNT_RETENTION_DAYS = 90;

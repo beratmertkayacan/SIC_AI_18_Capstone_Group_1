@@ -21,6 +21,11 @@ export class Session {
     return true;
   }
 
+  /** Eklenti kapalıyken sayım yapılmadı; yeniden açılınca sıfırdan başlanır (sohbet anahtarı korunur). */
+  restart(): void {
+    this.turns = 0;
+  }
+
   /** Bir mesaj gönderildi; oturumdaki mesaj sayısını döndürür. */
   recordSend(): number {
     this.turns += 1;

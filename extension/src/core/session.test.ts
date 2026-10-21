@@ -64,3 +64,15 @@ describe("Session", () => {
     expect(s.turns).toBe(0);
   });
 });
+
+describe("Session.restart", () => {
+  it("sayacı sıfırlar, sohbet anahtarını korur", () => {
+    const s = new Session("abc");
+    s.recordSend();
+    s.recordSend();
+    s.restart();
+    expect(s.turns).toBe(0);
+    expect(s.key).toBe("abc");
+    expect(s.seedTurns(3)).toBe(true);
+  });
+});
