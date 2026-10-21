@@ -19,7 +19,26 @@ const STOP_LABEL = /^(durdur|stop|arrêter|detener|parar|stoppen|stopp|fermare|�
 
 const HOSTS = new Set(["chatgpt.com", "chat.openai.com"]);
 
-const CONVERSATION_PATH = /\/c\/([A-Za-z0-9-]{8,})/;
+const CONVERSATION_PATH = /\/c\/([^/?#]+)/;
+
+/**
+ * Sohbet kimliğini adresten çıkarır. Yeni bir sohbette ilk mesaj gönderilince ChatGPT önce
+ * geçici bir adres kullanır ("/c/local…"), cevap gelince gerçek kimliğe geçer (canlı sayfada
+ * ölçüldü). Geçici adres "henüz kaydedilmemiş yeni sohbet" sayılır (null); böylece
+ * "/" → geçici → gerçek geçişi oturumu sıfırlamaz.
+ */
+export function chatKeyFromPath(pathname: string): string | null {
+  const match = CONVERSATION_PATH.exec(pathname);
+  if (!match?.[1]) return null;
+  let segment = match[1];
+  try {
+    segment = decodeURIComponent(segment);
+  } catch {
+    // bozuk kodlama: olduğu gibi bırak
+  }
+  if (/^local/i.test(segment)) return null;
+  return /^[A-Za-z0-9-]{8,}$/.test(segment) ? segment : null;
+}
 
 /**
  * Sayfada birden fazla mesaj kutusu olabilir (canlı sayfada ikisi var: biri gizli bir kopya).
@@ -71,8 +90,7 @@ export const chatgptAdapter: Adapter = {
   },
 
   conversationKey(url) {
-    const match = CONVERSATION_PATH.exec(url.pathname);
-    return match ? (match[1] ?? null) : null;
+    return chatKeyFromPath(url.pathname);
   },
 
   start(handlers: AdapterHandlers) {
