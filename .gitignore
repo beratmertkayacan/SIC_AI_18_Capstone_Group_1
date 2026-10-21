@@ -19,3 +19,7 @@ eda_outputs.zip
 .DS_Store
 .vscode/
 .idea/
+
+# Eklenti
+extension/node_modules/
+extension/dist/

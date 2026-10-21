@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "KafiAI",
+  "version": "0.1.0",
+  "description": "Yapay zeka sohbetlerinde kısır döngüyü fark eder ve çıkış yolu sunar. Hiçbir mesaj cihazından çıkmaz.",
+  "permissions": ["storage", "clipboardWrite"],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://gemini.google.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'none'"
+  }
+}
