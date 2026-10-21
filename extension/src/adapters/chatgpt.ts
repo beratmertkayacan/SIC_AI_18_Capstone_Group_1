@@ -19,6 +19,9 @@ let bypassNext = false;
 
 const COMPOSER_SELECTOR = '[contenteditable="true"][role="textbox"]';
 
+/** Sayfadaki kullanıcı mesajı birimleri (Ekim 2026'da ölçüldü: anahtar ":user" ile biter). */
+const USER_MESSAGE_SELECTOR = '[data-content-search-unit-key$=":user"]';
+
 const STOP_LABEL = /^(durdur|stop|arrêter|detener|parar|stoppen|stopp|fermare|остановить)/i;
 
 const HOSTS = new Set(["chatgpt.com", "chat.openai.com"]);
@@ -111,6 +114,12 @@ export const chatgptAdapter: Adapter = {
       bypassNext = false;
     }
     return true;
+  },
+
+  readHistory() {
+    return Array.from(document.querySelectorAll<HTMLElement>(USER_MESSAGE_SELECTOR))
+      .map((el) => (el.innerText || el.textContent || "").trim())
+      .filter((text) => text.length > 0);
   },
 
   insertText(text) {

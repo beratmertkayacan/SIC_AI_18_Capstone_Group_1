@@ -420,3 +420,26 @@ describe("insertText (onarım cümlesi ekleme)", () => {
     expect(chatgptAdapter.insertText("x")).toBe(false);
   });
 });
+
+describe("readHistory (açılan sohbetteki eski mesajlar)", () => {
+  it("kullanıcı mesajlarını sırayla okur, asistanı almaz", () => {
+    document.body.innerHTML = `
+      <div data-content-search-unit-key="fallback-turn-0:0:user"><p>ilk istek</p></div>
+      <div data-content-search-unit-key="fallback-turn-0:2:assistant"><p>cevap</p></div>
+      <div data-content-search-unit-key="fallback-turn-1:0:user"><p> ikinci istek </p></div>
+      <div data-content-search-unit-key="fallback-turn-1:2:assistant"><p>cevap 2</p></div>`;
+    expect(chatgptAdapter.readHistory()).toEqual(["ilk istek", "ikinci istek"]);
+  });
+
+  it("boş (örneğin yalnızca dosya) mesajları atlar", () => {
+    document.body.innerHTML = `
+      <div data-content-search-unit-key="fallback-turn-0:0:user">   </div>
+      <div data-content-search-unit-key="fallback-turn-1:0:user">merhaba</div>`;
+    expect(chatgptAdapter.readHistory()).toEqual(["merhaba"]);
+  });
+
+  it("sayfada mesaj yoksa boş liste döner", () => {
+    document.body.innerHTML = "<main></main>";
+    expect(chatgptAdapter.readHistory()).toEqual([]);
+  });
+});

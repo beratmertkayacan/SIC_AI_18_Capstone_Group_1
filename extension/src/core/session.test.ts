@@ -43,4 +43,24 @@ describe("Session", () => {
     expect(s.turns).toBe(0);
     expect(s.key).toBeNull();
   });
+
+  it("var olan sohbetteki mesajları bir kez sayar (seedTurns)", () => {
+    const s = new Session("aaa11111");
+    expect(s.seedTurns(3)).toBe(true);
+    expect(s.turns).toBe(3);
+    expect(s.recordSend()).toBe(4);
+  });
+
+  it("kullanıcı zaten mesaj gönderdiyse seedTurns işe karışmaz", () => {
+    const s = new Session("aaa11111");
+    s.recordSend();
+    expect(s.seedTurns(5)).toBe(false);
+    expect(s.turns).toBe(1);
+  });
+
+  it("seedTurns(0) bir şey yapmaz", () => {
+    const s = new Session("aaa11111");
+    expect(s.seedTurns(0)).toBe(false);
+    expect(s.turns).toBe(0);
+  });
 });

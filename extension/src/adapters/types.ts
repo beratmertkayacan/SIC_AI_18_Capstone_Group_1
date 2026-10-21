@@ -36,4 +36,6 @@ export interface Adapter {
   submitHeld(): boolean;
   /** Metni mesaj kutusunun sonuna, yeni bir satır olarak ekler. Başarılıysa true. */
   insertText(text: string): boolean;
+  /** Sayfada görünen önceki kullanıcı mesajlarının metinleri (eskiden yeniye). Yalnızca bellekte kullanılır. */
+  readHistory(): string[];
 }

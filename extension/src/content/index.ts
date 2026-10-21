@@ -1,6 +1,7 @@
 import { chatgptAdapter, findComposer } from "../adapters/chatgpt";
 import type { Adapter } from "../adapters/types";
-import { NAV_POLL_MS } from "../config";
+import { NAV_POLL_MS, POLL_MS } from "../config";
+import { HistoryWatcher } from "../core/history-watcher";
 import { RepeatDetector } from "../core/repeat-detector";
 import { Session } from "../core/session";
 import { Strip } from "../ui/strip";
@@ -15,6 +16,17 @@ function main(): void {
   const session = new Session(adapter.conversationKey(url));
   const detector = new RepeatDetector(); // yalnızca bellekte; sohbet değişince silinir
   const strip = new Strip();
+  const history = new HistoryWatcher(
+    () => adapter.readHistory(),
+    (texts) => {
+      // Kullanıcı bu arada kendisi mesaj gönderdiyse karışmayalım.
+      if (!session.seedTurns(texts.length)) return;
+      for (const text of texts) detector.remember(text);
+      console.log(`[KafiAI] sohbet geçmişi okundu: ${texts.length} kullanıcı mesajı`);
+    },
+  );
+  if (session.key !== null) history.begin(Date.now()); // sayfa var olan bir sohbette açıldı
+  const historyTimer = window.setInterval(() => history.tick(Date.now()), POLL_MS);
   let skipNextCheck = false; // onarım cümlesi eklendiyse, bir sonraki gönderimde tekrar sorma
 
   // Mesaj metni hiçbir zaman günlüğe yazılmaz; yalnızca uzunluğu.
@@ -45,6 +57,7 @@ function main(): void {
       return true;
     },
     onSend: ({ text }) => {
+      history.cancel();
       strip.hide();
       const n = session.recordSend();
       const check = detector.check(text);
@@ -76,6 +89,8 @@ function main(): void {
     if (result === "reset") {
       detector.reset();
       strip.hide();
+      history.cancel();
+      if (session.key !== null) history.begin(Date.now()); // başka bir var olan sohbet açıldı
     }
     console.log(`[KafiAI] sohbet adresi değişti: ${result} (${mask(previous)} → ${mask(location.href)})`);
   }, NAV_POLL_MS);
@@ -83,6 +98,7 @@ function main(): void {
   window.addEventListener("pagehide", () => {
     stop();
     window.clearInterval(navTimer);
+    window.clearInterval(historyTimer);
   });
 
   console.log(`[KafiAI] ${adapter.name} adaptörü hazır`);

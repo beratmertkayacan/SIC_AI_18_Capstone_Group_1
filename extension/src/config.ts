@@ -18,3 +18,7 @@ export const MIN_NORMALIZED_CHARS = 12; // bundan kısa mesajlar ("devam et", "e
 export const RECENT_MESSAGES = 5; // yalnızca son N kullanıcı mesajıyla karşılaştırılır (bellekte, kalıcı değil)
 export const NGRAM_SIZE = 3; // karakter n-gram uzunluğu
 export const HASH_DIM = 1024; // n-gram özet vektörünün boyutu
+
+/** Açılan sohbetteki eski mesajları okuma: mesajlar sayfa açıldıktan sonra çizilir. */
+export const HISTORY_STABLE_TICKS = 2; // mesaj sayısı bu kadar ölçüm aynı kalınca "çizim bitti" say
+export const HISTORY_TIMEOUT_MS = 8_000; // bu sürede hiç mesaj görülmezse vazgeç (boş/yeni sohbet)

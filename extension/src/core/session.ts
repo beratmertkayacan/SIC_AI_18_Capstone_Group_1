@@ -14,6 +14,13 @@ export class Session {
     this.key = initialKey;
   }
 
+  /** Sohbet açılırken sayfada zaten var olan kullanıcı mesajlarını sayar (yalnızca hiç mesaj sayılmadıysa). */
+  seedTurns(count: number): boolean {
+    if (this.turns !== 0 || count <= 0) return false;
+    this.turns = count;
+    return true;
+  }
+
   /** Bir mesaj gönderildi; oturumdaki mesaj sayısını döndürür. */
   recordSend(): number {
     this.turns += 1;
