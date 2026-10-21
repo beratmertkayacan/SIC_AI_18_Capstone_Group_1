@@ -131,6 +131,15 @@ export const chatgptAdapter: Adapter = {
     return `${location.origin}/`;
   },
 
+  composer() {
+    const box = findComposer();
+    return box ? { anchor: box.closest("form") ?? box, empty: readComposerText(box) === "" } : null;
+  },
+
+  focusComposer() {
+    findComposer()?.focus();
+  },
+
   readHistory() {
     // Sohbet değişince ChatGPT önceki sohbetin mesajını sayfada görünmez bir artık olarak
     // bırakabiliyor (canlı sayfada ölçüldü: yükseklik 0). Yalnızca ekranda yer kaplayanlar alınır.

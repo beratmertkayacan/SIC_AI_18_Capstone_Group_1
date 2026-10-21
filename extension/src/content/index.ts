@@ -1,4 +1,5 @@
-import { chatgptAdapter, findComposer, readComposerText } from "../adapters/chatgpt";
+import { chatgptAdapter } from "../adapters/chatgpt";
+import { geminiAdapter } from "../adapters/gemini";
 import type { Adapter } from "../adapters/types";
 import { NAV_POLL_MS, POLL_MS } from "../config";
 import { chromeStorage } from "../core/chrome-storage";
@@ -18,7 +19,7 @@ import { copyToClipboard } from "../ui/clipboard";
 import { ExitCard } from "../ui/exit-card";
 import { Strip } from "../ui/strip";
 
-const ADAPTERS: Adapter[] = [chatgptAdapter];
+const ADAPTERS: Adapter[] = [chatgptAdapter, geminiAdapter];
 
 function main(): void {
   const url = new URL(location.href);
@@ -43,11 +44,11 @@ function main(): void {
   const maybeShowExitCard = () => {
     if (!settings?.exitCardEnabled) return;
     if (strip.visible || exitCard.visible || !policy.shouldShow(session.turns)) return;
-    const composer = findComposer();
-    if (!composer || readComposerText(composer) !== "") return; // kullanıcı zaten yazmaya başladı
+    const composer = adapter.composer();
+    if (!composer || !composer.empty) return; // kullanıcı zaten yazmaya başladı
     console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns})`);
     count("exitCardShown");
-    exitCard.show(composer.closest("form") ?? composer, session.turns, {
+    exitCard.show(composer.anchor, session.turns, {
       getDraft: () => buildFreshStartDraft(adapter.readHistory()),
       onFreshStart: async (draft) => {
         const copied = await copyToClipboard(draft);
@@ -143,7 +144,7 @@ function main(): void {
         onClose: () => {
           console.log("[KafiAI] kullanıcı düzenlemeye döndü");
           count("stripEdit");
-          findComposer()?.focus();
+          adapter.focusComposer();
         },
         onRepair: (sentence) => {
           const ok = adapter.insertText(sentence);

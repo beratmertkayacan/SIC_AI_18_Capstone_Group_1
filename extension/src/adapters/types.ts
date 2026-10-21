@@ -40,4 +40,8 @@ export interface Adapter {
   readHistory(): string[];
   /** Yeni (boş) bir sohbetin adresi. */
   newChatUrl(): string;
+  /** Mesaj kutusu: arayüzü yerleştirmek için çapa ve kutunun boş olup olmadığı. Kutu yoksa null. */
+  composer(): { anchor: Element; empty: boolean } | null;
+  /** Mesaj kutusuna odaklanır. */
+  focusComposer(): void;
 }
