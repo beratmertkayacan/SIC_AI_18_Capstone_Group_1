@@ -461,3 +461,73 @@ describe("readHistory (açılan sohbetteki eski mesajlar)", () => {
     expect(chatgptAdapter.readHistory()).toEqual([]);
   });
 });
+
+describe("mesaj düzenleme kutusu (tur içindeki kutu) yok sayılır", () => {
+  let stop: () => void;
+  const handlers = {
+    onBeforeSend: vi.fn(),
+    onSend: vi.fn(),
+    onResponseComplete: vi.fn(),
+    onNoSignal: vi.fn(),
+  };
+
+  /** Canlı sayfada ölçülen yapı: düzenleme formu [data-turn-key] içinde, asıl form dışında. */
+  function renderWithEditBox() {
+    document.body.innerHTML = `
+      <main>
+        <div data-turn-key="t1">
+          <form id="edit">
+            <div contenteditable="true" role="textbox"><p>düzenlenen mesaj</p></div>
+            <button type="button">İptal et</button>
+            <button type="submit">Gönder</button>
+          </form>
+        </div>
+      </main>
+      <form id="real">
+        <div contenteditable="true" role="textbox"><p>asıl kutu</p></div>
+        <button type="submit" aria-label="Gönder"></button>
+      </form>`;
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    Object.values(handlers).forEach((h) => h.mockReset());
+    handlers.onBeforeSend.mockReturnValue(true);
+  });
+  afterEach(() => {
+    stop?.();
+    vi.useRealTimers();
+  });
+
+  it("düzenleme kutusunda Enter sormaz, bekletmez, sayılmaz", () => {
+    renderWithEditBox();
+    stop = chatgptAdapter.start(handlers);
+    const event = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    document.querySelector("form#edit [contenteditable]")!.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+    expect(handlers.onBeforeSend).not.toHaveBeenCalled();
+    expect(handlers.onSend).not.toHaveBeenCalled();
+  });
+
+  it("düzenleme formundaki Gönder düğmesi sayılmaz", () => {
+    renderWithEditBox();
+    stop = chatgptAdapter.start(handlers);
+    document.querySelector<HTMLButtonElement>('form#edit button[type="submit"]')!.click();
+    expect(handlers.onBeforeSend).not.toHaveBeenCalled();
+    expect(handlers.onSend).not.toHaveBeenCalled();
+  });
+
+  it("asıl mesaj kutusu etkilenmez", () => {
+    renderWithEditBox();
+    stop = chatgptAdapter.start(handlers);
+    document
+      .querySelector("form#real [contenteditable]")!
+      .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+    expect(handlers.onBeforeSend).toHaveBeenCalledTimes(1);
+  });
+
+  it("findComposer düzenleme kutusunu değil asıl kutuyu verir", () => {
+    renderWithEditBox();
+    expect(findComposer()!.closest("form")!.id).toBe("real");
+  });
+});

@@ -52,14 +52,25 @@ export function chatKeyFromPath(pathname: string): string | null {
  * Bu yüzden "ilk kutu" değil, her zaman olayın geldiği kutu kullanılır.
  */
 export function findComposers(root: ParentNode = document): HTMLElement[] {
-  return Array.from(root.querySelectorAll<HTMLElement>(COMPOSER_SELECTOR)).filter((box) => box.closest("form"));
+  return Array.from(root.querySelectorAll<HTMLElement>(COMPOSER_SELECTOR)).filter(
+    (box) => box.closest("form") && !isEditBox(box),
+  );
 }
 
-/** Verilen düğüm bir mesaj kutusunun içindeyse o kutuyu döndürür. */
+/**
+ * Eski bir mesajı düzenlerken açılan kutu da aynı yapıda (role=textbox, form, submit düğmesi)
+ * ama bir mesaj turunun içinde yer alır; asıl mesaj kutusu turların dışındadır (canlı sayfada
+ * ölçüldü). Düzenleme zaten "yeniden ifade etme" eylemidir: engellenmez, yeni mesaj sayılmaz.
+ */
+export function isEditBox(box: Element): boolean {
+  return box.closest("[data-turn-key]") !== null;
+}
+
+/** Verilen düğüm asıl mesaj kutusunun içindeyse o kutuyu döndürür (düzenleme kutusu sayılmaz). */
 export function composerContaining(node: EventTarget | null): HTMLElement | null {
   if (!(node instanceof Element)) return null;
   const box = node.closest<HTMLElement>(COMPOSER_SELECTOR);
-  return box && box.closest("form") ? box : null;
+  return box && box.closest("form") && !isEditBox(box) ? box : null;
 }
 
 /** Genel amaçlı: odaktaki kutu, yoksa görünen ilk kutu, yoksa ilk kutu. */
@@ -206,7 +217,7 @@ export const chatgptAdapter: Adapter = {
     const onClick = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return;
       const button = event.target.closest('button[type="submit"]');
-      const composer = button?.closest("form")?.querySelector<HTMLElement>(COMPOSER_SELECTOR);
+      const composer = composerContaining(button?.closest("form")?.querySelector<HTMLElement>(COMPOSER_SELECTOR) ?? null);
       if (!composer) return;
       const text = readComposerText(composer);
       if (!text) return;
