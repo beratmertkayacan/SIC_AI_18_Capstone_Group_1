@@ -366,3 +366,57 @@ describe("gönderimi bekletme (onBeforeSend)", () => {
     expect(chatgptAdapter.submitHeld()).toBe(false);
   });
 });
+
+describe("insertText (onarım cümlesi ekleme)", () => {
+  const exec = vi.fn();
+  beforeEach(() => {
+    exec.mockReset().mockReturnValue(true);
+    (document as unknown as { execCommand: typeof exec }).execCommand = exec;
+  });
+  afterEach(() => {
+    delete (document as unknown as { execCommand?: unknown }).execCommand;
+  });
+
+  it("dolu kutuda önce yeni paragraf dener; işe yararsa satır sonuna geçmez", () => {
+    renderPage({ text: "merhaba" });
+    exec.mockImplementation((cmd: string) => {
+      if (cmd === "insertParagraph") {
+        // jsdom innerText vermez; satır sonunu textContent'e koyarak düzenleyiciyi taklit ediyoruz
+        document.querySelector("form#real [contenteditable]")!.textContent = "merhaba\n";
+      }
+      return true;
+    });
+    expect(chatgptAdapter.insertText("Daha kısa yaz.")).toBe(true);
+    expect(exec.mock.calls.map((c) => c[0])).toEqual(["insertParagraph", "insertText"]);
+    expect(exec).toHaveBeenLastCalledWith("insertText", false, "Daha kısa yaz.");
+  });
+
+  it("yeni paragraf işe yaramazsa satır sonunu dener", () => {
+    renderPage({ text: "merhaba" });
+    expect(chatgptAdapter.insertText("Daha kısa yaz.")).toBe(true);
+    expect(exec.mock.calls.map((c) => c[0])).toEqual(["insertParagraph", "insertLineBreak", "insertText"]);
+  });
+
+  it("boş kutuda satır sonu eklemez", () => {
+    renderPage();
+    chatgptAdapter.insertText("Daha kısa yaz.");
+    expect(exec.mock.calls.map((c) => c[0])).toEqual(["insertText"]);
+  });
+
+  it("komut başarısız olursa false döner", () => {
+    exec.mockReturnValue(false);
+    renderPage({ text: "merhaba" });
+    expect(chatgptAdapter.insertText("x")).toBe(false);
+  });
+
+  it("mesaj kutusu yoksa false döner", () => {
+    document.body.innerHTML = "";
+    expect(chatgptAdapter.insertText("x")).toBe(false);
+  });
+
+  it("execCommand yoksa çökmez, false döner", () => {
+    delete (document as unknown as { execCommand?: unknown }).execCommand;
+    renderPage({ text: "merhaba" });
+    expect(chatgptAdapter.insertText("x")).toBe(false);
+  });
+});

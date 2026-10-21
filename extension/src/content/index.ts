@@ -15,10 +15,15 @@ function main(): void {
   const session = new Session(adapter.conversationKey(url));
   const detector = new RepeatDetector(); // yalnızca bellekte; sohbet değişince silinir
   const strip = new Strip();
+  let skipNextCheck = false; // onarım cümlesi eklendiyse, bir sonraki gönderimde tekrar sorma
 
   // Mesaj metni hiçbir zaman günlüğe yazılmaz; yalnızca uzunluğu.
   const stop = adapter.start({
     onBeforeSend: ({ text, anchor }) => {
+      if (skipNextCheck) {
+        skipNextCheck = false;
+        return false;
+      }
       const check = detector.check(text);
       if (!check.similar) return false;
       console.log(`[KafiAI] benzer mesaj, gönderim bekletildi (skor ${check.score.toFixed(2)})`);
@@ -27,9 +32,14 @@ function main(): void {
           console.log("[KafiAI] kullanıcı 'Yine de gönder' dedi");
           adapter.submitHeld();
         },
-        onEdit: () => {
+        onClose: () => {
           console.log("[KafiAI] kullanıcı düzenlemeye döndü");
           findComposer()?.focus();
+        },
+        onRepair: (sentence) => {
+          const ok = adapter.insertText(sentence);
+          skipNextCheck = ok;
+          console.log(`[KafiAI] onarım cümlesi eklendi: ${ok ? "evet" : "HAYIR (eklenemedi)"}`);
         },
       });
       return true;

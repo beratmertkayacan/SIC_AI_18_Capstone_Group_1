@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { REPAIRS } from "../core/repairs";
 import { Strip } from "./strip";
 
 function shadowOf(): ShadowRoot {
@@ -8,13 +9,14 @@ function shadowOf(): ShadowRoot {
 function buttonByText(text: string): HTMLButtonElement {
   return Array.from(shadowOf().querySelectorAll("button")).find((b) => b.textContent === text)!;
 }
+const actions = () => ({ onSendAnyway: vi.fn(), onClose: vi.fn(), onRepair: vi.fn() });
 
 describe("Strip", () => {
   const strip = new Strip();
   afterEach(() => strip.hide());
 
   it("gösterilince sayfaya eklenir, gizlenince kaldırılır", () => {
-    strip.show(document.body, { onSendAnyway: vi.fn(), onEdit: vi.fn() });
+    strip.show(document.body, actions());
     expect(document.querySelector('[data-kafiai="strip"]')).not.toBeNull();
     expect(strip.visible).toBe(true);
     strip.hide();
@@ -22,36 +24,65 @@ describe("Strip", () => {
     expect(strip.visible).toBe(false);
   });
 
+  it("ilk görünümde mesajı ve iki ana düğmeyi gösterir", () => {
+    strip.show(document.body, actions());
+    expect(shadowOf().textContent).toContain("Bunu az önce de sormuştun.");
+    expect(buttonByText("Yine de gönder")).toBeTruthy();
+    expect(buttonByText("Neyin eksik olduğunu söyle")).toBeTruthy();
+  });
+
   it("'Yine de gönder' ilgili işlevi çağırır ve şeridi kapatır", () => {
-    const onSendAnyway = vi.fn();
-    const onEdit = vi.fn();
-    strip.show(document.body, { onSendAnyway, onEdit });
+    const a = actions();
+    strip.show(document.body, a);
     buttonByText("Yine de gönder").click();
-    expect(onSendAnyway).toHaveBeenCalledTimes(1);
-    expect(onEdit).not.toHaveBeenCalled();
+    expect(a.onSendAnyway).toHaveBeenCalledTimes(1);
+    expect(a.onClose).not.toHaveBeenCalled();
     expect(strip.visible).toBe(false);
   });
 
-  it("'Düzenle' ve Escape düzenlemeye döndürür", () => {
-    const onEdit = vi.fn();
-    strip.show(document.body, { onSendAnyway: vi.fn(), onEdit });
-    buttonByText("Düzenle").click();
-    expect(onEdit).toHaveBeenCalledTimes(1);
+  it("'Kapat' ve Escape düzenlemeye döndürür", () => {
+    const a = actions();
+    strip.show(document.body, a);
+    buttonByText("Kapat").click();
+    expect(a.onClose).toHaveBeenCalledTimes(1);
 
-    strip.show(document.body, { onSendAnyway: vi.fn(), onEdit });
+    strip.show(document.body, a);
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-    expect(onEdit).toHaveBeenCalledTimes(2);
+    expect(a.onClose).toHaveBeenCalledTimes(2);
     expect(strip.visible).toBe(false);
+  });
+
+  it("'Neyin eksik olduğunu söyle' onarım seçeneklerini açar, şerit açık kalır", () => {
+    strip.show(document.body, actions());
+    buttonByText("Neyin eksik olduğunu söyle").click();
+    expect(strip.visible).toBe(true);
+    for (const r of REPAIRS) expect(buttonByText(r.label)).toBeTruthy();
+  });
+
+  it("bir onarım seçilince cümle iletilir ve şerit kapanır", () => {
+    const a = actions();
+    strip.show(document.body, a);
+    buttonByText("Neyin eksik olduğunu söyle").click();
+    buttonByText("Fazla uzun").click();
+    expect(a.onRepair).toHaveBeenCalledWith(REPAIRS.find((r) => r.id === "shorter")!.sentence);
+    expect(strip.visible).toBe(false);
+  });
+
+  it("'Geri' ilk görünüme döner", () => {
+    strip.show(document.body, actions());
+    buttonByText("Neyin eksik olduğunu söyle").click();
+    buttonByText("Geri").click();
+    expect(buttonByText("Yine de gönder")).toBeTruthy();
   });
 
   it("art arda show() tek şerit bırakır", () => {
-    strip.show(document.body, { onSendAnyway: vi.fn(), onEdit: vi.fn() });
-    strip.show(document.body, { onSendAnyway: vi.fn(), onEdit: vi.fn() });
+    strip.show(document.body, actions());
+    strip.show(document.body, actions());
     expect(document.querySelectorAll('[data-kafiai="strip"]').length).toBe(1);
   });
 
   it("yargılayıcı söz içermez", () => {
-    strip.show(document.body, { onSendAnyway: vi.fn(), onEdit: vi.fn() });
+    strip.show(document.body, actions());
     const text = shadowOf().textContent!.toLowerCase();
     for (const bad of ["bağımlı", "risk", "tehlike", "uyarı"]) expect(text).not.toContain(bad);
   });

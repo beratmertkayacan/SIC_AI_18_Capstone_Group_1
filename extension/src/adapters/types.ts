@@ -34,4 +34,6 @@ export interface Adapter {
   start(handlers: AdapterHandlers): () => void;
   /** Bekletilen mesajı olduğu gibi gönderir. Bekleyen yoksa false döner. */
   submitHeld(): boolean;
+  /** Metni mesaj kutusunun sonuna, yeni bir satır olarak ekler. Başarılıysa true. */
+  insertText(text: string): boolean;
 }

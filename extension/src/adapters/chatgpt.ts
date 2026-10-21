@@ -113,6 +113,31 @@ export const chatgptAdapter: Adapter = {
     return true;
   },
 
+  insertText(text) {
+    const composer = heldComposer ?? findComposer();
+    heldComposer = null;
+    if (!composer || typeof document.execCommand !== "function") return false;
+    composer.focus();
+    const selection = window.getSelection();
+    if (!selection) return false;
+    const range = document.createRange();
+    range.selectNodeContents(composer);
+    range.collapse(false); // imleci sona koy
+    selection.removeAllRanges();
+    selection.addRange(range);
+    // Sayfanın kendi düzenleyicisi (ProseMirror) değişikliği görsün diye tarayıcının
+    // yazma komutunu kullanıyoruz; innerHTML ile müdahale etmiyoruz.
+    if (readComposerText(composer) !== "") {
+      // Önce yeni paragraf; düzenleyici bunu görmezse satır sonu dene. Kırpılmamış metindeki
+      // satır sonu sayısına bakılır (kullanıcının kendi mesajı da çok satırlı olabilir).
+      const lineBreaks = () => ((composer.innerText || composer.textContent || "").match(/\n/g) ?? []).length;
+      const before = lineBreaks();
+      document.execCommand("insertParagraph");
+      if (lineBreaks() === before) document.execCommand("insertLineBreak");
+    }
+    return document.execCommand("insertText", false, text);
+  },
+
   start(handlers: AdapterHandlers) {
     const watcher = new ResponseWatcher(() => isGenerating(document), {
       onComplete: () => handlers.onResponseComplete(),

@@ -1,12 +1,19 @@
+import { REPAIRS } from "../core/repairs";
+
 /**
  * Gönderirken şerit: benzer bir mesaj gönderilmek üzereyken mesaj kutusunun üstünde görünen
  * küçük, kapatılabilir kutu. Sayfanın stilinden etkilenmemesi için Shadow DOM içinde çizilir.
- * Dil: yargılamaz, "istersen" der; "bağımlı", "risk" gibi sözler kullanılmaz.
+ * Dil: yargılamaz; "bağımlı", "risk" gibi sözler kullanılmaz.
+ *
+ * İki görünüm: (1) "Yine de gönder" / "Neyin eksik olduğunu söyle", (2) onarım seçenekleri.
  */
 
 export interface StripActions {
   onSendAnyway(): void;
-  onEdit(): void;
+  /** Kullanıcı şeridi kapatıp mesajını düzenlemeye döndü (Kapat, Escape). */
+  onClose(): void;
+  /** Kullanıcı bir onarım seçti; mesaj kutusuna eklenecek cümle. */
+  onRepair(sentence: string): void;
 }
 
 const CSS = `
@@ -19,15 +26,16 @@ const CSS = `
 }
 @media (prefers-color-scheme: dark) {
   .strip { background: #2b2b2e; color: #ececf1; border-color: #4a4a50; box-shadow: 0 6px 24px rgba(0,0,0,.5); }
-  button.secondary { color: #ececf1; border-color: #5a5a60; }
+  button.secondary, button.link { color: #ececf1; border-color: #5a5a60; }
 }
 p { margin: 0 0 10px; }
-.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 button {
   font: inherit; cursor: pointer; border-radius: 999px; padding: 6px 14px;
   border: 1px solid transparent; background: #0f6e56; color: #fff;
 }
 button.secondary { background: transparent; color: #1f2328; border-color: #b6bcc4; }
+button.link { background: transparent; color: #57606a; padding: 6px 8px; margin-left: auto; }
 button:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
 `;
 
@@ -52,51 +60,72 @@ export class Strip {
     box.className = "strip";
     box.setAttribute("role", "dialog");
     box.setAttribute("aria-label", "KafiAI");
-
-    const message = document.createElement("p");
-    message.textContent = "Bu mesaj, biraz önce yazdığına çok benziyor. İstersen önce düzenleyebilirsin.";
-
-    const row = document.createElement("div");
-    row.className = "row";
-
-    const edit = document.createElement("button");
-    edit.type = "button";
-    edit.textContent = "Düzenle";
-    edit.addEventListener("click", () => {
-      this.hide();
-      actions.onEdit();
-    });
-
-    const anyway = document.createElement("button");
-    anyway.type = "button";
-    anyway.className = "secondary";
-    anyway.textContent = "Yine de gönder";
-    anyway.addEventListener("click", () => {
-      this.hide();
-      actions.onSendAnyway();
-    });
-
-    row.append(edit, anyway);
-    box.append(message, row);
     root.append(style, box);
 
+    const button = (text: string, cls: string, onClick: () => void): HTMLButtonElement => {
+      const b = document.createElement("button");
+      b.type = "button";
+      if (cls) b.className = cls;
+      b.textContent = text;
+      b.addEventListener("click", onClick);
+      return b;
+    };
+    const paragraph = (text: string): HTMLParagraphElement => {
+      const p = document.createElement("p");
+      p.textContent = text;
+      return p;
+    };
+    const close = () => {
+      this.hide();
+      actions.onClose();
+    };
+
+    const showChoice = () => {
+      const row = document.createElement("div");
+      row.className = "row";
+      const missing = button("Neyin eksik olduğunu söyle", "", showRepairs);
+      row.append(
+        missing,
+        button("Yine de gönder", "secondary", () => {
+          this.hide();
+          actions.onSendAnyway();
+        }),
+        button("Kapat", "link", close),
+      );
+      box.replaceChildren(paragraph("Bunu az önce de sormuştun."), row);
+      missing.focus();
+    };
+
+    const showRepairs = () => {
+      const row = document.createElement("div");
+      row.className = "row";
+      for (const repair of REPAIRS) {
+        row.append(
+          button(repair.label, "secondary", () => {
+            this.hide();
+            actions.onRepair(repair.sentence);
+          }),
+        );
+      }
+      row.append(button("Geri", "link", showChoice));
+      box.replaceChildren(paragraph("Cevapta ne eksikti?"), row);
+      (row.firstElementChild as HTMLButtonElement | null)?.focus();
+    };
+
+    showChoice();
+
     const rect = anchor.getBoundingClientRect();
-    const width = Math.max(rect.width, 280);
     box.style.left = `${Math.max(8, rect.left)}px`;
-    box.style.width = `${width}px`;
+    box.style.width = `${Math.max(rect.width, 280)}px`;
     box.style.bottom = `${Math.max(8, window.innerHeight - rect.top + 8)}px`;
 
     document.body.appendChild(host);
     this.host = host;
 
     this.onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        this.hide();
-        actions.onEdit();
-      }
+      if (e.key === "Escape") close();
     };
     document.addEventListener("keydown", this.onKey, true);
-    edit.focus();
   }
 
   hide(): void {
