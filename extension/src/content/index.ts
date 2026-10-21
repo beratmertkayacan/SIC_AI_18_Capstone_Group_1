@@ -1,6 +1,7 @@
 import { chatgptAdapter } from "../adapters/chatgpt";
 import type { Adapter } from "../adapters/types";
 import { NAV_POLL_MS } from "../config";
+import { RepeatDetector } from "../core/repeat-detector";
 import { Session } from "../core/session";
 
 const ADAPTERS: Adapter[] = [chatgptAdapter];
@@ -11,12 +12,18 @@ function main(): void {
   if (!adapter) return; // tanımadığımız sitede sessizce devre dışı
 
   const session = new Session(adapter.conversationKey(url));
+  const detector = new RepeatDetector(); // yalnızca bellekte; sohbet değişince silinir
 
   // Mesaj metni hiçbir zaman günlüğe yazılmaz; yalnızca uzunluğu.
   const stop = adapter.start({
     onSend: ({ text }) => {
       const n = session.recordSend();
-      console.log(`[KafiAI] mesaj gönderildi: ${text.length} karakter, oturumda ${n}. mesaj`);
+      const check = detector.check(text);
+      detector.remember(text);
+      const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : "farklı";
+      console.log(
+        `[KafiAI] mesaj gönderildi: ${text.length} karakter, oturumda ${n}. mesaj, ${verdict} (skor ${check.score.toFixed(2)})`,
+      );
     },
     onResponseComplete: () => {
       console.log("[KafiAI] cevap bitti");
@@ -37,6 +44,7 @@ function main(): void {
     const previous = lastHref;
     lastHref = location.href;
     const result = session.onNavigate(adapter.conversationKey(new URL(location.href)));
+    if (result === "reset") detector.reset();
     console.log(`[KafiAI] sohbet adresi değişti: ${result} (${mask(previous)} → ${mask(location.href)})`);
   }, NAV_POLL_MS);
 
