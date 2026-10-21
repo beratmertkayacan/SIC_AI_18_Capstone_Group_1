@@ -26,8 +26,13 @@ describe("parseSettings", () => {
     expect(parseSettings("abc")).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings({ enabled: "evet" })).toEqual(DEFAULT_SETTINGS);
   });
+  it("öneriler ayarı yoksa ya da bozuksa açık sayılır; kapalı değeri korunur", () => {
+    expect(parseSettings({ enabled: true }).suggestionsEnabled).toBe(true);
+    expect(parseSettings({ suggestionsEnabled: "hayır" }).suggestionsEnabled).toBe(true);
+    expect(parseSettings({ suggestionsEnabled: false }).suggestionsEnabled).toBe(false);
+  });
   it("bilinmeyen alanları atar", () => {
-    expect(parseSettings({ enabled: false, mesaj: "gizli" })).toEqual({ enabled: false, exitCardEnabled: true });
+    expect(parseSettings({ enabled: false, mesaj: "gizli" })).toEqual({ enabled: false, exitCardEnabled: true, suggestionsEnabled: true });
   });
 });
 
@@ -66,9 +71,33 @@ describe("SettingsStore", () => {
     const storage = memoryStorage();
     const store = new SettingsStore(storage);
     await store.update({ exitCardEnabled: false });
-    expect(await new SettingsStore(storage).load()).toEqual({ enabled: true, exitCardEnabled: false });
+    expect(await new SettingsStore(storage).load()).toEqual({ enabled: true, exitCardEnabled: false, suggestionsEnabled: true });
     await store.update({ enabled: false });
-    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: false });
+    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: false, suggestionsEnabled: true });
+  });
+
+  it("aynı anda yapılan artırmalar birbirini ezmez", async () => {
+    const store = new SettingsStore(memoryStorage());
+    const now = new Date(2026, 9, 21);
+    await Promise.all([
+      store.increment("checkedSendsOff", now),
+      store.increment("similarSendsOff", now),
+      store.increment("stripWouldShow", now),
+      store.increment("checkedSendsOff", now),
+    ]);
+    expect((await store.loadCounts())["2026-10-21"]).toEqual({
+      checkedSendsOff: 2,
+      similarSendsOff: 1,
+      stripWouldShow: 1,
+    });
+  });
+
+  it("incrementMany birkaç sayacı tek seferde artırır", async () => {
+    const store = new SettingsStore(memoryStorage());
+    const now = new Date(2026, 9, 21);
+    await store.incrementMany(["checkedSendsOn", "similarSendsOn"], now);
+    await store.incrementMany([], now);
+    expect((await store.loadCounts())["2026-10-21"]).toEqual({ checkedSendsOn: 1, similarSendsOn: 1 });
   });
 
   it("increment aynı günün sayacını artırır, başka güne ayrı yazar", async () => {
@@ -92,7 +121,7 @@ describe("SettingsStore", () => {
     await store.increment("stripShown", new Date(2026, 9, 21));
     const dump = JSON.stringify(storage.data);
     expect(Object.keys(storage.data).sort()).toEqual(["kafiai.counts", "kafiai.settings"]);
-    expect(dump).toBe('{"kafiai.settings":{"enabled":false,"exitCardEnabled":true},"kafiai.counts":{"2026-10-21":{"stripShown":1}}}');
+    expect(dump).toBe('{"kafiai.settings":{"enabled":false,"exitCardEnabled":true,"suggestionsEnabled":true},"kafiai.counts":{"2026-10-21":{"stripShown":1}}}');
   });
 
   it("clearAll her şeyi siler ve varsayılana döner", async () => {

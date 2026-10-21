@@ -7,6 +7,7 @@ import { ExitCardPolicy } from "../core/exit-card-policy";
 import { buildFreshStartDraft } from "../core/fresh-start";
 import { HistoryWatcher } from "../core/history-watcher";
 import { RepeatDetector } from "../core/repeat-detector";
+import { sendCounters } from "../core/send-stats";
 import { Session } from "../core/session";
 import {
   DEFAULT_SETTINGS,
@@ -36,6 +37,8 @@ function main(): void {
   // Ayarlar yüklenene kadar (null) eklenti hiçbir şey yapmaz.
   let settings: Settings | null = null;
   const active = () => settings?.enabled === true;
+  /** Öneri gösterme açık mı? Kapalıyken ("yalnızca say") hiçbir şey bekletilmez ya da gösterilmez. */
+  const suggesting = () => active() && settings?.suggestionsEnabled === true;
   const count = (name: Parameters<SettingsStore["increment"]>[0]) => {
     void store.increment(name); // yalnızca sayı; hata verirse sessizce geçer
   };
@@ -46,6 +49,13 @@ function main(): void {
     if (strip.visible || exitCard.visible || !policy.shouldShow(session.turns)) return;
     const composer = adapter.composer();
     if (!composer || !composer.empty) return; // kullanıcı zaten yazmaya başladı
+    if (!suggesting()) {
+      // Yalnızca say: kart gösterilecekti. Aynı bekleme kuralı işlesin diye kapatılmış gibi say.
+      console.log(`[KafiAI] çıkış kartı gösterilecekti, sayıldı (tur ${session.turns})`);
+      count("exitCardWouldShow");
+      policy.dismissed(session.turns);
+      return;
+    }
     console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns})`);
     count("exitCardShown");
     exitCard.show(composer.anchor, session.turns, {
@@ -90,9 +100,12 @@ function main(): void {
     const first = settings === null;
     settings = next;
     if (first) console.log(`[KafiAI] ayarlar: ${next.enabled ? "açık" : "kapalı"}, çıkış kartı ${next.exitCardEnabled ? "açık" : "kapalı"}`);
-    if (!next.enabled) {
+    if (first) console.log(`[KafiAI] öneriler: ${next.suggestionsEnabled ? "açık" : "kapalı (yalnızca say)"}`);
+    if (!next.enabled || !next.suggestionsEnabled) {
       strip.hide();
       exitCard.hide();
+    }
+    if (!next.enabled) {
       history.cancel();
       skipNextCheck = false;
       if (wasActive) console.log("[KafiAI] eklenti kapatıldı");
@@ -124,6 +137,7 @@ function main(): void {
         skipNextCheck = false;
         return false;
       }
+      if (!suggesting()) return false; // yalnızca say: mesaja dokunma
       const check = detector.check(text);
       if (!check.similar) return false;
       console.log(`[KafiAI] benzer mesaj, gönderim bekletildi (skor ${check.score.toFixed(2)})`);
@@ -167,6 +181,9 @@ function main(): void {
       }
       const check = detector.check(text);
       detector.remember(text);
+      void store.incrementMany(sendCounters(check, suggesting()));
+      if (check.similar && !suggesting()) policy.noteRepeat(); // yalnızca say: şerit çıkacaktı
+
       const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : "farklı";
       console.log(
         `[KafiAI] mesaj gönderildi: ${text.length} karakter, oturumda ${n}. mesaj, ${verdict} (skor ${check.score.toFixed(2)})`,

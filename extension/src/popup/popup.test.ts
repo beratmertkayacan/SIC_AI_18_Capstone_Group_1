@@ -49,7 +49,7 @@ describe("popup", () => {
     await open();
     checkbox("Eklenti açık").click();
     await flush();
-    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: true });
+    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: true, suggestionsEnabled: true });
     expect(checkbox("Eklenti açık").checked).toBe(false);
     expect(checkbox("Çıkış kartı").disabled).toBe(true);
   });
@@ -58,7 +58,45 @@ describe("popup", () => {
     await open();
     checkbox("Çıkış kartı").click();
     await flush();
-    expect(await store.load()).toEqual({ enabled: true, exitCardEnabled: false });
+    expect(await store.load()).toEqual({ enabled: true, exitCardEnabled: false, suggestionsEnabled: true });
+  });
+
+  it("öneriler kapatılınca yalnızca say moduna geçer ve çıkış kartı anahtarı devre dışı kalır", async () => {
+    await open();
+    expect(checkbox("Öneriler").checked).toBe(true);
+    checkbox("Öneriler").click();
+    await flush();
+    expect(await store.load()).toEqual({ enabled: true, exitCardEnabled: true, suggestionsEnabled: false });
+    expect(checkbox("Öneriler").checked).toBe(false);
+    expect(checkbox("Çıkış kartı").disabled).toBe(true);
+    expect(checkbox("Eklenti açık").disabled).toBe(false);
+  });
+
+  it("eklenti kapalıyken öneriler anahtarı da devre dışıdır", async () => {
+    await store.update({ enabled: false });
+    await open();
+    expect(checkbox("Öneriler").disabled).toBe(true);
+  });
+
+  it("sayaçları yalnızca sayı olarak panoya kopyalar", async () => {
+    await store.increment("stripShown", NOW);
+    await store.increment("checkedSendsOff", NOW);
+    await store.update({ enabled: true });
+    let copied = "";
+    mountPopup(root, store, () => NOW, async (t) => ((copied = t), true));
+    await flush();
+    button("Sayaçlarımı kopyala").click();
+    await flush();
+    expect(JSON.parse(copied)).toEqual({ [dayKey(NOW)]: { stripShown: 1, checkedSendsOff: 1 } });
+    expect(root.textContent).toContain("Sayaçlar panoya kopyalandı.");
+  });
+
+  it("kopyalama başarısız olursa bunu söyler", async () => {
+    mountPopup(root, store, () => NOW, async () => false);
+    await flush();
+    button("Sayaçlarımı kopyala").click();
+    await flush();
+    expect(root.textContent).toContain("Kopyalanamadı.");
   });
 
   it("kayıt yoksa bunu söyler", async () => {

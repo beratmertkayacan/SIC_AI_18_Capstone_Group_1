@@ -10,9 +10,14 @@ export interface Settings {
   enabled: boolean;
   /** Çıkış kartı gösterilsin mi? ("Bir daha gösterme" bunu kapatır.) */
   exitCardEnabled: boolean;
+  /**
+   * Öneriler (şerit ve çıkış kartı) gösterilsin mi? Kapalıysa eklenti "yalnızca say" modunda
+   * çalışır: hiçbir şeyi bekletmez ve göstermez, yalnızca günlük sayıları tutar (pilot çalışma için).
+   */
+  suggestionsEnabled: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { enabled: true, exitCardEnabled: true };
+export const DEFAULT_SETTINGS: Settings = { enabled: true, exitCardEnabled: true, suggestionsEnabled: true };
 
 export const COUNTER_NAMES = [
   "stripShown", // "Bunu az önce de sormuştun" şeridi gösterildi
@@ -25,6 +30,15 @@ export const COUNTER_NAMES = [
   "exitCardClosed", // Kapat / yok sayıldı
   "notRelevant", // "Yerinde değildi"
   "exitCardNever", // "Bir daha gösterme"
+  // Yalnızca say modunda öneri gösterilseydi kaç kez gösterilecekti (kullanıcı hiçbir şey görmez).
+  "stripWouldShow",
+  "exitCardWouldShow",
+  // Gönderilen mesajlar: karşılaştırılabilenler (en az MIN_NORMALIZED_CHARS karakter) ve bunlardan
+  // son mesajlara benzeyenler. Öneriler açıkken ve kapalıyken ayrı sayılır; oran = benzer / karşılaştırılan.
+  "checkedSendsOn",
+  "similarSendsOn",
+  "checkedSendsOff",
+  "similarSendsOff",
 ] as const;
 export type CounterName = (typeof COUNTER_NAMES)[number];
 
@@ -54,6 +68,8 @@ export function parseSettings(raw: unknown): Settings {
   return {
     enabled: typeof r.enabled === "boolean" ? r.enabled : DEFAULT_SETTINGS.enabled,
     exitCardEnabled: typeof r.exitCardEnabled === "boolean" ? r.exitCardEnabled : DEFAULT_SETTINGS.exitCardEnabled,
+    suggestionsEnabled:
+      typeof r.suggestionsEnabled === "boolean" ? r.suggestionsEnabled : DEFAULT_SETTINGS.suggestionsEnabled,
   };
 }
 
@@ -101,18 +117,31 @@ export class SettingsStore {
     return parseCounts(stored[COUNTS_KEY]);
   }
 
+  /** Yazmalar sırayla yapılır: aynı anda başlayan artırmalar birbirinin sonucunu ezmesin. */
+  private queue: Promise<void> = Promise.resolve();
+
   /** Bugünün sayacını 1 artırır. Depolama hatası eklentiyi bozmaz: sessizce yutulur. */
-  async increment(name: CounterName, now: Date = new Date()): Promise<void> {
-    try {
-      const counts = pruneCounts(await this.loadCounts(), now);
-      const key = dayKey(now);
-      const row = { ...(counts[key] ?? {}) };
-      row[name] = (row[name] ?? 0) + 1;
-      counts[key] = row;
-      await this.storage.set({ [COUNTS_KEY]: counts });
-    } catch {
-      /* sayaç tutulamadıysa kullanıcı etkilenmesin */
-    }
+  increment(name: CounterName, now: Date = new Date()): Promise<void> {
+    return this.incrementMany([name], now);
+  }
+
+  /** Birkaç sayacı tek okuma-yazmada artırır. Hata verirse sessizce geçer. */
+  incrementMany(names: readonly CounterName[], now: Date = new Date()): Promise<void> {
+    if (names.length === 0) return Promise.resolve();
+    const run = async () => {
+      try {
+        const counts = pruneCounts(await this.loadCounts(), now);
+        const key = dayKey(now);
+        const row = { ...(counts[key] ?? {}) };
+        for (const name of names) row[name] = (row[name] ?? 0) + 1;
+        counts[key] = row;
+        await this.storage.set({ [COUNTS_KEY]: counts });
+      } catch {
+        /* sayaç tutulamadıysa kullanıcı etkilenmesin */
+      }
+    };
+    this.queue = this.queue.then(run);
+    return this.queue;
   }
 
   /** Tüm ayarları ve sayaçları siler; eklenti varsayılana döner. */

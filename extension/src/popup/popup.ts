@@ -1,5 +1,6 @@
 import { SettingsStore, type CounterName } from "../core/settings";
 import { recentTotals } from "../core/summary";
+import { copyToClipboard } from "../ui/clipboard";
 
 const ROWS: [CounterName, string][] = [
   ["stripShown", "Benzer mesaj uyarısı gösterildi"],
@@ -34,7 +35,12 @@ function toggle(label: string, hint: string, checked: boolean, disabled: boolean
 }
 
 /** Araç çubuğu penceresini kurar. Tüm metinler textContent ile yazılır (HTML eklenmez). */
-export function mountPopup(root: HTMLElement, store: SettingsStore, now: () => Date = () => new Date()): void {
+export function mountPopup(
+  root: HTMLElement,
+  store: SettingsStore,
+  now: () => Date = () => new Date(),
+  copy: (text: string) => Promise<boolean> = copyToClipboard,
+): void {
   let confirming = false;
   let notice = "";
 
@@ -51,7 +57,18 @@ export function mountPopup(root: HTMLElement, store: SettingsStore, now: () => D
         await store.update({ enabled: v });
         await render();
       }),
-      toggle("Çıkış kartı", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, !settings.enabled, async (v) => {
+      toggle(
+        "Öneriler",
+        "Kapalıyken hiçbir şey gösterilmez ve mesajlar bekletilmez; yalnızca günlük sayılar tutulur.",
+        settings.suggestionsEnabled,
+        !settings.enabled,
+        async (v) => {
+          notice = "";
+          await store.update({ suggestionsEnabled: v });
+          await render();
+        },
+      ),
+      toggle("Çıkış kartı", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, !settings.enabled || !settings.suggestionsEnabled, async (v) => {
         notice = "";
         await store.update({ exitCardEnabled: v });
         await render();
@@ -92,20 +109,29 @@ export function mountPopup(root: HTMLElement, store: SettingsStore, now: () => D
       actions.append(yes, no);
       data.append(actions);
     } else {
+      const exportButton = el("button", undefined, "Sayaçlarımı kopyala");
+      exportButton.addEventListener("click", async () => {
+        // Yalnızca günlük sayılar kopyalanır (mesaj metni ya da sohbet bilgisi yok).
+        const ok = await copy(JSON.stringify(await store.loadCounts(), null, 2));
+        notice = ok ? "Sayaçlar panoya kopyalandı." : "Kopyalanamadı.";
+        await render();
+      });
       const del = el("button", undefined, "Tüm verilerimi sil");
       del.addEventListener("click", async () => {
         confirming = true;
         notice = "";
         await render();
       });
-      data.append(del);
+      const actions = el("div", "actions");
+      actions.append(exportButton, del);
+      data.append(actions);
     }
     if (notice) data.append(el("p", "muted", notice));
 
     const privacy = el(
       "p",
       "privacy",
-      "Hiçbir mesaj cihazından çıkmaz ve saklanmaz. Burada yalnızca iki ayar ve düğme sayıları tutulur.",
+      "Hiçbir mesaj cihazından çıkmaz ve saklanmaz. Burada yalnızca üç ayar ve günlük sayılar tutulur.",
     );
 
     root.replaceChildren(title, toggles, summary, data, privacy);
