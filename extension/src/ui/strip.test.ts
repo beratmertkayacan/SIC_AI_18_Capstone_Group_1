@@ -87,3 +87,24 @@ describe("Strip", () => {
     for (const bad of ["bağımlı", "risk", "tehlike", "uyarı"]) expect(text).not.toContain(bad);
   });
 });
+
+describe("Strip: Yerinde değildi", () => {
+  const strip = new Strip();
+  afterEach(() => strip.hide());
+
+  it("işlev verilmezse düğme gösterilmez", () => {
+    strip.show(document.body, actions());
+    expect(Array.from(shadowOf().querySelectorAll("button")).some((b) => b.textContent === "Yerinde değildi")).toBe(false);
+  });
+
+  it("işlev verilirse düğme çıkar, tıklanınca çağrılır ve şerit kapanır", () => {
+    const onNotRelevant = vi.fn();
+    const a = { ...actions(), onNotRelevant };
+    strip.show(document.body, a);
+    buttonByText("Yerinde değildi").click();
+    expect(onNotRelevant).toHaveBeenCalledTimes(1);
+    expect(a.onSendAnyway).not.toHaveBeenCalled();
+    expect(a.onClose).not.toHaveBeenCalled();
+    expect(strip.visible).toBe(false);
+  });
+});

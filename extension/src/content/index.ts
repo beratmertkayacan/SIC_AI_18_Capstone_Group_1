@@ -58,6 +58,11 @@ function main(): void {
         console.log(`[KafiAI] taze başlat: ${copied ? "panoya kopyalandı, yeni sohbet açıldı" : "kopyalanamadı"}`);
         return copied;
       },
+      onNever: () => {
+        console.log("[KafiAI] kullanıcı 'Bir daha gösterme' dedi");
+        count("exitCardNever");
+        void store.update({ exitCardEnabled: false });
+      },
       onDismiss: (kind) => {
         policy.dismissed(session.turns);
         count(kind === "ara" ? "shortBreak" : kind === "kapat" ? "exitCardClosed" : "freshStart");
@@ -92,7 +97,6 @@ function main(): void {
       if (wasActive) console.log("[KafiAI] eklenti kapatıldı");
       return;
     }
-    if (!next.exitCardEnabled) exitCard.hide();
     if (!wasActive) {
       // Yeni açıldı (ya da sayfa yeni yüklendi): kapalıyken sayım yapılmadı, baştan başla.
       session.restart();
@@ -129,6 +133,11 @@ function main(): void {
         onSendAnyway: () => {
           console.log("[KafiAI] kullanıcı 'Yine de gönder' dedi");
           count("stripSendAnyway");
+          adapter.submitHeld();
+        },
+        onNotRelevant: () => {
+          console.log("[KafiAI] kullanıcı 'Yerinde değildi' dedi");
+          count("notRelevant");
           adapter.submitHeld();
         },
         onClose: () => {

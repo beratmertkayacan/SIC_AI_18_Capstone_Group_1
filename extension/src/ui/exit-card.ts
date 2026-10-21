@@ -15,6 +15,8 @@ export interface ExitCardActions {
   onFreshStart(draft: string): Promise<boolean>;
   /** Kart kapandı (kullanıcı kapattı ya da bir seçim yaptı). */
   onDismiss(kind: ExitDismissal): void;
+  /** "Bir daha gösterme": kalıcı olarak kapat. Verilirse düğme gösterilir. */
+  onNever?(): void;
 }
 
 const EXTRA_CSS = `
@@ -65,6 +67,7 @@ export class ExitCard {
       r.append(...children);
       return r;
     };
+    let ended = false; // kalıcı bir seçim yapıldı; Escape ek bir kapatma sayılmaz
     const dismiss = (kind: ExitDismissal) => {
       this.hide();
       actions.onDismiss(kind);
@@ -78,9 +81,25 @@ export class ExitCard {
           `Bu sohbet ${turns}. turunda. Uzun sohbetlerde yapay zeka modelleri yolunu kaybedebiliyor; ` +
             "isteklerini tek mesajda toplayıp yeni bir sohbet açmak genelde daha hızlı olur.",
         ),
-        row(fresh, button("Kısa ara ver", "secondary", showBreak), button("Kapat", "link", () => dismiss("kapat"))),
+        row(
+          fresh,
+          button("Kısa ara ver", "secondary", showBreak),
+          ...(actions.onNever ? [button("Bir daha gösterme", "link", showNever)] : []),
+          button("Kapat", "link", () => dismiss("kapat")),
+        ),
       );
       fresh.focus();
+    };
+
+    const showNever = () => {
+      ended = true;
+      actions.onNever?.();
+      const close = button("Kapat", "", () => this.hide());
+      box.replaceChildren(
+        el("p", "Tamam, çıkış kartı bir daha gösterilmeyecek. Dilersen KafiAI penceresinden yeniden açabilirsin."),
+        row(close),
+      );
+      close.focus();
     };
 
     const showBreak = () => {
@@ -123,7 +142,9 @@ export class ExitCard {
     this.host = host;
 
     this.onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismiss("kapat");
+      if (e.key !== "Escape") return;
+      if (ended) this.hide();
+      else dismiss("kapat");
     };
     document.addEventListener("keydown", this.onKey, true);
   }

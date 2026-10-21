@@ -24,6 +24,7 @@ export const COUNTER_NAMES = [
   "shortBreak", // Kısa ara ver
   "exitCardClosed", // Kapat / yok sayıldı
   "notRelevant", // "Yerinde değildi"
+  "exitCardNever", // "Bir daha gösterme"
 ] as const;
 export type CounterName = (typeof COUNTER_NAMES)[number];
 

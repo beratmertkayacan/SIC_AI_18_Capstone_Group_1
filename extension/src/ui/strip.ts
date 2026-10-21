@@ -14,6 +14,8 @@ export interface StripActions {
   onClose(): void;
   /** Kullanıcı bir onarım seçti; mesaj kutusuna eklenecek cümle. */
   onRepair(sentence: string): void;
+  /** "Yerinde değildi": uyarı gereksizdi. Verilirse düğme gösterilir. */
+  onNotRelevant?(): void;
 }
 
 export const CSS = `
@@ -36,6 +38,7 @@ button {
 }
 button.secondary { background: transparent; color: #1f2328; border-color: #b6bcc4; }
 button.link { background: transparent; color: #57606a; padding: 6px 8px; margin-left: auto; }
+button.link + button.link { margin-left: 0; }
 button:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
 `;
 
@@ -90,8 +93,16 @@ export class Strip {
           this.hide();
           actions.onSendAnyway();
         }),
-        button("Kapat", "link", close),
       );
+      if (actions.onNotRelevant) {
+        row.append(
+          button("Yerinde değildi", "link", () => {
+            this.hide();
+            actions.onNotRelevant?.();
+          }),
+        );
+      }
+      row.append(button("Kapat", "link", close));
       box.replaceChildren(paragraph("Bunu az önce de sormuştun."), row);
       missing.focus();
     };

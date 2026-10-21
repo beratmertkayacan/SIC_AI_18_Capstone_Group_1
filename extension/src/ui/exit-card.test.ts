@@ -110,3 +110,37 @@ describe("ExitCard", () => {
     expect(document.querySelectorAll('[data-kafiai="exit-card"]').length).toBe(1);
   });
 });
+
+describe("ExitCard: Bir daha gösterme", () => {
+  const card = new ExitCard();
+  afterEach(() => card.hide());
+
+  it("işlev verilmezse düğme gösterilmez", () => {
+    card.show(document.body, 7, actions());
+    expect(Array.from(shadowOf().querySelectorAll("button")).some((b) => b.textContent === "Bir daha gösterme")).toBe(false);
+  });
+
+  it("tıklanınca hemen kaydedilir, nasıl geri açılacağı söylenir", () => {
+    const onNever = vi.fn();
+    const a = { ...actions(), onNever };
+    card.show(document.body, 7, a);
+    buttonByText("Bir daha gösterme").click();
+    expect(onNever).toHaveBeenCalledTimes(1);
+    expect(visibleText()).toContain("KafiAI penceresinden yeniden açabilirsin");
+    expect(card.visible).toBe(true);
+  });
+
+  it("onay görünümünde Kapat ve Escape ek bir kapatma olarak sayılmaz", () => {
+    const a = { ...actions(), onNever: vi.fn() };
+    card.show(document.body, 7, a);
+    buttonByText("Bir daha gösterme").click();
+    buttonByText("Kapat").click();
+    expect(card.visible).toBe(false);
+
+    card.show(document.body, 7, a);
+    buttonByText("Bir daha gösterme").click();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(card.visible).toBe(false);
+    expect(a.onDismiss).not.toHaveBeenCalled();
+  });
+});
