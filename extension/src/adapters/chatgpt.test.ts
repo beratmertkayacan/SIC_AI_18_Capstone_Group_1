@@ -274,3 +274,95 @@ describe("start(): gönderme ve cevap bitişi", () => {
     expect(handlers.onSend).not.toHaveBeenCalled();
   });
 });
+
+describe("gönderimi bekletme (onBeforeSend)", () => {
+  let stop: () => void;
+  const handlers = {
+    onBeforeSend: vi.fn(),
+    onSend: vi.fn(),
+    onResponseComplete: vi.fn(),
+    onNoSignal: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    Object.values(handlers).forEach((h) => h.mockReset());
+    handlers.onBeforeSend.mockReturnValue(false);
+  });
+  afterEach(() => {
+    stop?.();
+    vi.useRealTimers();
+  });
+
+  it("false dönerse mesaj normal gider", () => {
+    renderPage({ text: "merhaba" });
+    stop = chatgptAdapter.start(handlers);
+    pressEnter();
+    expect(handlers.onBeforeSend).toHaveBeenCalledTimes(1);
+    expect(handlers.onSend).toHaveBeenCalledWith({ text: "merhaba" });
+  });
+
+  it("true dönerse Enter durdurulur, mesaj gönderilmiş sayılmaz", () => {
+    handlers.onBeforeSend.mockReturnValue(true);
+    renderPage({ text: "merhaba" });
+    stop = chatgptAdapter.start(handlers);
+    const box = document.querySelector<HTMLElement>("form#real [contenteditable]")!;
+    const pageListener = vi.fn();
+    box.addEventListener("keydown", pageListener); // sayfanın kendi dinleyicisi
+    const event = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    box.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(pageListener).not.toHaveBeenCalled();
+    expect(handlers.onSend).not.toHaveBeenCalled();
+  });
+
+  it("true dönerse Gönder düğmesine tıklama da durdurulur", () => {
+    handlers.onBeforeSend.mockReturnValue(true);
+    renderPage({ text: "merhaba" });
+    stop = chatgptAdapter.start(handlers);
+    const pageClick = vi.fn((e: Event) => e.preventDefault());
+    const button = document.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    button.addEventListener("click", pageClick);
+    button.click();
+    expect(pageClick).not.toHaveBeenCalled();
+    expect(handlers.onSend).not.toHaveBeenCalled();
+  });
+
+  it("anchor olarak mesaj kutusunun formunu verir", () => {
+    renderPage({ text: "merhaba", decoy: true });
+    stop = chatgptAdapter.start(handlers);
+    pressEnter();
+    expect(handlers.onBeforeSend.mock.calls[0]![0].anchor.id).toBe("real");
+  });
+
+  it("submitHeld() bekletilen mesajı bir kez gönderir, sayfa tıklamayı görür", () => {
+    handlers.onBeforeSend.mockReturnValue(true);
+    renderPage({ text: "merhaba" });
+    stop = chatgptAdapter.start(handlers);
+    const pageClick = vi.fn((e: Event) => e.preventDefault());
+    document.querySelector<HTMLButtonElement>('button[type="submit"]')!.addEventListener("click", pageClick);
+    pressEnter();
+    expect(handlers.onSend).not.toHaveBeenCalled();
+
+    expect(chatgptAdapter.submitHeld()).toBe(true);
+    expect(handlers.onBeforeSend).toHaveBeenCalledTimes(1); // geçiş izni: tekrar sorulmadı
+    expect(pageClick).toHaveBeenCalledTimes(1);
+    expect(handlers.onSend).toHaveBeenCalledWith({ text: "merhaba" });
+    expect(chatgptAdapter.submitHeld()).toBe(false); // artık bekleyen yok
+  });
+
+  it("izin tek seferliktir: sonraki girişim yine sorulur", () => {
+    handlers.onBeforeSend.mockReturnValue(true);
+    renderPage({ text: "merhaba" });
+    stop = chatgptAdapter.start(handlers);
+    pressEnter();
+    chatgptAdapter.submitHeld();
+    renderPage({ text: "tekrar" });
+    pressEnter();
+    expect(handlers.onBeforeSend).toHaveBeenCalledTimes(2);
+  });
+
+  it("bekleyen yokken submitHeld() false döner", () => {
+    expect(chatgptAdapter.submitHeld()).toBe(false);
+  });
+});

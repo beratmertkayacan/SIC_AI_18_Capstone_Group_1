@@ -2,6 +2,10 @@ import { POLL_MS } from "../config";
 import { ResponseWatcher } from "../core/response-watcher";
 import type { Adapter, AdapterHandlers } from "./types";
 
+/** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
+let heldComposer: HTMLElement | null = null;
+let bypassNext = false;
+
 /**
  * ChatGPT sayfa yapısı (Ekim 2026'da canlı sayfada ölçüldü):
  *  - Mesaj kutusu: <form> içinde contenteditable="true" role="textbox" bir div.
@@ -93,6 +97,22 @@ export const chatgptAdapter: Adapter = {
     return chatKeyFromPath(url.pathname);
   },
 
+  submitHeld() {
+    const composer = heldComposer;
+    heldComposer = null;
+    const form = composer?.closest("form");
+    if (!composer || !form || !composer.isConnected) return false;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (!button) return false;
+    bypassNext = true;
+    try {
+      button.click(); // kendi tıklama dinleyicimiz bir kereliğine izin verir
+    } finally {
+      bypassNext = false;
+    }
+    return true;
+  },
+
   start(handlers: AdapterHandlers) {
     const watcher = new ResponseWatcher(() => isGenerating(document), {
       onComplete: () => handlers.onResponseComplete(),
@@ -111,8 +131,23 @@ export const chatgptAdapter: Adapter = {
       }, POLL_MS);
     };
 
+    /** true: gönderim bekletildi (olay durduruldu). */
+    const intercept = (event: Event, composer: HTMLElement, text: string): boolean => {
+      if (bypassNext) {
+        bypassNext = false;
+        return false;
+      }
+      const anchor = composer.closest("form") ?? composer;
+      if (!handlers.onBeforeSend?.({ text, anchor })) return false;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      heldComposer = composer;
+      return true;
+    };
+
     const handleSend = (text: string) => {
       if (!text) return;
+      heldComposer = null;
       handlers.onSend({ text });
       watcher.begin(Date.now());
       startPolling();
@@ -125,7 +160,10 @@ export const chatgptAdapter: Adapter = {
       const composer = composerContaining(event.target);
       if (!composer) return;
       if (isGenerating(document)) return; // üretim sürerken Enter mesaj göndermez
-      handleSend(readComposerText(composer));
+      const text = readComposerText(composer);
+      if (!text) return;
+      if (intercept(event, composer, text)) return;
+      handleSend(text);
     };
 
     const onClick = (event: MouseEvent) => {
@@ -133,7 +171,10 @@ export const chatgptAdapter: Adapter = {
       const button = event.target.closest('button[type="submit"]');
       const composer = button?.closest("form")?.querySelector<HTMLElement>(COMPOSER_SELECTOR);
       if (!composer) return;
-      handleSend(readComposerText(composer));
+      const text = readComposerText(composer);
+      if (!text) return;
+      if (intercept(event, composer, text)) return;
+      handleSend(text);
     };
 
     document.addEventListener("keydown", onKeyDown, true);
@@ -143,6 +184,7 @@ export const chatgptAdapter: Adapter = {
       document.removeEventListener("keydown", onKeyDown, true);
       document.removeEventListener("click", onClick, true);
       watcher.cancel();
+      heldComposer = null;
       if (timer !== undefined) window.clearInterval(timer);
     };
   },
