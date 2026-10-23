@@ -1,0 +1,47 @@
+{
+  "note": "Görev türü kuralları. Hem eklenti (src/core/tasks.ts) hem Python (src/kafiai/tasks.py) bu dosyayı okur. Sıra önemlidir: ilk eşleşen tür seçilir.",
+  "order": ["kod", "ceviri", "ozet", "yazma", "soru"],
+  "fallback": "diger",
+  "head_chars": 300,
+  "labels": {
+    "kod": "Kod yazma ve hata ayıklama",
+    "ceviri": "Çeviri",
+    "ozet": "Özetleme",
+    "yazma": "Metin yazma",
+    "soru": "Soru ve açıklama",
+    "diger": "Diğer"
+  },
+  "rules": {
+    "kod": {
+      "markers": ["```", "#include", "def ", "console.log", "traceback", "</", "();", "=>", "import "],
+      "words": ["python", "javascript", "java", "sql", "html", "css", "typescript", "code", "bug", "error", "exception", "regex", "api", "json", "script"],
+      "prefixes": ["kod", "fonksiyon", "debug", "compil"],
+      "phrases": ["hata veriyor"]
+    },
+    "ceviri": {
+      "markers": [],
+      "words": [],
+      "prefixes": ["translat", "çevir", "tercüme"],
+      "phrases": ["in english", "ingilizceye", "türkçeye"]
+    },
+    "ozet": {
+      "markers": [],
+      "words": ["tldr"],
+      "prefixes": ["summar", "özet"],
+      "phrases": ["tl dr"]
+    },
+    "yazma": {
+      "markers": [],
+      "words": ["write", "rewrite", "paraphrase", "essay", "story", "poem", "article", "email", "letter", "blog", "caption", "yaz", "metin"],
+      "prefixes": ["makale", "hikaye", "şiir", "dilekçe", "eposta", "yazar"],
+      "phrases": ["e posta"]
+    },
+    "soru": {
+      "markers": [],
+      "words": ["explain", "why", "nedir", "neden", "nasıl", "niçin"],
+      "prefixes": ["açıkla"],
+      "phrases": ["how do", "how does", "how can", "how to", "what is", "what are", "what does", "difference between", "ne demek", "farkı"],
+      "ends_with_question": true
+    }
+  }
+}

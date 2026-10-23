@@ -34,11 +34,20 @@ describe("RepeatDetector", () => {
     expect(d.check("Bu e-postayı daha resmi bir dille yeniden yaz").similar).toBe(false);
   });
 
-  it("aynı isteği tekrar gönderince yakalar", () => {
+  it("neredeyse aynı isteği tekrar gönderince şerit için yakalar", () => {
+    const d = new RepeatDetector();
+    d.remember("Bu e-postayı daha resmi bir dille yeniden yaz");
+    const r = d.check("Bu e-postayı daha resmi bir dille yeniden yaz lütfen");
+    expect(r.similar).toBe(true);
+    expect(r.soft).toBe(true);
+  });
+
+  it("farklı kelimelerle tekrarı durdurmaz, yalnızca yumuşak tekrar sayar", () => {
     const d = new RepeatDetector();
     d.remember("Bu e-postayı daha resmi bir dille yeniden yaz");
     const r = d.check("Bu e-postayı daha resmi bir dille tekrar yazar mısın");
-    expect(r.similar).toBe(true);
+    expect(r.similar).toBe(false);
+    expect(r.soft).toBe(true);
     expect(r.score).toBeGreaterThan(0.6);
   });
 

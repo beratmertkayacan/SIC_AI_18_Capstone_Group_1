@@ -9,6 +9,7 @@ import { HistoryWatcher } from "../core/history-watcher";
 import { RepeatDetector } from "../core/repeat-detector";
 import { sendCounters } from "../core/send-stats";
 import { Session } from "../core/session";
+import { taskType } from "../core/tasks";
 import {
   DEFAULT_SETTINGS,
   parseSettings,
@@ -58,7 +59,7 @@ function main(): void {
     }
     console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns})`);
     count("exitCardShown");
-    exitCard.show(composer.anchor, session.turns, {
+    exitCard.show(composer.anchor, session.turns, policy.norm, {
       getDraft: () => buildFreshStartDraft(adapter.readHistory()),
       onFreshStart: async (draft) => {
         const copied = await copyToClipboard(draft);
@@ -87,7 +88,13 @@ function main(): void {
       if (!active()) return;
       // Kullanıcı bu arada kendisi mesaj gönderdiyse karışmayalım.
       if (!session.seedTurns(texts.length)) return;
-      for (const text of texts) detector.remember(text);
+      // Geçmişteki mesajlar da canlı gönderim gibi işlenir: görev türü ilk mesajdan,
+      // tekrar denemeleri sırayla karşılaştırarak (kalibrasyondaki simülasyonla aynı kural).
+      if (texts[0] !== undefined) policy.setTask(taskType(texts[0]));
+      for (const text of texts) {
+        if (detector.check(text).soft) policy.noteRepeat();
+        detector.remember(text);
+      }
       console.log(`[KafiAI] sohbet geçmişi okundu: ${texts.length} kullanıcı mesajı`);
     },
   );
@@ -142,7 +149,6 @@ function main(): void {
       if (!check.similar) return false;
       console.log(`[KafiAI] benzer mesaj, gönderim bekletildi (skor ${check.score.toFixed(2)})`);
       count("stripShown");
-      policy.noteRepeat();
       exitCard.hide();
       strip.show(anchor, {
         onSendAnyway: () => {
@@ -174,6 +180,7 @@ function main(): void {
       history.cancel();
       strip.hide();
       const n = session.recordSend();
+      if (n === 1) policy.setTask(taskType(text));
       if (exitCard.visible) {
         exitCard.hide(); // kartı yok sayıp yazmaya devam etti
         policy.dismissed(n);
@@ -182,7 +189,9 @@ function main(): void {
       const check = detector.check(text);
       detector.remember(text);
       void store.incrementMany(sendCounters(check, suggesting()));
-      if (check.similar && !suggesting()) policy.noteRepeat(); // yalnızca say: şerit çıkacaktı
+      // Çıkış kartı için tekrar denemesi: farklı kelimelerle yapılanlar da sayılır (yumuşak eşik).
+      // Öneriler açık da kapalı da olsa aynı kural işler; böylece iki mod karşılaştırılabilir.
+      if (check.soft) policy.noteRepeat();
 
       const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : "farklı";
       console.log(

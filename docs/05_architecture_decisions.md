@@ -16,7 +16,8 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 | K10 | Siteler ortak bir adaptör arayüzüyle desteklenir; sayfa yapısı tanınmazsa eklenti sessizce devre dışı kalır | Kabul |
 | K11 | Mesaj metni yalnızca bellekte tutulur; ağ erişimi tarayıcı düzeyinde kapatılır | Kabul |
 | K12 | Ayarlar araç çubuğu penceresinde, yalnızca Türkçe; saklanan tek veri iki ayar ve günlük sayaçlar | Kabul |
-| K13 | Çıkış kartı eşikleri geçicidir, WildChat ile kalibre edilecek | Geçici |
+| K13 | Çıkış kartı eşikleri geçicidir, WildChat ile kalibre edilecek | Değiştirildi (K14) |
+| K14 | Eşikler WildChat ile kalibre edildi: şerit 0,8, yumuşak tekrar 0,6, çıkış kartı görev normuna göre | Kabul |
 
 ---
 
@@ -51,6 +52,8 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 **Bedeli.** "Bu kodu düzelt" ile "kodda hata var, tekrar yazar mısın" gibi anlamca aynı ama kelimece farklı mesajları kaçırır. Bu açığı onarım ifadesi özniteliği kısmen kapatıyor.
 
 **Not (eklenti uygulaması).** Eklentinin ilk sürümü yalnızca karakter 3-gram kullanıyor: 1024 boyutlu karma vektör, kosinüs benzerliği, eşik 0,6, en az 12 karakter, son 5 mesajla karşılaştırma (`extension/src/config.ts`). Bu karar metnindeki 3 ile 5 gram aralığı model aşamasında Python ile JavaScript arasında birebir eşleştirilecek; o zamana kadar iki taraftaki değerler ayrı ayrı belgelenmeli.
+
+**Not (Python ikizi).** Eklentinin benzerlik hesabı `src/kafiai/extension_similarity.py` dosyasında Python'a birebir aktarıldı. İki tarafın aynı sonucu verdiği `tests/fixtures/similarity_parity.json` üzerinden hem Python hem eklenti testleriyle denetleniyor; ortak ayar değerlerinin eşitliğini de `tests/test_extension_parity.py` kontrol ediyor. Eşik değeri K14 ile 0,8'e çıkarıldı.
 
 ## K04. Veri kullanıcı bazlı bölünür
 
@@ -153,3 +156,39 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 **Neden.** Elle seçilmiş bir sayıyı gerekçelendirmeden kalıcı kabul etmek, K06'nın "rapordaki sayılar ile koddaki değerler aynı yerden okunur" ilkesine aykırı olur.
 
 **Bedeli.** Kalibrasyona kadar çıkış kartı bazı sohbetlerde erken, bazılarında geç çıkabilir.
+
+**Değiştirildi.** Kalibrasyon yapıldı; yeni değerler ve gerekçeleri K14'te.
+
+## K14. Eşikler WildChat ile kalibre edildi: şerit 0,8, yumuşak tekrar 0,6, çıkış kartı görev normuna göre
+
+**Bağlam.** K13'teki geçici değerler gerçek sohbet verisiyle sınanmamıştı. Eklentinin benzerlik hesabı Python'a birebir aktarıldıktan sonra (`src/kafiai/extension_similarity.py`), eklentinin davranışı WildChat 1M örnekleminde, şablon sohbetler hariç 41.753 sohbet ve 55.483 karşılaştırılan gönderim üzerinde taklit edildi (`scripts/calibrate_extension.py`). Benzerlik aralıklarının her birinden mesaj çiftleri okunup "aynı talebin tekrarı mı" diye ön etiketlendi (80 çift, `outputs/threshold_labels_preliminary.json`).
+
+**Bulgular.**
+
+| Şerit eşiği | Şeridin çıktığı gönderim | Şeridin çıktığı çok turlu sohbet | Tahmini isabet |
+|---|---|---|---|
+| 0,6 (eski) | %28,1 | %39,9 | %59 |
+| 0,7 | %20,5 | %31,8 | %74 |
+| 0,8 (yeni) | %14,7 | %24,3 | %83 |
+| 0,9 | %8,9 | %15,8 | %88 |
+
+0,6 ile 0,8 arasındaki çiftlerin çoğu aynı talebin tekrarı değil; aynı işin yeni bir metne uygulanması ("şu paragrafı da çevir"), aynı konuda yeni bir soru ya da bir sonraki bölümün istenmesi. Bu aralıkta kullanıcıyı durdurmak, verdiğimiz her iki uyarıdan birinin yersiz olması demek.
+
+Görev türüne göre çok turlu sohbetlerin uzunluğu birbirine yakın: ortanca 3 tur, %75'lik dilim 4 ile 6, %90'lık dilim 8 ile 10 tur. Eski kural (6. tur ve en az bir tekrar) çok turlu sohbetlerin %14,4'ünde kart açıyordu.
+
+**Karar.**
+
+1. Şerit eşiği 0,8: kullanıcı yalnızca neredeyse aynı mesajda durdurulur.
+2. Yumuşak eşik 0,6: 0,6 ile 0,8 arasındaki mesajlar kullanıcıyı durdurmaz, yalnızca çıkış kartı için tekrar denemesi sayılır.
+3. Çıkış kartı, sohbetin görev türündeki %90'lık dilimi aştığında (en az bir tekrar denemesiyle) açılır. Görev türü ilk mesajdan, Python ve eklentinin ortak okuduğu `extension/src/data/task-rules.json` kurallarıyla belirlenir; normlar `extension/src/data/task-norms.json` dosyasına kalibrasyon scriptiyle yazılır. Tür bilinmiyorsa sınır 9. turdur.
+4. Kart metni normu söyler: "Kod yazma ve hata ayıklama sohbetlerinin çoğu 5 turda ya da daha kısa sürede bitiyor; bu sohbet 9. turunda."
+
+Yeni kurallarla kart çok turlu sohbetlerin %6,9'unda, ortanca 9. turda açılıyor.
+
+**Neden.** Durdurmak en pahalı müdahale; yalnızca isabetin yüksek olduğu yerde yapılmalı. Yumuşak eşik, farklı kelimelerle yapılan tekrarları tamamen kaybetmeden daha az müdahaleci olan çıkış kartına aktarır. Normlar, karttaki sayının elle seçilmiş değil, gerçek kullanımdan gelmesini sağlar.
+
+**Bedeli.**
+
+- Ön etiketler 80 çiftle ve bir dil modeliyle yapıldı; isabet tahminleri kaba. Ekip `data/processed/labeling/threshold_pairs.csv` dosyasındaki çiftleri elle etiketleyip scripti yeniden çalıştırmalı.
+- Görev türü kuralları basit; çok turlu sohbetlerin yaklaşık %70'i "diğer" türüne düşüyor, bu sohbetlerde kart normsuz cümleyi kullanıyor.
+- Normlar 2023 ile 2024 ChatGPT verisinden; WildChat 4.8M ile yeniden hesaplanmalı.

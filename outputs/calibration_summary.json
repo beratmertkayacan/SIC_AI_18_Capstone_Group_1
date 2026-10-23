@@ -1,0 +1,195 @@
+{
+  "source": "WildChat 1M, 50.000 sohbetlik örneklem, şablon sohbetler hariç",
+  "n_conversations": 41753,
+  "n_multi_turn": 18876,
+  "n_sends": 106181,
+  "n_checked_sends": 55483,
+  "too_short_pct": 13.88,
+  "current_settings": {
+    "similarity_threshold": 0.8,
+    "soft_similarity_threshold": 0.6,
+    "min_normalized_chars": 12,
+    "recent_messages": 5,
+    "exit_card_min_turns": 9,
+    "exit_card_min_repeats": 1
+  },
+  "score_quantiles": {
+    "0.5": 0.402,
+    "0.75": 0.637,
+    "0.9": 0.882,
+    "0.95": 0.971,
+    "0.99": 1.0
+  },
+  "thresholds": [
+    {
+      "threshold": 0.4,
+      "flagged_send_pct": 50.32,
+      "conversations_with_strip_pct": 58.41
+    },
+    {
+      "threshold": 0.45,
+      "flagged_send_pct": 43.73,
+      "conversations_with_strip_pct": 53.69
+    },
+    {
+      "threshold": 0.5,
+      "flagged_send_pct": 37.9,
+      "conversations_with_strip_pct": 48.89
+    },
+    {
+      "threshold": 0.55,
+      "flagged_send_pct": 32.81,
+      "conversations_with_strip_pct": 44.43
+    },
+    {
+      "threshold": 0.6,
+      "flagged_send_pct": 28.05,
+      "conversations_with_strip_pct": 39.89
+    },
+    {
+      "threshold": 0.65,
+      "flagged_send_pct": 23.88,
+      "conversations_with_strip_pct": 35.69
+    },
+    {
+      "threshold": 0.7,
+      "flagged_send_pct": 20.52,
+      "conversations_with_strip_pct": 31.8
+    },
+    {
+      "threshold": 0.75,
+      "flagged_send_pct": 17.44,
+      "conversations_with_strip_pct": 27.99
+    },
+    {
+      "threshold": 0.8,
+      "flagged_send_pct": 14.66,
+      "conversations_with_strip_pct": 24.26
+    },
+    {
+      "threshold": 0.85,
+      "flagged_send_pct": 11.87,
+      "conversations_with_strip_pct": 20.29
+    },
+    {
+      "threshold": 0.9,
+      "flagged_send_pct": 8.93,
+      "conversations_with_strip_pct": 15.84
+    },
+    {
+      "threshold": 0.95,
+      "flagged_send_pct": 6.14,
+      "conversations_with_strip_pct": 11.01
+    }
+  ],
+  "long_conversations_pct_of_multi_turn": 9.93,
+  "exit_card": [
+    {
+      "threshold": 0.6,
+      "rule": "sabit",
+      "multi_turn_with_card_pct": 7.12,
+      "long_with_card_pct": 71.72,
+      "first_card_turn_median": 9.0
+    },
+    {
+      "threshold": 0.6,
+      "rule": "norm",
+      "multi_turn_with_card_pct": 6.89,
+      "long_with_card_pct": 69.37,
+      "first_card_turn_median": 9.0
+    },
+    {
+      "threshold": 0.7,
+      "rule": "sabit",
+      "multi_turn_with_card_pct": 5.88,
+      "long_with_card_pct": 59.18,
+      "first_card_turn_median": 9.0
+    },
+    {
+      "threshold": 0.7,
+      "rule": "norm",
+      "multi_turn_with_card_pct": 5.72,
+      "long_with_card_pct": 57.58,
+      "first_card_turn_median": 9.0
+    },
+    {
+      "threshold": 0.8,
+      "rule": "sabit",
+      "multi_turn_with_card_pct": 4.66,
+      "long_with_card_pct": 46.91,
+      "first_card_turn_median": 9.0
+    },
+    {
+      "threshold": 0.8,
+      "rule": "norm",
+      "multi_turn_with_card_pct": 4.56,
+      "long_with_card_pct": 45.94,
+      "first_card_turn_median": 9.0
+    },
+    {
+      "threshold": 0.85,
+      "rule": "sabit",
+      "multi_turn_with_card_pct": 3.98,
+      "long_with_card_pct": 40.07,
+      "first_card_turn_median": 9.0
+    },
+    {
+      "threshold": 0.85,
+      "rule": "norm",
+      "multi_turn_with_card_pct": 3.89,
+      "long_with_card_pct": 39.22,
+      "first_card_turn_median": 9.0
+    }
+  ],
+  "strip_precision_preliminary": null,
+  "task_norms": {
+    "kod": {
+      "label": "Kod yazma ve hata ayıklama",
+      "conversations": 1397,
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 8.0,
+      "share_pct": 7.4
+    },
+    "ceviri": {
+      "label": "Çeviri",
+      "conversations": 191,
+      "median_turns": 3.0,
+      "p75_turns": 6.0,
+      "p90_turns": 10.0,
+      "share_pct": 1.01
+    },
+    "ozet": {
+      "label": "Özetleme",
+      "conversations": 140,
+      "median_turns": 3.0,
+      "p75_turns": 4.0,
+      "p90_turns": 8.0,
+      "share_pct": 0.74
+    },
+    "yazma": {
+      "label": "Metin yazma",
+      "conversations": 1466,
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 8.0,
+      "share_pct": 7.77
+    },
+    "soru": {
+      "label": "Soru ve açıklama",
+      "conversations": 2476,
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 9.0,
+      "share_pct": 13.12
+    },
+    "diger": {
+      "label": "Diğer",
+      "conversations": 13206,
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 8.0,
+      "share_pct": 69.96
+    }
+  }
+}

@@ -1,12 +1,33 @@
 import { EXIT_CARD_COOLDOWN_TURNS, EXIT_CARD_MIN_REPEATS, EXIT_CARD_MIN_TURNS } from "../config";
+import { taskNorm, type TaskNorm, type TaskType } from "./tasks";
 
 /**
  * Çıkış kartının ne zaman çıkacağına karar verir. Yalnızca bellekte; sohbet değişince sıfırlanır.
  * Kural tamamen açık: tur sayısı + gerçekleşmiş benzer mesaj denemesi + bekleme süresi.
+ *
+ * Tur sınırı sohbetin görev türüne göre değişir: WildChat'te o türdeki çok turlu sohbetlerin
+ * %90'ı kaç turda bitiyorsa, kart bir sonraki turda açılabilir. Görev türü bilinmiyorsa
+ * EXIT_CARD_MIN_TURNS kullanılır.
  */
 export class ExitCardPolicy {
   private repeats = 0;
   private quietUntilTurn = 0;
+  private currentNorm: TaskNorm | null = null;
+
+  /** Sohbetin ilk mesajından tahmin edilen görev türü. Yalnızca ilk kez çağrıldığında etkili olur. */
+  setTask(task: TaskType): void {
+    if (this.currentNorm === null) this.currentNorm = taskNorm(task);
+  }
+
+  /** Kart metninde kullanılan norm; görev türü bilinmiyorsa null. */
+  get norm(): TaskNorm | null {
+    return this.currentNorm;
+  }
+
+  /** Kartın açılabileceği en erken tur. */
+  get minTurns(): number {
+    return this.currentNorm ? Math.floor(this.currentNorm.p90_turns) + 1 : EXIT_CARD_MIN_TURNS;
+  }
 
   /** Kullanıcı bu sohbette benzer bir mesaj göndermeyi denedi. */
   noteRepeat(): void {
@@ -14,7 +35,7 @@ export class ExitCardPolicy {
   }
 
   shouldShow(turns: number): boolean {
-    return turns >= EXIT_CARD_MIN_TURNS && this.repeats >= EXIT_CARD_MIN_REPEATS && turns >= this.quietUntilTurn;
+    return turns >= this.minTurns && this.repeats >= EXIT_CARD_MIN_REPEATS && turns >= this.quietUntilTurn;
   }
 
   /** Kart kapatıldı ya da yok sayıldı: bir süre tekrar çıkmasın. */
@@ -25,5 +46,6 @@ export class ExitCardPolicy {
   reset(): void {
     this.repeats = 0;
     this.quietUntilTurn = 0;
+    this.currentNorm = null;
   }
 }

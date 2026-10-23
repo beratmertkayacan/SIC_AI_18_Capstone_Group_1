@@ -1,0 +1,114 @@
+[
+  {
+    "a": "Bu kodu düzelt",
+    "b": "bu kodu düzelt!",
+    "normalized_a": "bu kodu düzelt",
+    "normalized_b": "bu kodu düzelt",
+    "similarity": 1
+  },
+  {
+    "a": "Bu kodu düzelt",
+    "b": "Kodda hata var, tekrar yazar mısın?",
+    "normalized_a": "bu kodu düzelt",
+    "normalized_b": "kodda hata var tekrar yazar mısın",
+    "similarity": 0.08006407690254357
+  },
+  {
+    "a": "İSTANBUL'da hava nasıl?",
+    "b": "istanbulda hava nasil",
+    "normalized_a": "istanbul da hava nasıl",
+    "normalized_b": "istanbulda hava nasil",
+    "similarity": 0.755742181606458
+  },
+  {
+    "a": "IŞIK hızı nedir",
+    "b": "ışık hızı nedir?",
+    "normalized_a": "ışık hızı nedir",
+    "normalized_b": "ışık hızı nedir",
+    "similarity": 1
+  },
+  {
+    "a": "Write an essay about climate change",
+    "b": "write an essay about climate change please",
+    "normalized_a": "write an essay about climate change",
+    "normalized_b": "write an essay about climate change please",
+    "similarity": 0.9210937145710673
+  },
+  {
+    "a": "Write an essay about climate change",
+    "b": "Explain how transformers work",
+    "normalized_a": "write an essay about climate change",
+    "normalized_b": "explain how transformers work",
+    "similarity": 0.03052812554363318
+  },
+  {
+    "a": "fix this python code: def f(x): return x+1",
+    "b": "fix this python code: def f(x): return x + 2",
+    "normalized_a": "fix this python code def f x return x 1",
+    "normalized_b": "fix this python code def f x return x 2",
+    "similarity": 0.9526510164590819
+  },
+  {
+    "a": "that's not what I asked, try again",
+    "b": "That is not what I asked. Try again!!",
+    "normalized_a": "that s not what ı asked try again",
+    "normalized_b": "that is not what ı asked try again",
+    "similarity": 0.9334163073596636
+  },
+  {
+    "a": "Bana bir dilekçe yaz 🙏",
+    "b": "bana bir dilekçe yaz",
+    "normalized_a": "bana bir dilekçe yaz",
+    "normalized_b": "bana bir dilekçe yaz",
+    "similarity": 1
+  },
+  {
+    "a": "Объясни теорию относительности",
+    "b": "объясни теорию относительности подробно",
+    "normalized_a": "объясни теорию относительности",
+    "normalized_b": "объясни теорию относительности подробно",
+    "similarity": 0.8892118276421005
+  },
+  {
+    "a": "用中文解释机器学习",
+    "b": "用中文解释深度学习",
+    "normalized_a": "用中文解释机器学习",
+    "normalized_b": "用中文解释深度学习",
+    "similarity": 0.5555555555555556
+  },
+  {
+    "a": "devam et",
+    "b": "devam et",
+    "normalized_a": "devam et",
+    "normalized_b": "devam et",
+    "similarity": 1
+  },
+  {
+    "a": "",
+    "b": "boş mesajla karşılaştırma",
+    "normalized_a": "",
+    "normalized_b": "boş mesajla karşılaştırma",
+    "similarity": 0
+  },
+  {
+    "a": "Ödevimi özetle: Osmanlı İmparatorluğu'nun çöküş nedenleri",
+    "b": "Osmanlı İmparatorluğu'nun çöküş nedenlerini özetle",
+    "normalized_a": "ödevimi özetle osmanlı imparatorluğu nun çöküş nedenleri",
+    "normalized_b": "osmanlı imparatorluğu nun çöküş nedenlerini özetle",
+    "similarity": 0.8959786703810408
+  },
+  {
+    "a": "Résumé: café, naïve, coöperate",
+    "b": "resume cafe naive cooperate",
+    "normalized_a": "résumé café naïve coöperate",
+    "normalized_b": "resume cafe naive cooperate",
+    "similarity": 0.5003191829243043
+  },
+  {
+    "a": "   çok   fazla    boşluk   var   ",
+    "b": "çok fazla boşluk var",
+    "normalized_a": "çok fazla boşluk var",
+    "normalized_b": "çok fazla boşluk var",
+    "similarity": 1
+  }
+]
