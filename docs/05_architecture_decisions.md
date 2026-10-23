@@ -18,6 +18,8 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 | K12 | Ayarlar araç çubuğu penceresinde, yalnızca Türkçe; saklanan tek veri iki ayar ve günlük sayaçlar | Kabul |
 | K13 | Çıkış kartı eşikleri geçicidir, WildChat ile kalibre edilecek | Değiştirildi (K14) |
 | K14 | Eşikler WildChat ile kalibre edildi: şerit 0,8, yumuşak tekrar 0,6, çıkış kartı görev normuna göre | Kabul |
+| K15 | Etiketin ikinci sürümü: benzerlik değil güçlü onarım ifadeleri esas alınır | Kabul |
+| K16 | Model WildChat 4.8M ile eğitilir; eklenti için 25 öznitelikli Logistic Regression seçilir | Kabul |
 
 ---
 
@@ -192,3 +194,24 @@ Yeni kurallarla kart çok turlu sohbetlerin %6,9'unda, ortanca 9. turda açılı
 - Ön etiketler 80 çiftle ve bir dil modeliyle yapıldı; isabet tahminleri kaba. Ekip `data/processed/labeling/threshold_pairs.csv` dosyasındaki çiftleri elle etiketleyip scripti yeniden çalıştırmalı.
 - Görev türü kuralları basit; çok turlu sohbetlerin yaklaşık %70'i "diğer" türüne düşüyor, bu sohbetlerde kart normsuz cümleyi kullanıyor.
 - Normlar 2023 ile 2024 ChatGPT verisinden; WildChat 4.8M ile yeniden hesaplanmalı.
+
+## K15. Etiketin ikinci sürümü: benzerlik değil güçlü onarım ifadeleri esas alınır
+
+**Bağlam.** K02'deki ilk etiket, ilk iki turdan sonra en az 2 benzer mesaj ya da en az 2 onarım ifadesi görülen sohbetleri döngü sayıyordu. WildFeedback'teki memnuniyetsizlik (DSAT) işaretleriyle karşılaştırıldığında bu etiketin işaretlediği sohbetlerde memnuniyetsizlik oranı genel orandan neredeyse farksız çıktı (1,09 kat). Benzer mesajların çoğu "AA için listele, AB için listele" gibi verimli seri işlerdi.
+
+**Karar.** Yeni etikette (`labels.loop_label`) bir sohbet şu durumda döngü sayılır: ilk iki turdan sonra en az 2 güçlü onarım ifadesi, ya da 1 güçlü onarım ifadesi ile birlikte 1 birebir yeniden gönderim (benzerlik 0,97 üstü). Güçlü onarım listesi (`text.STRONG_REPAIR_PATTERNS`) yalnızca WildFeedback'te memnuniyetsizliği en az 2 kat artıran ifadelerden oluşur. İlk etiket karşılaştırma için tablolarda `label_v1` olarak tutulur.
+
+**Neden.** Yeni etiket memnuniyetsizliği 2,87 kat daha sık gösteriyor. Kural, WildFeedback'in yarısına bakılarak seçildi ve hiç bakılmayan öbür yarıda aynı sonucu verdi (`outputs/label_validation.json`, docs/08 Bölüm 5.1).
+
+**Bedeli.** Pozitif oranı %10'dan %7'ye düştü, yani modelin öğreneceği örnek azaldı. Türkçe onarım ifadeleri WildFeedback İngilizce olduğu için henüz doğrulanmadı. Ürün açısından da bir sonucu var: 0,6 ile 0,8 arasındaki yumuşak tekrarlar (K14) tek başına memnuniyetsizlik göstermiyor; çıkış kartının tekrar sayımı ileride onarım ifadeleriyle birleştirilmeli.
+
+## K16. Model WildChat 4.8M ile eğitilir; eklenti için 25 öznitelikli Logistic Regression seçilir
+
+**Bağlam.** İlk denemedeki model 1M örnekleminden çıkan 8.094 sohbetle eğitilmişti ve tek bir eğitim/test bölmesiyle ölçülmüştü. K08, eğitim verisinin WildChat 4.8M olmasını öngörüyordu.
+
+**Karar.** WildChat 4.8M'in 86 dosyasından zamana yayılmış 10'u indirildi; bu dosyalardaki tüm çok turlu sohbetler temizlendikten sonra 28.123 sohbetlik eğitim tablosu oluştu. Öznitelik sayısı 11'den 25'e çıkarıldı (görev türü, eklenti benzerliği, ikinci mesajda güçlü onarım, uzunluklar). Beş yöntem kullanıcı bazlı 5 katlı çapraz doğrulama ve hiperparametre aramasıyla karşılaştırıldı (`scripts/train_models.py`). Eklenti için 25 öznitelikli Logistic Regression seçildi; katsayıları `outputs/logreg_model.json` dosyasında.
+
+**Neden.** 25 öznitelikli model aynı model türünde CV PR-AUC'yi 0,195'ten 0,245'e çıkardı. Karakter n-gram eklenen model ana testte %16 daha iyi, ama Türkçe testte geride kalıyor, 65.536 ağırlık taşıyor ve uyarının gerekçesini açıklamak zorlaşıyor. Seçilen model eğitimde görmediği WildChat 1M'de rastgelenin 4,7, Türkçede 2,4 katı; bizim etiketimizden bağımsız DSAT işaretlerinde de 1,6 katı.
+
+**Bedeli.** Model döngü dediğinde yaklaşık 4 seferden 1'inde haklı; bu yüzden eklentide engel değil, yüksek eşikli yumuşak bir öneri olarak kullanılmalı. Olasılıklar kalibre değil; kullanıcıya yüzde olarak gösterilmemeli.
+
