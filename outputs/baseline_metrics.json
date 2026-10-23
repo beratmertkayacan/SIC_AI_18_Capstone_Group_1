@@ -1,0 +1,45 @@
+{
+  "n_train": 6551,
+  "n_test": 1543,
+  "positive_rate_test": 0.0953,
+  "random_pr_auc": 0.0953,
+  "models": {
+    "kural": {
+      "pr_auc": 0.1908,
+      "roc_auc": 0.6584,
+      "precision": 0.3333,
+      "recall": 0.4014,
+      "f1": 0.3642,
+      "threshold": 0.5
+    },
+    "logreg": {
+      "pr_auc": 0.2643,
+      "roc_auc": 0.7025,
+      "precision": 0.2473,
+      "recall": 0.4694,
+      "f1": 0.3239,
+      "threshold": 0.5478
+    },
+    "xgboost": {
+      "pr_auc": 0.2351,
+      "roc_auc": 0.7036,
+      "precision": 0.2389,
+      "recall": 0.3673,
+      "f1": 0.2895,
+      "threshold": 0.5747
+    }
+  },
+  "xgboost_mean_abs_shap": {
+    "sim_mean": 0.4235999882221222,
+    "first_chars": 0.3188000023365021,
+    "last_chars": 0.3001999855041504,
+    "len_ratio": 0.21539999544620514,
+    "sim_max": 0.12809999287128448,
+    "first_is_produce": 0.0714000016450882,
+    "first_is_understand": 0.04919999837875366,
+    "has_code": 0.023000000044703484,
+    "short_followup": 0.01850000023841858,
+    "n_repeats": 0.016200000420212746,
+    "n_repairs": 0.006000000052154064
+  }
+}
