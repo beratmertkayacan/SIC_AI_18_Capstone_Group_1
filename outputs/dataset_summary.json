@@ -1,0 +1,13 @@
+{
+  "n_sample": 50000,
+  "n_after_template_filter": 41753,
+  "n_labelable": 8094,
+  "n_users": 4693,
+  "k_turns": 2,
+  "positive_rate_pct": 11.0,
+  "positive_by_reason_pct": {
+    "repeat_rule": 10.64,
+    "repair_rule": 0.47
+  },
+  "turkish_rows": 66
+}
