@@ -52,6 +52,37 @@ WildChat 1M veri setinden alınan 50.000 gerçek ChatGPT sohbeti üzerinde yapt�
 
 
 
+## Chrome eklentisi: KafiAI
+
+`extension/` klasöründe, ChatGPT ve Gemini sayfalarında çalışan bir Chrome eklentisi (Manifest V3, TypeScript) var. İlk sürüm **modelsiz, kural tabanlı** bir çekirdekle çalışıyor. Makine öğrenmesi katmanı sonraki aşamada eklenecek.
+
+**Ne yapar?**
+
+- **Benzer mesaj uyarısı:** Gönder'e basıldığı anda mesaj, son 5 mesajla karşılaştırılır. Neredeyse aynıysa mesaj gönderilmeden önce kısa bir şerit çıkar: "Yine de gönder", mesajı düzenle ya da "Yerinde değildi". Mesaj yalnızca bu durumda bekletilir, aksi halde akış hiç kesilmez.
+- **Çıkış kartı:** Sohbet uzayıp tekrar görüldüğünde (şimdilik 6. turdan sonra) bir kart önerilir. "Taze başlat" o ana kadarki isteklerden kısa bir özet taslağı çıkarır, panoya kopyalar ve yeni sohbet açar. Kart "Bir daha gösterme" ile kapatılabilir.
+- **Araç çubuğu penceresi:** Eklenti açma/kapama, çıkış kartı açma/kapama, son 7 günün sayaçları ve "Tüm verilerimi sil".
+
+**Kurulum (geliştirici modu):**
+
+```bash
+cd extension
+npm install
+npm run build        # çıktı: extension/dist
+npm test             # birim testleri
+```
+
+Chrome'da `chrome://extensions` sayfasını aç, **Geliştirici modu**nu aç, **Paketlenmemiş öğe yükle** ile `extension/dist` klasörünü seç. Kodu değiştirince eklentiyi aynı sayfadan yenile ve ChatGPT/Gemini sekmesinde F5'e bas.
+
+**Tasarım ilkeleri (uygulamada):**
+
+- Ağ isteği yok. Manifest içeriği `connect-src 'none'` ile bunu tarayıcı düzeyinde de zorlar.
+- Mesaj metni hiçbir yere kaydedilmez, yalnızca bellekte tutulur ve sekme kapanınca silinir. `chrome.storage` içinde sadece iki ayar ve günlük sayaçlar (90 gün) durur. Konsola metin değil, yalnızca uzunluk ve skor yazılır.
+- Yasak, süre sınırı, seri ya da rozet yok. Metinlerde "bağımlı" ve "risk" kelimeleri geçmez.
+- Sayfa yapısı tanınmazsa eklenti sessizce kendini devre dışı bırakır.
+- Kişisel ya da duygusal sohbetlerde öneri gösterilmez.
+
+---
+
 ## Repo yapısı
 
 ```
@@ -63,7 +94,16 @@ SIC_AI_18_Capstone_Group_1/
 ├── docs/                         Rapor bölümleri
 │   ├── 01_literature_review.md
 │   ├── 02_data_research.md
-│   └── 03_technology_review.md
+│   ├── 03_technology_review.md
+│   ├── 04_concept_note.md
+│   ├── 05_architecture_decisions.md
+│   ├── 06_product_scope.md
+│   ├── 07_resources.md
+│   └── diagrams/
+│
+├── extension/                    Chrome eklentisi (KafiAI): kaynak kod, testler, derleme
+│   ├── src/                  adapters (ChatGPT, Gemini), core, ui, popup, content
+│   └── public/               manifest.json ve araç çubuğu penceresi
 │
 ├── scripts/
 │   └── run_eda.py                WildChat ve OASST1 keşifsel veri analizi
@@ -120,7 +160,7 @@ python scripts/run_eda.py --embeddings
 
 - **Yasak değil, yönlendirme.** Literatür, dışarıdan konan kısıtların etkisinin kalıcı olmadığını; doğru anda yapılan küçük yönlendirmelerin ise işe yaradığını gösteriyor.
 - **Etiketleme değil, farkındalık.** Eklenti kimseye "bağımlısın" demez, teşhis koymaz; yalnızca kullanım biçimindeki örüntüyü görünür kılar.
-- **Gizlilik öncelikli.** Model tarayıcıda çalışır, mesajlar saklanmaz ve hiçbir sunucuya gönderilmez.
+- **Gizlilik öncelikli.** Her şey tarayıcıda çalışır; mesajlar saklanmaz ve hiçbir sunucuya gönderilmez. Eğitim verisi (WildChat) yalnızca eşik ayarı için kullanılır, eklentiyle birlikte dağıtılmaz.
 - **Açıklanabilirlik.** Her uyarı nedenini söyler: "son 5 mesajda aynı talep".
 - **Profesyonel desteğin yerini almaz.** Uzun süreli ve yoğun risk sinyallerinde kullanıcı Yeşilay Danışmanlık Merkezi'ne (YEDAM, 115) yönlendirilir.
 
