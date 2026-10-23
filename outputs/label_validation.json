@@ -1,0 +1,66 @@
+{
+  "n": 56718,
+  "dsat_rate": 0.1333,
+  "signals": {
+    "İlk etiket (v1)": {
+      "geliştirme": {
+        "share_pct": 14.68,
+        "p_dsat": 0.1494,
+        "lift": 1.12
+      },
+      "kontrol": {
+        "share_pct": 14.58,
+        "p_dsat": 0.1449,
+        "lift": 1.09
+      }
+    },
+    "Benzer mesaj (≥0.75)": {
+      "geliştirme": {
+        "share_pct": 30.07,
+        "p_dsat": 0.1316,
+        "lift": 0.99
+      },
+      "kontrol": {
+        "share_pct": 29.6,
+        "p_dsat": 0.1335,
+        "lift": 1.0
+      }
+    },
+    "Birebir yeniden gönderim (≥0.97)": {
+      "geliştirme": {
+        "share_pct": 11.58,
+        "p_dsat": 0.1704,
+        "lift": 1.28
+      },
+      "kontrol": {
+        "share_pct": 11.47,
+        "p_dsat": 0.168,
+        "lift": 1.26
+      }
+    },
+    "Güçlü onarım ifadesi": {
+      "geliştirme": {
+        "share_pct": 20.34,
+        "p_dsat": 0.3158,
+        "lift": 2.37
+      },
+      "kontrol": {
+        "share_pct": 20.77,
+        "p_dsat": 0.3087,
+        "lift": 2.32
+      }
+    },
+    "Yeni etiket (v2)": {
+      "geliştirme": {
+        "share_pct": 8.11,
+        "p_dsat": 0.3827,
+        "lift": 2.87
+      },
+      "kontrol": {
+        "share_pct": 8.5,
+        "p_dsat": 0.3823,
+        "lift": 2.87
+      }
+    }
+  }
+}

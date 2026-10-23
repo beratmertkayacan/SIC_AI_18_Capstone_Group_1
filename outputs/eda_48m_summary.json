@@ -1,0 +1,280 @@
+{
+  "cleaning_steps_random_sample": {
+    "1m": {
+      "ham veri": 50000,
+      "tekrar kayıtlar çıkarıldı": 49547,
+      "ilk mesajı boş olanlar çıkarıldı": 49153,
+      "şablon sohbetler çıkarıldı": 41058,
+      "en az 4 tur": 8023,
+      "100 turdan uzunlar çıkarıldı": 8022,
+      "ilk 2 mesajı dolu olanlar": 7965
+    },
+    "48m": {
+      "ham veri": 150000,
+      "tekrar kayıtlar çıkarıldı": 137366,
+      "ilk mesajı boş olanlar çıkarıldı": 136867,
+      "şablon sohbetler çıkarıldı": 76211,
+      "en az 4 tur": 11569,
+      "100 turdan uzunlar çıkarıldı": 11560,
+      "ilk 2 mesajı dolu olanlar": 11476
+    }
+  },
+  "by_period": {
+    "2023-04": {
+      "templated": 0.0138,
+      "multiturn": 0.2574,
+      "turkish": 0.0075,
+      "n": 14883,
+      "multiturn_organic": 0.2595
+    },
+    "2023-08": {
+      "templated": 0.1715,
+      "multiturn": 0.1392,
+      "turkish": 0.0022,
+      "n": 14857,
+      "multiturn_organic": 0.1672
+    },
+    "2024-03": {
+      "templated": 0.2841,
+      "multiturn": 0.1474,
+      "turkish": 0.014,
+      "n": 14736,
+      "multiturn_organic": 0.1995
+    },
+    "2024-09": {
+      "templated": 0.186,
+      "multiturn": 0.0934,
+      "turkish": 0.0092,
+      "n": 14411,
+      "multiturn_organic": 0.1135
+    },
+    "2024-10": {
+      "templated": 0.6396,
+      "multiturn": 0.0187,
+      "turkish": 0.0008,
+      "n": 13970,
+      "multiturn_organic": 0.0516
+    },
+    "2024-11": {
+      "templated": 0.8203,
+      "multiturn": 0.0155,
+      "turkish": 0.0017,
+      "n": 12277,
+      "multiturn_organic": 0.0848
+    },
+    "2024-12": {
+      "templated": 0.6046,
+      "multiturn": 0.0227,
+      "turkish": 0.0012,
+      "n": 14694,
+      "multiturn_organic": 0.0537
+    },
+    "2025-02": {
+      "templated": 0.3543,
+      "multiturn": 0.0314,
+      "turkish": 0.0023,
+      "n": 11188,
+      "multiturn_organic": 0.0464
+    },
+    "2025-05": {
+      "templated": 0.8302,
+      "multiturn": 0.0133,
+      "turkish": 0.0009,
+      "n": 11947,
+      "multiturn_organic": 0.0764
+    },
+    "2025-07": {
+      "templated": 0.6432,
+      "multiturn": 0.0812,
+      "turkish": 0.0252,
+      "n": 14403,
+      "multiturn_organic": 0.2199
+    }
+  },
+  "model_family_by_period": {
+    "2023-04": {
+      "GPT-3.5": 0.664,
+      "GPT-4": 0.336,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 0.0,
+      "o1": 0.0
+    },
+    "2023-08": {
+      "GPT-3.5": 1.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 0.0,
+      "o1": 0.0
+    },
+    "2024-03": {
+      "GPT-3.5": 0.3886,
+      "GPT-4": 0.6114,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 0.0,
+      "o1": 0.0
+    },
+    "2024-09": {
+      "GPT-3.5": 0.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 0.6597,
+      "o1": 0.3403
+    },
+    "2024-10": {
+      "GPT-3.5": 0.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 0.963,
+      "o1": 0.037
+    },
+    "2024-11": {
+      "GPT-3.5": 0.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 0.9629,
+      "o1": 0.0371
+    },
+    "2024-12": {
+      "GPT-3.5": 0.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 0.9993,
+      "o1": 0.0007
+    },
+    "2025-02": {
+      "GPT-3.5": 0.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 0.0,
+      "GPT-4o": 1.0,
+      "o1": 0.0
+    },
+    "2025-05": {
+      "GPT-3.5": 0.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 1.0,
+      "GPT-4o": 0.0,
+      "o1": 0.0
+    },
+    "2025-07": {
+      "GPT-3.5": 0.0,
+      "GPT-4": 0.0,
+      "GPT-4.1": 1.0,
+      "GPT-4o": 0.0,
+      "o1": 0.0
+    }
+  },
+  "train_tables": {
+    "1m": {
+      "n": 7965,
+      "users": 4608,
+      "median_turns": 6.0,
+      "label_v1_pct": 11.02,
+      "label_v2_pct": 4.6,
+      "task_share_pct": {
+        "kod": 7.9,
+        "ceviri": 1.2,
+        "ozet": 0.6,
+        "yazma": 6.7,
+        "soru": 13.5,
+        "diger": 70.3
+      },
+      "label_v2_by_task_pct": {
+        "kod": 17.4,
+        "ceviri": 6.5,
+        "ozet": 6.4,
+        "yazma": 6.6,
+        "soru": 3.8,
+        "diger": 3.1
+      }
+    },
+    "48m": {
+      "n": 28123,
+      "users": 12352,
+      "median_turns": 6.0,
+      "label_v1_pct": 10.24,
+      "label_v2_pct": 6.66,
+      "task_share_pct": {
+        "kod": 10.6,
+        "ceviri": 1.0,
+        "ozet": 0.5,
+        "yazma": 5.6,
+        "soru": 13.0,
+        "diger": 69.3
+      },
+      "label_v2_by_task_pct": {
+        "kod": 19.8,
+        "ceviri": 6.6,
+        "ozet": 8.3,
+        "yazma": 8.6,
+        "soru": 6.0,
+        "diger": 4.6
+      }
+    }
+  },
+  "repair_by_turn": {
+    "48m_strong_repair_all": {
+      "2": 3.85,
+      "3": 4.33,
+      "4-5": 4.63,
+      "6-10": 4.99,
+      "11-20": 6.28,
+      "21-40": 7.51
+    },
+    "wildfeedback_dsat_all": {
+      "2": 4.57,
+      "3": 5.88,
+      "4-5": 6.35,
+      "6-10": 6.48,
+      "11-20": 5.81,
+      "21-40": 6.21
+    },
+    "within_conversation": {
+      "4.8M, en az 10 turlu": [
+        4.4,
+        5.04,
+        4.84,
+        5.13,
+        5.28,
+        5.21,
+        5.14,
+        5.03,
+        5.45
+      ],
+      "4.8M, en az 10 turlu (sohbet sayısı)": 5870,
+      "4.8M, en az 20 turlu": [
+        5.06,
+        6.33,
+        5.94,
+        5.94,
+        6.13,
+        5.84,
+        6.13,
+        6.82,
+        6.52,
+        5.55,
+        6.91,
+        6.04,
+        6.43,
+        6.52,
+        7.3,
+        7.69,
+        7.98,
+        7.21,
+        7.4
+      ],
+      "4.8M, en az 20 turlu (sohbet sayısı)": 1027,
+      "WildFeedback DSAT, en az 10 turlu": [
+        4.52,
+        5.5,
+        5.36,
+        5.75,
+        6.01,
+        6.18,
+        5.75,
+        5.91,
+        6.14
+      ],
+      "WildFeedback DSAT, en az 10 turlu (sohbet sayısı)": 10624
+    }
+  }
+}
