@@ -31,3 +31,15 @@ TEMPLATE_MIN_COUNT = 20
 
 # Çok uzun mesajlar (yapıştırılmış kod, metin) benzerliği bozmasın diye kesilir.
 MAX_CHARS = 1000
+
+# Eklentiyle ortak değerler. Bunlar `extension/src/config.ts` dosyasındakilerle aynı olmak
+# zorunda; tests/test_extension_parity.py iki dosyayı karşılaştırır ve farklıysa hata verir.
+EXT_NGRAM_SIZE = 3
+EXT_HASH_DIM = 1024
+EXT_MIN_NORMALIZED_CHARS = 12
+EXT_RECENT_MESSAGES = 5
+EXT_SIMILARITY_THRESHOLD = 0.8
+EXT_SOFT_SIMILARITY_THRESHOLD = 0.6
+EXT_EXIT_CARD_MIN_TURNS = 9
+EXT_EXIT_CARD_MIN_REPEATS = 1
+EXT_EXIT_CARD_COOLDOWN_TURNS = 5
