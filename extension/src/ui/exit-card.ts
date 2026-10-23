@@ -1,3 +1,4 @@
+import type { TaskNorm } from "../core/tasks";
 import { CSS as BASE_CSS } from "./strip";
 
 /**
@@ -36,7 +37,7 @@ export class ExitCard {
     return this.host !== null;
   }
 
-  show(anchor: Element, turns: number, actions: ExitCardActions): void {
+  show(anchor: Element, turns: number, norm: TaskNorm | null, actions: ExitCardActions): void {
     this.hide();
     const host = document.createElement("div");
     host.setAttribute("data-kafiai", "exit-card");
@@ -78,8 +79,7 @@ export class ExitCard {
       box.replaceChildren(
         el(
           "p",
-          `Bu sohbet ${turns}. turunda. Uzun sohbetlerde yapay zeka modelleri yolunu kaybedebiliyor; ` +
-            "isteklerini tek mesajda toplayıp yeni bir sohbet açmak genelde daha hızlı olur.",
+          exitCardMessage(turns, norm),
         ),
         row(
           fresh,
@@ -155,4 +155,17 @@ export class ExitCard {
     this.host?.remove();
     this.host = null;
   }
+}
+
+/**
+ * Kartın ana cümlesi. Görev türü biliniyorsa WildChat'teki normu söyler
+ * (o türdeki çok turlu sohbetlerin %75'i kaç turda bitiyor); bilinmiyorsa yalnızca tur sayısını.
+ */
+export function exitCardMessage(turns: number, norm: TaskNorm | null): string {
+  const tail =
+    "Uzun sohbetlerde yapay zeka modelleri yolunu kaybedebiliyor; " +
+    "isteklerini tek mesajda toplayıp yeni bir sohbet açmak genelde daha hızlı olur.";
+  if (norm === null || norm.label === "Diğer") return `Bu sohbet ${turns}. turunda. ${tail}`;
+  const p75 = Math.round(norm.p75_turns);
+  return `${norm.label} sohbetlerinin çoğu ${p75} turda ya da daha kısa sürede bitiyor; bu sohbet ${turns}. turunda. ${tail}`;
 }

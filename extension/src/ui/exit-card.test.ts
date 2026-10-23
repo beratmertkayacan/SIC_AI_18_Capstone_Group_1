@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ExitCard } from "./exit-card";
+import { ExitCard, exitCardMessage } from "./exit-card";
 
 function shadowOf(): ShadowRoot {
   return document.querySelector<HTMLElement>('[data-kafiai="exit-card"]')!.shadowRoot!;
@@ -26,20 +26,20 @@ describe("ExitCard", () => {
   afterEach(() => card.hide());
 
   it("tur sayısını söyler ve üç düğme sunar", () => {
-    card.show(document.body, 7, actions());
+    card.show(document.body, 7, null, actions());
     expect(visibleText()).toContain("Bu sohbet 7. turunda.");
     for (const label of ["Taze başlat", "Kısa ara ver", "Kapat"]) expect(buttonByText(label)).toBeTruthy();
   });
 
   it("doğrulanmamış istatistik veya yargılayıcı söz içermez", () => {
-    card.show(document.body, 7, actions());
+    card.show(document.body, 7, null, actions());
     const text = visibleText().toLowerCase();
     for (const bad of ["bağımlı", "risk", "tehlike", "çoğu", "%"]) expect(text).not.toContain(bad);
   });
 
   it("'Kapat' kartı kapatır ve bildirir", () => {
     const a = actions();
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Kapat").click();
     expect(a.onDismiss).toHaveBeenCalledWith("kapat");
     expect(card.visible).toBe(false);
@@ -47,7 +47,7 @@ describe("ExitCard", () => {
 
   it("Escape kartı kapatır", () => {
     const a = actions();
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(a.onDismiss).toHaveBeenCalledWith("kapat");
     expect(card.visible).toBe(false);
@@ -55,7 +55,7 @@ describe("ExitCard", () => {
 
   it("'Kısa ara ver' sakin bir cümle gösterir, baskı yapmaz", () => {
     const a = actions();
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Kısa ara ver").click();
     expect(visibleText()).toContain("Sohbet burada duruyor");
     expect(card.visible).toBe(true);
@@ -65,7 +65,7 @@ describe("ExitCard", () => {
 
   it("'Taze başlat' düzenlenebilir taslağı gösterir", () => {
     const a = actions();
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Taze başlat").click();
     const area = shadowOf().querySelector("textarea")!;
     expect(area.value).toBe("1. ilk istek\n2. ikinci istek");
@@ -74,7 +74,7 @@ describe("ExitCard", () => {
 
   it("kullanıcının düzenlediği metin kopyalanmak üzere iletilir", async () => {
     const a = actions();
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Taze başlat").click();
     shadowOf().querySelector("textarea")!.value = "düzenlenmiş taslak";
     buttonByText("Kopyala ve yeni sohbet aç").click();
@@ -87,7 +87,7 @@ describe("ExitCard", () => {
 
   it("kopyalama başarısız olursa kart açık kalır ve açıklar", async () => {
     const a = actions(false);
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Taze başlat").click();
     buttonByText("Kopyala ve yeni sohbet aç").click();
     await flush();
@@ -98,15 +98,15 @@ describe("ExitCard", () => {
   });
 
   it("'Geri' ana görünüme döner", () => {
-    card.show(document.body, 7, actions());
+    card.show(document.body, 7, null, actions());
     buttonByText("Taze başlat").click();
     buttonByText("Geri").click();
     expect(buttonByText("Taze başlat")).toBeTruthy();
   });
 
   it("art arda show() tek kart bırakır", () => {
-    card.show(document.body, 7, actions());
-    card.show(document.body, 8, actions());
+    card.show(document.body, 7, null, actions());
+    card.show(document.body, 8, null, actions());
     expect(document.querySelectorAll('[data-kafiai="exit-card"]').length).toBe(1);
   });
 });
@@ -116,14 +116,14 @@ describe("ExitCard: Bir daha gösterme", () => {
   afterEach(() => card.hide());
 
   it("işlev verilmezse düğme gösterilmez", () => {
-    card.show(document.body, 7, actions());
+    card.show(document.body, 7, null, actions());
     expect(Array.from(shadowOf().querySelectorAll("button")).some((b) => b.textContent === "Bir daha gösterme")).toBe(false);
   });
 
   it("tıklanınca hemen kaydedilir, nasıl geri açılacağı söylenir", () => {
     const onNever = vi.fn();
     const a = { ...actions(), onNever };
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Bir daha gösterme").click();
     expect(onNever).toHaveBeenCalledTimes(1);
     expect(visibleText()).toContain("KafiAI penceresinden yeniden açabilirsin");
@@ -132,15 +132,28 @@ describe("ExitCard: Bir daha gösterme", () => {
 
   it("onay görünümünde Kapat ve Escape ek bir kapatma olarak sayılmaz", () => {
     const a = { ...actions(), onNever: vi.fn() };
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Bir daha gösterme").click();
     buttonByText("Kapat").click();
     expect(card.visible).toBe(false);
 
-    card.show(document.body, 7, a);
+    card.show(document.body, 7, null, a);
     buttonByText("Bir daha gösterme").click();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(card.visible).toBe(false);
     expect(a.onDismiss).not.toHaveBeenCalled();
+  });
+});
+
+describe("exitCardMessage", () => {
+  it("görev türü biliniyorsa normu söyler", () => {
+    const text = exitCardMessage(9, { label: "Kod yazma ve hata ayıklama", median_turns: 3, p75_turns: 5, p90_turns: 8 });
+    expect(text).toContain("Kod yazma ve hata ayıklama sohbetlerinin çoğu 5 turda ya da daha kısa sürede bitiyor");
+    expect(text).toContain("bu sohbet 9. turunda");
+  });
+
+  it("görev türü bilinmiyorsa ya da 'Diğer' ise yalnızca tur sayısını söyler", () => {
+    expect(exitCardMessage(7, null)).toMatch(/^Bu sohbet 7\. turunda\./);
+    expect(exitCardMessage(7, { label: "Diğer", median_turns: 3, p75_turns: 5, p90_turns: 8 })).toMatch(/^Bu sohbet 7\. turunda\./);
   });
 });

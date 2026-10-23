@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { EXIT_CARD_COOLDOWN_TURNS, EXIT_CARD_MIN_TURNS } from "../config";
 import { ExitCardPolicy } from "./exit-card-policy";
+import { taskNorm } from "./tasks";
 
 describe("ExitCardPolicy", () => {
   it("tekrar denemesi olmadan, sohbet ne kadar uzun olursa olsun göstermez", () => {
@@ -37,5 +38,33 @@ describe("ExitCardPolicy", () => {
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(false); // tekrar denemesi de silindi
     p.noteRepeat();
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(true);
+  });
+});
+
+describe("ExitCardPolicy görev normları", () => {
+  it("görev türü bilinince tur sınırı o türün normundan gelir", () => {
+    const p = new ExitCardPolicy();
+    p.setTask("ceviri");
+    const norm = taskNorm("ceviri")!;
+    expect(p.minTurns).toBe(Math.floor(norm.p90_turns) + 1);
+    p.noteRepeat();
+    expect(p.shouldShow(p.minTurns - 1)).toBe(false);
+    expect(p.shouldShow(p.minTurns)).toBe(true);
+  });
+
+  it("görev türü yalnızca ilk kez ayarlanır", () => {
+    const p = new ExitCardPolicy();
+    p.setTask("kod");
+    const first = p.norm;
+    p.setTask("ceviri");
+    expect(p.norm).toBe(first);
+  });
+
+  it("reset() görev türünü de siler", () => {
+    const p = new ExitCardPolicy();
+    p.setTask("ceviri");
+    p.reset();
+    expect(p.norm).toBeNull();
+    expect(p.minTurns).toBe(EXIT_CARD_MIN_TURNS);
   });
 });

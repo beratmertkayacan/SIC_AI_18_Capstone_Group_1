@@ -1,10 +1,12 @@
-import { MIN_NORMALIZED_CHARS, RECENT_MESSAGES, SIMILARITY_THRESHOLD } from "../config";
+import { MIN_NORMALIZED_CHARS, RECENT_MESSAGES, SIMILARITY_THRESHOLD, SOFT_SIMILARITY_THRESHOLD } from "../config";
 import { ngramVector, cosine } from "./similarity";
 import { normalizeText } from "./text";
 
 export interface RepeatCheck {
-  /** Bu mesaj, yakın zamanda gönderilen birine benziyor mu? */
+  /** Bu mesaj, yakın zamanda gönderilen birinin neredeyse aynısı mı? (şerit çıkar) */
   similar: boolean;
+  /** Farklı kelimelerle de olsa aynı talebe benziyor mu? (yalnızca çıkış kartı için sayılır) */
+  soft: boolean;
   /** En yüksek benzerlik (0..1); karşılaştırılamadıysa 0. */
   score: number;
   /** Karşılaştırılamayan kısa mesaj mı? */
@@ -21,11 +23,11 @@ export class RepeatDetector {
   /** Mesaj gönderilmeden önce çağrılır; mesajı listeye eklemez. */
   check(text: string): RepeatCheck {
     const normalized = normalizeText(text);
-    if (normalized.length < MIN_NORMALIZED_CHARS) return { similar: false, score: 0, tooShort: true };
+    if (normalized.length < MIN_NORMALIZED_CHARS) return { similar: false, soft: false, score: 0, tooShort: true };
     const vec = ngramVector(normalized);
     let score = 0;
     for (const previous of this.recent) score = Math.max(score, cosine(vec, previous));
-    return { similar: score >= SIMILARITY_THRESHOLD, score, tooShort: false };
+    return { similar: score >= SIMILARITY_THRESHOLD, soft: score >= SOFT_SIMILARITY_THRESHOLD, score, tooShort: false };
   }
 
   /** Mesaj gönderildikten sonra çağrılır. Kısa mesajlar saklanmaz. */
