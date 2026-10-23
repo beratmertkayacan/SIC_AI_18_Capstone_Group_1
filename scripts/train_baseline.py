@@ -11,8 +11,11 @@ gireceğini tahmin edebiliyor muyuz?
 Veri dengesiz olduğu için ana metrik PR-AUC'dir. Rastgele tahminin PR-AUC değeri
 pozitif sınıf oranına eşittir; bir modelin işe yaraması için bunun belirgin şekilde üstünde olması gerekir.
 
+Not: Bu ilk denemedir ve ilk etiketle (label_v1) çalışır; sonuçları outputs/baseline_metrics.json
+içinde kayıtlı. Güncel model karşılaştırması için scripts/train_models.py (docs/08).
+
 Çalıştırma:
-    python scripts/build_dataset.py
+    python scripts/build_dataset.py --source 1m
     python scripts/train_baseline.py
 """
 
@@ -35,10 +38,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from kafiai.config import REPEAT_SIM_THRESHOLD, SEED  # noqa: E402
-from kafiai.features import FEATURE_COLUMNS  # noqa: E402
+from kafiai.features import BASE_FEATURES as FEATURE_COLUMNS  # noqa: E402
 from kafiai.split import user_split  # noqa: E402
 
-TABLE = ROOT / "data" / "processed" / "train_table.parquet"
+TABLE = ROOT / "data" / "processed" / "train_table_1m.parquet"
 METRICS = ROOT / "outputs" / "baseline_metrics.json"
 FIG = ROOT / "figures" / "13_feature_importance.png"
 
@@ -64,13 +67,13 @@ def best_threshold(y_true, prob):
 
 def main():
     if not TABLE.exists():
-        sys.exit("Önce 'python scripts/build_dataset.py' çalıştırın.")
+        sys.exit("Önce 'python scripts/build_dataset.py --source 1m' çalıştırın.")
 
     table = pd.read_parquet(TABLE)
     train_idx, test_idx = user_split(table)
     train, test = table.loc[train_idx], table.loc[test_idx]
-    X_train, y_train = train[FEATURE_COLUMNS], train["label"]
-    X_test, y_test = test[FEATURE_COLUMNS], test["label"]
+    X_train, y_train = train[FEATURE_COLUMNS], train["label_v1"]
+    X_test, y_test = test[FEATURE_COLUMNS], test["label_v1"]
     print(f"Eğitim {len(train):,} sohbet / test {len(test):,} sohbet, kullanıcılar ayrık")
     print(f"Pozitif oranı: eğitim %{y_train.mean()*100:.1f}, test %{y_test.mean()*100:.1f}")
 

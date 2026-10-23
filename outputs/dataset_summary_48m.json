@@ -1,0 +1,26 @@
+{
+  "source": "48m",
+  "cleaning_steps": {
+    "ham veri": 29508,
+    "tekrar kayıtlar çıkarıldı": 29508,
+    "ilk mesajı boş olanlar çıkarıldı": 29224,
+    "şablon sohbetler çıkarıldı": 28330,
+    "en az 4 tur": 28330,
+    "100 turdan uzunlar çıkarıldı": 28316,
+    "ilk 2 mesajı dolu olanlar": 28123
+  },
+  "n_labelable": 28123,
+  "n_users": 12352,
+  "k_turns": 2,
+  "positive_rate_pct": 6.66,
+  "positive_rate_v1_pct": 10.24,
+  "positive_by_reason_v1_pct": {
+    "repeat_rule": 9.78,
+    "repair_rule": 0.59
+  },
+  "turkish_rows": 268,
+  "date_range": [
+    "2023-04-09",
+    "2025-07-31"
+  ]
+}

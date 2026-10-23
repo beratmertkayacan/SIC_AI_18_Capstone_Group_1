@@ -1,13 +1,22 @@
 """Model eğitimi için öznitelik ve etiket tablosunu hazırlar.
 
-Girdi:  data/processed/wildchat_sample_50000.pkl  (run_eda.py ilk çalıştığında oluşur)
-Çıktı:  data/processed/train_table.parquet         (repoya eklenmez)
-        outputs/dataset_summary.json               (repoda durur, sadece sayılar)
+Kaynaklar (bkz. src/kafiai/data.py):
+    1m           WildChat 1M örneklemi (50.000 sohbet)
+    48m          WildChat 4.8M, en az 4 turlu sohbetler (ana eğitim verisi)
+    48m_turkish  WildChat 4.8M, Türkçe sohbetler (ayrı test seti)
+    wildfeedback WildFeedback; ayrıca hazır memnuniyetsizlik etiketi (label_dsat) eklenir
+
+Çıktılar:
+    data/processed/train_table_<kaynak>.parquet   (repoya eklenmez)
+    outputs/dataset_summary_<kaynak>.json         (repoda durur, yalnızca sayılar)
 
 Çalıştırma (repo kök klasöründe):
-    python scripts/build_dataset.py
+    python scripts/build_dataset.py --source 48m
+    python scripts/build_dataset.py --source 1m
+    python scripts/build_dataset.py --source 48m_turkish
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -17,67 +26,78 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from kafiai.config import K_TURNS, MIN_TURNS_FOR_LABEL  # noqa: E402
-from kafiai.features import build_feature_table  # noqa: E402
-from kafiai.labels import future_signals  # noqa: E402
-from kafiai.split import mark_templates  # noqa: E402
-from kafiai.config import LABEL_MIN_REPAIRS, LABEL_MIN_REPEATS  # noqa: E402
+from kafiai.config import K_TURNS, LABEL_MIN_REPAIRS, LABEL_MIN_REPEATS  # noqa: E402
+from kafiai.data import PROCESSED, SOURCES, clean_conversations, load_source  # noqa: E402
+from kafiai.features import build_feature_table, text_of_first_turns  # noqa: E402
+from kafiai.labels import future_signals, future_signals_v2  # noqa: E402
+from kafiai.config import LABEL_V2_MIN_REPAIRS  # noqa: E402
 
-SAMPLE = ROOT / "data" / "processed" / "wildchat_sample_50000.pkl"
-TABLE = ROOT / "data" / "processed" / "train_table.parquet"
-SUMMARY = ROOT / "outputs" / "dataset_summary.json"
+KEEP = ["conversation_hash", "hashed_ip", "timestamp", "model", "language", "country", "n_user_msgs"]
 
 
 def main():
-    if not SAMPLE.exists():
-        sys.exit(f"Örneklem bulunamadı: {SAMPLE}\nÖnce 'python scripts/run_eda.py' çalıştırın.")
+    parser = argparse.ArgumentParser(description="Öznitelik ve etiket tablosu")
+    parser.add_argument("--source", choices=["1m", "48m", "48m_turkish", "wildfeedback"], default="48m")
+    args = parser.parse_args()
 
-    df = pd.read_pickle(SAMPLE)
-    n_total = len(df)
+    df = load_source(args.source)
 
-    # 1. Şablon sohbetleri çıkar
-    df["templated"] = mark_templates(df)
-    df = df[~df["templated"]]
-    n_organic = len(df)
+    # 4.8M'de şablon sıklığı, verinin genelini temsil eden rastgele örneklemle birlikte sayılır.
+    reference = None
+    if args.source.startswith("48m") and SOURCES["48m_sample"].exists():
+        reference = load_source("48m_sample")
+    df, steps = clean_conversations(df, template_reference=reference)
+    for name, n in steps.items():
+        print(f"{n:>9,}  {name}")
 
-    # 2. Yalnızca etiket üretilebilecek kadar uzun sohbetleri tut
-    df = df[df["n_user_msgs"] >= MIN_TURNS_FOR_LABEL].copy()
-    print(f"{n_total:,} sohbet, şablon dışı {n_organic:,}, en az {MIN_TURNS_FOR_LABEL} turlu {len(df):,}")
-
-    # 3. Öznitelikler (yalnızca ilk K_TURNS mesaj)
+    # Öznitelikler yalnızca ilk K_TURNS mesajdan, etiket yalnızca sonrasından.
     features = build_feature_table(df, k=K_TURNS)
-
-    # 4. Etiket (yalnızca K_TURNS sonrası)
     signals = df["user_msgs"].apply(lambda m: future_signals(m, k=K_TURNS))
     df["future_repeats"] = signals.str[0]
     df["future_repairs"] = signals.str[1]
-    df["label"] = ((df["future_repeats"] >= LABEL_MIN_REPEATS) | (df["future_repairs"] >= LABEL_MIN_REPAIRS)).astype(int)
+    df["label_v1"] = ((df["future_repeats"] >= LABEL_MIN_REPEATS)
+                      | (df["future_repairs"] >= LABEL_MIN_REPAIRS)).astype(int)
 
-    table = pd.concat(
-        [df[["conversation_hash", "hashed_ip", "language", "country", "n_user_msgs",
-             "future_repeats", "future_repairs", "label"]], features],
-        axis=1,
-    )
-    TABLE.parent.mkdir(parents=True, exist_ok=True)
-    table.to_parquet(TABLE)
+    # Modelin hedefi ikinci sürüm etiket (labels.loop_label ile aynı kural).
+    v2 = df["user_msgs"].apply(lambda m: future_signals_v2(m, k=K_TURNS))
+    df["future_exact"] = v2.str[0]
+    df["future_strong_repairs"] = v2.str[1]
+    df["label"] = ((df["future_strong_repairs"] >= LABEL_V2_MIN_REPAIRS)
+                   | ((df["future_strong_repairs"] >= 1) & (df["future_exact"] >= 1))).astype(int)
+    df["text"] = df["user_msgs"].apply(text_of_first_turns)
+
+    # WildFeedback: modelin görmediği turlarda (K_TURNS ve sonrası) kullanıcı memnuniyetsizliği var mı?
+    if "dsat_turns" in df.columns:
+        df["label_dsat"] = df["dsat_turns"].apply(lambda turns: int(any(t >= K_TURNS for t in turns)))
+
+    keep = [c for c in KEEP + ["shard", "label_dsat", "text_key"] if c in df.columns]
+    table = pd.concat([df[keep + ["future_repeats", "future_repairs", "label_v1",
+                                       "future_exact", "future_strong_repairs", "label", "text"]], features], axis=1)
+    table_path = PROCESSED / f"train_table_{args.source}.parquet"
+    table.to_parquet(table_path)
 
     summary = {
-        "n_sample": n_total,
-        "n_after_template_filter": n_organic,
+        "source": args.source,
+        "cleaning_steps": steps,
         "n_labelable": int(len(table)),
         "n_users": int(table["hashed_ip"].nunique()),
         "k_turns": K_TURNS,
         "positive_rate_pct": round(float(table["label"].mean() * 100), 2),
-        "positive_by_reason_pct": {
+        "positive_rate_v1_pct": round(float(table["label_v1"].mean() * 100), 2),
+        "positive_by_reason_v1_pct": {
             "repeat_rule": round(float((table["future_repeats"] >= LABEL_MIN_REPEATS).mean() * 100), 2),
             "repair_rule": round(float((table["future_repairs"] >= LABEL_MIN_REPAIRS).mean() * 100), 2),
         },
         "turkish_rows": int((table["language"] == "Turkish").sum()),
     }
-    SUMMARY.parent.mkdir(parents=True, exist_ok=True)
-    SUMMARY.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps(summary, indent=2, ensure_ascii=False))
-    print(f"Tablo yazıldı: {TABLE.relative_to(ROOT)}")
+    if table["timestamp"].notna().any():
+        summary["date_range"] = [str(table["timestamp"].min().date()), str(table["timestamp"].max().date())]
+    if "label_dsat" in table.columns:
+        summary["dsat_after_k_pct"] = round(float(table["label_dsat"].mean() * 100), 2)
+    out = ROOT / "outputs" / f"dataset_summary_{args.source}.json"
+    out.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(json.dumps({k: v for k, v in summary.items() if k != "cleaning_steps"}, indent=2, ensure_ascii=False))
+    print(f"Tablo yazıldı: {table_path.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

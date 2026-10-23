@@ -1,0 +1,23 @@
+{
+  "source": "wildfeedback",
+  "cleaning_steps": {
+    "ham veri": 88920,
+    "tekrar kayıtlar çıkarıldı": 88920,
+    "ilk mesajı boş olanlar çıkarıldı": 88920,
+    "şablon sohbetler çıkarıldı": 85282,
+    "en az 4 tur": 56718,
+    "100 turdan uzunlar çıkarıldı": 56718,
+    "ilk 2 mesajı dolu olanlar": 56718
+  },
+  "n_labelable": 56718,
+  "n_users": 56718,
+  "k_turns": 2,
+  "positive_rate_pct": 8.31,
+  "positive_rate_v1_pct": 14.63,
+  "positive_by_reason_v1_pct": {
+    "repeat_rule": 13.87,
+    "repair_rule": 0.97
+  },
+  "turkish_rows": 0,
+  "dsat_after_k_pct": 13.33
+}

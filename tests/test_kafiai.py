@@ -8,9 +8,9 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from kafiai.features import FEATURE_COLUMNS, build_feature_table, conversation_features  # noqa: E402
-from kafiai.labels import weak_label  # noqa: E402
+from kafiai.labels import loop_label, weak_label  # noqa: E402
 from kafiai.split import mark_templates, user_split  # noqa: E402
-from kafiai.text import has_repair, request_type, similarity  # noqa: E402
+from kafiai.text import has_repair, has_strong_repair, request_type, similarity  # noqa: E402
 
 
 def test_similarity_same_and_different():
@@ -55,3 +55,30 @@ def test_templates_and_user_split():
     train_idx, test_idx = user_split(df, test_size=0.3)
     assert set(df.loc[train_idx, "hashed_ip"]).isdisjoint(df.loc[test_idx, "hashed_ip"])
     assert list(build_feature_table(df).columns) == FEATURE_COLUMNS
+
+
+def test_strong_repair_and_loop_label_v2():
+    assert has_strong_repair("still not working, same error")
+    assert has_strong_repair("olmadı, hala aynı hata")
+    assert not has_strong_repair("please make it shorter")
+    stuck = ["fix my code", "here is the code", "it still gives an error", "same error again"]
+    batch = ["list satellites starting with AA", "list satellites starting with AB",
+             "list satellites starting with AC", "list satellites starting with AD"]
+    assert loop_label(stuck, k=2) == 1
+    assert loop_label(batch, k=2) == 0  # seri iş: benzer ama döngü değil
+    assert weak_label(batch, k=2) == 1  # ilk sürüm bunu yanlışlıkla döngü sayıyordu
+
+
+def test_clean_conversations_steps():
+    from kafiai.data import clean_conversations
+    rows = []
+    for i in range(30):
+        msgs = [f"soru {i} hakkında bir şey", "biraz daha açar mısın", "tamam", "teşekkürler"]
+        rows.append({"conversation_hash": f"h{i % 25}", "first_prompt": msgs[0], "user_msgs": msgs,
+                     "n_user_msgs": 4, "hashed_ip": f"u{i}", "country": None})
+    rows.append({"conversation_hash": "bos", "first_prompt": " ", "user_msgs": [" ", "a", "b", "c"],
+                 "n_user_msgs": 4, "hashed_ip": "x", "country": "TR"})
+    clean, steps = clean_conversations(pd.DataFrame(rows))
+    assert steps["tekrar kayıtlar çıkarıldı"] == 26   # 5 tekrar kayıt
+    assert steps["ilk mesajı boş olanlar çıkarıldı"] == 25
+    assert (clean["country"] == "Bilinmiyor").all()
