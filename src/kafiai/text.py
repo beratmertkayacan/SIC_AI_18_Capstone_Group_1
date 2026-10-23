@@ -55,8 +55,28 @@ _REPAIR_RX = re.compile("|".join(REPAIR_PATTERNS), re.IGNORECASE)
 
 
 def has_repair(text):
-    """Mesajda memnuniyetsizlik veya düzeltme talebi var mı?"""
+    """Mesajda memnuniyetsizlik veya düzeltme talebi var mı? (ilk sürüm listesi)"""
     return bool(_REPAIR_RX.search(text or ""))
+
+
+# İkinci sürüm: WildFeedback'teki memnuniyetsizlik (DSAT) işaretleriyle seçildi (docs/08, Bölüm 5).
+# Her ifade, geçtiği sohbetlerde memnuniyetsizlik oranını genel orana göre en az 2 kat artırıyor.
+# "try again", "please" gibi yeniden üretme istekleri bilerek yok: bunlar memnuniyetsizliği ancak
+# 1,3 kat artırıyor, yani çoğu zaman normal bir iş akışının parçası.
+STRONG_REPAIR_PATTERNS = [
+    r"\berror\b", r"not work", r"doesn'?t work", r"isn'?t working", r"\bwrong\b", r"\bincorrect\b",
+    r"^\s*no\b", r"^\s*but\b", r"\bsame (error|problem|issue|result|thing)\b",
+    r"\byou (didn'?t|did not|forgot|missed|ignored)\b", r"\bi (said|asked|told)\b", r"not what i",
+    r"\bstill\b", r"\bagain\b", r"!!",
+    r"olmadı", r"\bhala\b", r"hâlâ", r"\byine\b", r"\bhata\b", r"çalışmıyor", r"yanlış", r"anlamadın",
+    r"ben ne dedim", r"öyle değil", r"^\s*hayır\b", r"aynı hata",
+]
+_STRONG_REPAIR_RX = re.compile("|".join(STRONG_REPAIR_PATTERNS), re.IGNORECASE)
+
+
+def has_strong_repair(text):
+    """Mesajda bir önceki cevabın işe yaramadığını gösteren güçlü bir ifade var mı?"""
+    return bool(_STRONG_REPAIR_RX.search(text or ""))
 
 
 # Talep türü: kullanıcı işi doğrudan yaptırmak mı, yoksa anlamak mı istiyor?

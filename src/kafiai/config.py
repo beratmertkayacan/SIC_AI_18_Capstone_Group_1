@@ -24,6 +24,14 @@ REPEAT_SIM_THRESHOLD = 0.75
 LABEL_MIN_REPEATS = 2
 LABEL_MIN_REPAIRS = 2
 
+# Etiketin ikinci sürümü (docs/08, Bölüm 5). WildFeedback'te ilk kural, kullanıcının gerçekten
+# memnun kalmadığı sohbetleri rastgeleden iyi ayıramadı: benzer mesajların çoğu "AA, AB, AC için
+# aynısını yap" gibi verimli seri işlerdi. Yeni kuralda benzerlik yalnızca birebir yeniden gönderimde
+# (EXACT_REPEAT_THRESHOLD) sayılır ve asıl sinyal güçlü onarım ifadeleridir:
+#     en az 2 güçlü onarım ifadesi  ya da  1 güçlü onarım ifadesi + 1 birebir yeniden gönderim
+EXACT_REPEAT_THRESHOLD = 0.97
+LABEL_V2_MIN_REPAIRS = 2
+
 # Şablon tespiti: ilk mesajın ilk 80 karakteri örneklemde bu kadar veya
 # daha fazla tekrar ediyorsa sohbet otomatik gönderilmiş kabul edilir (Bölüm 2 ile aynı kural).
 TEMPLATE_PREFIX_CHARS = 80
@@ -31,6 +39,14 @@ TEMPLATE_MIN_COUNT = 20
 
 # Çok uzun mesajlar (yapıştırılmış kod, metin) benzerliği bozmasın diye kesilir.
 MAX_CHARS = 1000
+
+# Aykırı uzunluk sınırı. Sohbetlerin %99,9'u 32 turun altında; 100 turu aşan birkaç sohbet
+# çoğunlukla otomatik ya da test amaçlı ve etiketi tek başına çarpıtabilir.
+MAX_TURNS = 100
+
+# Model keşfi: kullanıcı bazlı çapraz doğrulamada kat sayısı ve test için ayrılan kullanıcı oranı.
+CV_FOLDS = 5
+TEST_SIZE = 0.2
 
 # Eklentiyle ortak değerler. Bunlar `extension/src/config.ts` dosyasındakilerle aynı olmak
 # zorunda; tests/test_extension_parity.py iki dosyayı karşılaştırır ve farklıysa hata verir.

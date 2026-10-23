@@ -9,10 +9,16 @@ Kural: modelin görmediği kısımda, yani k. turdan sonra,
     en az LABEL_MIN_REPEATS kez neredeyse aynı mesaj tekrarlanmışsa
     ya da en az LABEL_MIN_REPAIRS kez onarım ifadesi kullanılmışsa
 sohbet "döngü" (1) olarak etiketlenir, aksi halde 0.
+
+İkinci sürüm (loop_label): WildFeedback'teki memnuniyetsizlik işaretleriyle karşılaştırınca ilk
+kuralın benzerlik kısmının gerçek memnuniyetsizliği yakalamadığı görüldü. Yeni kural güçlü onarım
+ifadelerine dayanır; birebir yeniden gönderim yalnızca bir onarım ifadesiyle birlikte sayılır.
+Ayrıntı ve sayılar: docs/08_data_preparation_and_model.md, Bölüm 5.
 """
 
-from kafiai.config import K_TURNS, LABEL_MIN_REPAIRS, LABEL_MIN_REPEATS, REPEAT_SIM_THRESHOLD
-from kafiai.text import consecutive_similarities, has_repair
+from kafiai.config import (EXACT_REPEAT_THRESHOLD, K_TURNS, LABEL_MIN_REPAIRS, LABEL_MIN_REPEATS,
+                           LABEL_V2_MIN_REPAIRS, REPEAT_SIM_THRESHOLD)
+from kafiai.text import consecutive_similarities, has_repair, has_strong_repair
 
 
 def future_signals(user_messages, k=K_TURNS):
@@ -32,3 +38,18 @@ def weak_label(user_messages, k=K_TURNS):
     """Tek bir sohbet için 0 veya 1 döner."""
     repeats, repairs = future_signals(user_messages, k)
     return int(repeats >= LABEL_MIN_REPEATS or repairs >= LABEL_MIN_REPAIRS)
+
+
+def future_signals_v2(user_messages, k=K_TURNS):
+    """İkinci sürüm için k. turdan sonraki birebir yeniden gönderim ve güçlü onarım sayıları."""
+    later = list(user_messages[k - 1:])
+    sims = consecutive_similarities(later)
+    exact = sum(s >= EXACT_REPEAT_THRESHOLD for s in sims)
+    repairs = sum(has_strong_repair(m) for m in user_messages[k:])
+    return exact, repairs
+
+
+def loop_label(user_messages, k=K_TURNS):
+    """Etiketin ikinci sürümü; modeller bununla eğitilir. 0 veya 1 döner."""
+    exact, repairs = future_signals_v2(user_messages, k)
+    return int(repairs >= LABEL_V2_MIN_REPAIRS or (repairs >= 1 and exact >= 1))
