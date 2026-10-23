@@ -1,0 +1,19 @@
+[
+  {"text": "Bu Python kodunu düzelt: def f(x): return x+1", "task": "kod"},
+  {"text": "Traceback (most recent call last): File \"main.py\"", "task": "kod"},
+  {"text": "fonksiyonum hata veriyor neden", "task": "kod"},
+  {"text": "Bu paragrafı İngilizceye çevir", "task": "ceviri"},
+  {"text": "Translate the following text to Turkish", "task": "ceviri"},
+  {"text": "Şu makaleyi özetle lütfen", "task": "ozet"},
+  {"text": "Summarize this article in three bullet points", "task": "ozet"},
+  {"text": "Bana bir dilekçe yaz", "task": "yazma"},
+  {"text": "Write an essay about climate change", "task": "yazma"},
+  {"text": "Annem için kısa bir şiir yazar mısın", "task": "yazma"},
+  {"text": "Fotosentez nasıl çalışır", "task": "soru"},
+  {"text": "What is the difference between HIV and AIDS", "task": "soru"},
+  {"text": "Osmanlı neden çöktü?", "task": "soru"},
+  {"text": "İSTANBUL'un nüfusu ne kadar?", "task": "soru"},
+  {"text": "merhaba", "task": "diger"},
+  {"text": "Freedom planet characters react to Goku", "task": "diger"},
+  {"text": "用中文解释机器学习", "task": "diger"}
+]

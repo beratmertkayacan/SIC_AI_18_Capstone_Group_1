@@ -1,0 +1,42 @@
+{
+  "source": "WildChat 1M, 50.000 sohbetlik örneklem, şablon sohbetler hariç",
+  "note": "scripts/calibrate_extension.py tarafından üretildi; elle değiştirmeyin.",
+  "norms": {
+    "kod": {
+      "label": "Kod yazma ve hata ayıklama",
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 8.0
+    },
+    "ceviri": {
+      "label": "Çeviri",
+      "median_turns": 3.0,
+      "p75_turns": 6.0,
+      "p90_turns": 10.0
+    },
+    "ozet": {
+      "label": "Özetleme",
+      "median_turns": 3.0,
+      "p75_turns": 4.0,
+      "p90_turns": 8.0
+    },
+    "yazma": {
+      "label": "Metin yazma",
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 8.0
+    },
+    "soru": {
+      "label": "Soru ve açıklama",
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 9.0
+    },
+    "diger": {
+      "label": "Diğer",
+      "median_turns": 3.0,
+      "p75_turns": 5.0,
+      "p90_turns": 8.0
+    }
+  }
+}
