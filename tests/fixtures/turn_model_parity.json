@@ -1,0 +1,1344 @@
+{
+  "conversations": [
+    {
+      "messages": [
+        "Python'da bir listeyi tersine çeviren fonksiyon yaz",
+        "Teşekkürler, şimdi de sıralayan bir tane yaz"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 2.0794415416798357,
+        "last_words_log": 2.0794415416798357,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 0,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.20947289622255394,
+        "max_sim": 0.20947289622255394,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 1,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.06602980676832586,
+      "level": "dusuk",
+      "reasons": [
+        "task_kod",
+        "last_sim"
+      ]
+    },
+    {
+      "messages": [
+        "fix this code:\n```python\ndef f(x):\n    return x+1\n```",
+        "it still gives an error"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 2.302585092994046,
+        "last_words_log": 1.791759469228055,
+        "first_lines": 5,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.013157894736842105,
+        "has_code": 1,
+        "last_sim": 0.06359630007488934,
+        "max_sim": 0.06359630007488934,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 1,
+        "task_kod": 1,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.3223635937289455,
+      "level": "yuksek",
+      "reasons": [
+        "n_strong_repairs",
+        "has_code"
+      ]
+    },
+    {
+      "messages": [
+        "fix this code:\n```python\ndef f(x):\n    return x+1\n```",
+        "it still gives an error",
+        "same error again!!"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 2.302585092994046,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 5,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.014084507042253521,
+        "has_code": 1,
+        "last_sim": 0.26064301757134345,
+        "max_sim": 0.26064301757134345,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 2,
+        "task_kod": 1,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.48679584956168925,
+      "level": "yuksek",
+      "reasons": [
+        "n_strong_repairs",
+        "has_code"
+      ]
+    },
+    {
+      "messages": [
+        "fix this code:\n```python\ndef f(x):\n    return x+1\n```",
+        "it still gives an error",
+        "same error again!!",
+        "you didn't change anything"
+      ],
+      "features": {
+        "turn": 4,
+        "first_words_log": 2.302585092994046,
+        "last_words_log": 1.6094379124341003,
+        "first_lines": 5,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.012658227848101266,
+        "has_code": 1,
+        "last_sim": 0.0472455591261534,
+        "max_sim": 0.26064301757134345,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 3,
+        "task_kod": 1,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.7195685930618306,
+      "level": "yuksek",
+      "reasons": [
+        "n_strong_repairs",
+        "has_code"
+      ]
+    },
+    {
+      "messages": [
+        "Bana bir dilekçe yaz",
+        "olmadı, daha resmi olsun"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.6094379124341003,
+        "last_words_log": 1.6094379124341003,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.044721359549995794,
+        "max_sim": 0.044721359549995794,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 1,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 1,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.12273952921220514,
+      "level": "dusuk",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "Bana bir dilekçe yaz",
+        "olmadı, daha resmi olsun",
+        "HAYIR, öyle değil"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 1.6094379124341003,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.044721359549995794,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 2,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 1,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.23822030316081538,
+      "level": "oneri",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "Bana bir dilekçe yaz",
+        "olmadı, daha resmi olsun",
+        "HAYIR, öyle değil",
+        "Ben ne dedim, tekrar yaz"
+      ],
+      "features": {
+        "turn": 4,
+        "first_words_log": 1.6094379124341003,
+        "last_words_log": 1.791759469228055,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.10425720702853739,
+        "max_sim": 0.10425720702853739,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 3,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 1,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.4393912403315405,
+      "level": "yuksek",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "Write an essay about climate change",
+        "Write an essay about climate change"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.9459101490553132,
+        "last_words_log": 1.9459101490553132,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 0,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 1.0,
+        "max_sim": 1.0,
+        "n_similar": 1,
+        "n_exact": 1,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 1,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.03581673064839959,
+      "level": "dusuk",
+      "reasons": [
+        "n_exact",
+        "last_short"
+      ]
+    },
+    {
+      "messages": [
+        "Write an essay about climate change",
+        "Write an essay about climate change",
+        "Write an essay about climate change"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 1.9459101490553132,
+        "last_words_log": 1.9459101490553132,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 0,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 1.0,
+        "max_sim": 1.0,
+        "n_similar": 2,
+        "n_exact": 2,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 1,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.03484286715767076,
+      "level": "dusuk",
+      "reasons": [
+        "n_exact",
+        "last_short"
+      ]
+    },
+    {
+      "messages": [
+        "İSTANBUL'un nüfusu kaç?",
+        "IŞIK hızı nedir?"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.3862943611198906,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 1,
+        "last_question": 1,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.0,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 1,
+        "task_diger": 0
+      },
+      "probability": 0.03810713606134052,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "I asked for a summary, not a list",
+        "I said shorter"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 2.1972245773362196,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.08574929257125441,
+        "max_sim": 0.08574929257125441,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 1,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 1,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.10690657429160745,
+      "level": "dusuk",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "I asked for a summary, not a list",
+        "I said shorter",
+        "No, that's wrong"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 2.1972245773362196,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.08574929257125441,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 2,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 1,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.22414650644462988,
+      "level": "oneri",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "Summarize this article in 3 bullet points: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ",
+        "make it shorter"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 4.477336814478207,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0018587360594795538,
+        "has_code": 0,
+        "last_sim": 0.07342489033581716,
+        "max_sim": 0.07342489033581716,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 1,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.04547797934757885,
+      "level": "dusuk",
+      "reasons": [
+        "first_words_log",
+        "last_sim"
+      ]
+    },
+    {
+      "messages": [
+        "Summarize this article in 3 bullet points: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ",
+        "make it shorter",
+        "shorter"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 4.477336814478207,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0018867924528301887,
+        "has_code": 0,
+        "last_sim": 0.641688947919748,
+        "max_sim": 0.641688947919748,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 1,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.03339965128848803,
+      "level": "dusuk",
+      "reasons": [
+        "first_words_log",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Summarize this article in 3 bullet points: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ",
+        "make it shorter",
+        "shorter",
+        "even shorter please"
+      ],
+      "features": {
+        "turn": 4,
+        "first_words_log": 4.477336814478207,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0018450184501845018,
+        "has_code": 0,
+        "last_sim": 0.6069769786668839,
+        "max_sim": 0.641688947919748,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 1,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.04032875451816452,
+      "level": "dusuk",
+      "reasons": [
+        "first_words_log",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Summarize this article in 3 bullet points: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ",
+        "make it shorter",
+        "shorter",
+        "even shorter please",
+        "ok"
+      ],
+      "features": {
+        "turn": 5,
+        "first_words_log": 4.477336814478207,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0019047619047619048,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.641688947919748,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 1,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.043233122899571555,
+      "level": "dusuk",
+      "reasons": [
+        "first_words_log",
+        "last_sim"
+      ]
+    },
+    {
+      "messages": [
+        "Объясни теорию относительности",
+        "подробнее"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.3862943611198906,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.0,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 1
+      },
+      "probability": 0.02405497330994867,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Объясни теорию относительности",
+        "подробнее",
+        "ещё подробнее"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 1.3862943611198906,
+        "last_words_log": 1.0986122886681098,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.8320502943378436,
+        "max_sim": 0.8320502943378436,
+        "n_similar": 1,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 1
+      },
+      "probability": 0.016236392528293283,
+      "level": "dusuk",
+      "reasons": [
+        "last_lines",
+        "turn"
+      ]
+    },
+    {
+      "messages": [
+        "Çeviri yap: 'Merhaba dünya' İngilizceye",
+        "Şimdi Almancaya"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.791759469228055,
+        "last_words_log": 1.0986122886681098,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.08164965809277261,
+        "max_sim": 0.08164965809277261,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 1,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.03137948299190234,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Çeviri yap: 'Merhaba dünya' İngilizceye",
+        "Şimdi Almancaya",
+        "Fransızcaya da çevir"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 1.791759469228055,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.1732050807568877,
+        "max_sim": 0.1732050807568877,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 1,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.032986725935728156,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Çeviri yap: 'Merhaba dünya' İngilizceye",
+        "Şimdi Almancaya",
+        "Fransızcaya da çevir",
+        "İspanyolcaya"
+      ],
+      "features": {
+        "turn": 4,
+        "first_words_log": 1.791759469228055,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.2581988897471611,
+        "max_sim": 0.2581988897471611,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 1,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.026979606094031484,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Çeviri yap: 'Merhaba dünya' İngilizceye",
+        "Şimdi Almancaya",
+        "Fransızcaya da çevir",
+        "İspanyolcaya",
+        "İtalyancaya"
+      ],
+      "features": {
+        "turn": 5,
+        "first_words_log": 1.791759469228055,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.26111648393354675,
+        "max_sim": 0.26111648393354675,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 1,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.026878917166061958,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Çeviri yap: 'Merhaba dünya' İngilizceye",
+        "Şimdi Almancaya",
+        "Fransızcaya da çevir",
+        "İspanyolcaya",
+        "İtalyancaya",
+        "Japoncaya"
+      ],
+      "features": {
+        "turn": 6,
+        "first_words_log": 1.791759469228055,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.40201512610368484,
+        "max_sim": 0.40201512610368484,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 1,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.025943004289842007,
+      "level": "dusuk",
+      "reasons": [
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Çeviri yap: 'Merhaba dünya' İngilizceye",
+        "Şimdi Almancaya",
+        "Fransızcaya da çevir",
+        "İspanyolcaya",
+        "İtalyancaya",
+        "Japoncaya",
+        "Korece"
+      ],
+      "features": {
+        "turn": 7,
+        "first_words_log": 1.791759469228055,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.40201512610368484,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 1,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.03066365194066108,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "Çeviri yap: 'Merhaba dünya' İngilizceye",
+        "Şimdi Almancaya",
+        "Fransızcaya da çevir",
+        "İspanyolcaya",
+        "İtalyancaya",
+        "Japoncaya",
+        "Korece",
+        "Çince"
+      ],
+      "features": {
+        "turn": 8,
+        "first_words_log": 1.791759469228055,
+        "last_words_log": 0.6931471805599453,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.18257418583505536,
+        "max_sim": 0.40201512610368484,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 1,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.028424637020245686,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "What is 2^10?",
+        "And 2^20?"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.3862943611198906,
+        "last_words_log": 1.0986122886681098,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 1,
+        "last_question": 1,
+        "last_short": 1,
+        "digit_ratio": 0.2727272727272727,
+        "has_code": 0,
+        "last_sim": 0.10206207261596577,
+        "max_sim": 0.10206207261596577,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 1,
+        "task_diger": 0
+      },
+      "probability": 0.03322522573043749,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "What is 2^10?",
+        "And 2^20?",
+        "What about 3³ and 10²?"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 1.3862943611198906,
+        "last_words_log": 1.791759469228055,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 1,
+        "last_question": 1,
+        "last_short": 1,
+        "digit_ratio": 0.17142857142857143,
+        "has_code": 0,
+        "last_sim": 0.23145502494313785,
+        "max_sim": 0.23145502494313785,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 1,
+        "task_diger": 0
+      },
+      "probability": 0.03898374296341768,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "   boşluklu   mesaj   ",
+        ""
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.0986122886681098,
+        "last_words_log": 0.0,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.0,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 0,
+        "n_strong_repairs": 0,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 1
+      },
+      "probability": 0.019308836857859373,
+      "level": "dusuk",
+      "reasons": [
+        "last_sim",
+        "last_lines"
+      ]
+    },
+    {
+      "messages": [
+        "   boşluklu   mesaj   ",
+        "",
+        "hata hâlâ var"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 1.0986122886681098,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0,
+        "max_sim": 0.0,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 1,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 1
+      },
+      "probability": 0.08972541327220399,
+      "level": "dusuk",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "   boşluklu   mesaj   ",
+        "",
+        "hata hâlâ var",
+        "hala çalışmıyor"
+      ],
+      "features": {
+        "turn": 4,
+        "first_words_log": 1.0986122886681098,
+        "last_words_log": 1.0986122886681098,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.0,
+        "has_code": 0,
+        "last_sim": 0.0716114874039433,
+        "max_sim": 0.0716114874039433,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 2,
+        "task_kod": 0,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 1
+      },
+      "probability": 0.17280414681323905,
+      "level": "oneri",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "Generate SQL for top 10 customers",
+        "doesnt work"
+      ],
+      "features": {
+        "turn": 2,
+        "first_words_log": 1.9459101490553132,
+        "last_words_log": 1.0986122886681098,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.045454545454545456,
+        "has_code": 0,
+        "last_sim": 0.0524863881081478,
+        "max_sim": 0.0524863881081478,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 1,
+        "task_kod": 1,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.1562560906671982,
+      "level": "oneri",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "Generate SQL for top 10 customers",
+        "doesnt work",
+        "isn't working either"
+      ],
+      "features": {
+        "turn": 3,
+        "first_words_log": 1.9459101490553132,
+        "last_words_log": 1.3862943611198906,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.03773584905660377,
+        "has_code": 0,
+        "last_sim": 0.26967994498529685,
+        "max_sim": 0.26967994498529685,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 2,
+        "task_kod": 1,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.3066823059481773,
+      "level": "yuksek",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    },
+    {
+      "messages": [
+        "Generate SQL for top 10 customers",
+        "doesnt work",
+        "isn't working either",
+        "not what i wanted"
+      ],
+      "features": {
+        "turn": 4,
+        "first_words_log": 1.9459101490553132,
+        "last_words_log": 1.6094379124341003,
+        "first_lines": 1,
+        "last_lines": 1,
+        "first_question": 0,
+        "last_question": 0,
+        "last_short": 1,
+        "digit_ratio": 0.04,
+        "has_code": 0,
+        "last_sim": 0.051298917604257706,
+        "max_sim": 0.26967994498529685,
+        "n_similar": 0,
+        "n_exact": 0,
+        "last_strong_repair": 1,
+        "n_strong_repairs": 3,
+        "task_kod": 1,
+        "task_ceviri": 0,
+        "task_ozet": 0,
+        "task_yazma": 0,
+        "task_soru": 0,
+        "task_diger": 0
+      },
+      "probability": 0.5451377686486706,
+      "level": "yuksek",
+      "reasons": [
+        "n_strong_repairs",
+        "last_strong_repair"
+      ]
+    }
+  ],
+  "repairs": [
+    {
+      "text": "olmadı",
+      "strong_repair": true
+    },
+    {
+      "text": "Olmadı ya",
+      "strong_repair": true
+    },
+    {
+      "text": "HAYIR",
+      "strong_repair": true
+    },
+    {
+      "text": "hayır bu değil",
+      "strong_repair": true
+    },
+    {
+      "text": "I said no",
+      "strong_repair": true
+    },
+    {
+      "text": "I SAID NO",
+      "strong_repair": true
+    },
+    {
+      "text": "It doesn't work",
+      "strong_repair": true
+    },
+    {
+      "text": "it doesnt work",
+      "strong_repair": true
+    },
+    {
+      "text": "same problem",
+      "strong_repair": true
+    },
+    {
+      "text": "still",
+      "strong_repair": true
+    },
+    {
+      "text": "Still wrong!!",
+      "strong_repair": true
+    },
+    {
+      "text": "anlamadın beni",
+      "strong_repair": true
+    },
+    {
+      "text": "yanlışsın",
+      "strong_repair": true
+    },
+    {
+      "text": "please try again",
+      "strong_repair": true
+    },
+    {
+      "text": "thanks, great",
+      "strong_repair": false
+    },
+    {
+      "text": "no worries",
+      "strong_repair": true
+    },
+    {
+      "text": "but why",
+      "strong_repair": true
+    },
+    {
+      "text": "But it fails",
+      "strong_repair": true
+    },
+    {
+      "text": "error",
+      "strong_repair": true
+    },
+    {
+      "text": "KeyError: 'x'",
+      "strong_repair": false
+    },
+    {
+      "text": "some_error_handler",
+      "strong_repair": true
+    },
+    {
+      "text": "hâlâ aynı",
+      "strong_repair": true
+    },
+    {
+      "text": "yine mi",
+      "strong_repair": true
+    },
+    {
+      "text": "you forgot the title",
+      "strong_repair": true
+    },
+    {
+      "text": "aynı hata çıkıyor",
+      "strong_repair": true
+    },
+    {
+      "text": "öyle değil",
+      "strong_repair": true
+    },
+    {
+      "text": "teşekkürler",
+      "strong_repair": false
+    }
+  ]
+}
