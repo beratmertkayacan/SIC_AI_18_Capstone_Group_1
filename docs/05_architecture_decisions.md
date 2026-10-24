@@ -19,7 +19,8 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 | K13 | Çıkış kartı eşikleri geçicidir, WildChat ile kalibre edilecek | Değiştirildi (K14) |
 | K14 | Eşikler WildChat ile kalibre edildi: şerit 0,8, yumuşak tekrar 0,6, çıkış kartı görev normuna göre | Kabul |
 | K15 | Etiketin ikinci sürümü: benzerlik değil güçlü onarım ifadeleri esas alınır | Kabul |
-| K16 | Model WildChat 4.8M ile eğitilir; eklenti için 25 öznitelikli Logistic Regression seçilir | Kabul |
+| K16 | Model WildChat 4.8M ile eğitilir; eklenti için 25 öznitelikli Logistic Regression seçilir | Değiştirildi (K17) |
+| K17 | Eklentide her mesajda çalışan, kalibre edilmiş tur modeli; kart yalnızca yüksek güven ve kanıt şartıyla | Kabul |
 
 ---
 
@@ -214,4 +215,16 @@ Yeni kurallarla kart çok turlu sohbetlerin %6,9'unda, ortanca 9. turda açılı
 **Neden.** 25 öznitelikli model aynı model türünde CV PR-AUC'yi 0,195'ten 0,245'e çıkardı. Karakter n-gram eklenen model ana testte %16 daha iyi, ama Türkçe testte geride kalıyor, 65.536 ağırlık taşıyor ve uyarının gerekçesini açıklamak zorlaşıyor. Seçilen model eğitimde görmediği WildChat 1M'de rastgelenin 4,7, Türkçede 2,4 katı; bizim etiketimizden bağımsız DSAT işaretlerinde de 1,6 katı.
 
 **Bedeli.** Model döngü dediğinde yaklaşık 4 seferden 1'inde haklı; bu yüzden eklentide engel değil, yüksek eşikli yumuşak bir öneri olarak kullanılmalı. Olasılıklar kalibre değil; kullanıcıya yüzde olarak gösterilmemeli.
+
+**Değiştirildi.** Eklentiye giren model K17'deki tur modeli oldu; bu modelin öznitelikleri tarayıcıya taşınabilecek şekilde yeniden seçildi.
+
+## K17. Eklentide her mesajda çalışan, kalibre edilmiş tur modeli; kart yalnızca yüksek güven ve kanıt şartıyla
+
+**Bağlam.** K16'daki model yalnızca ilk iki mesajı görüyordu, olasılıkları kalibre değildi ve bazı öznitelikleri (sklearn'ün karakter n-gram benzerliği) tarayıcıya taşınamıyordu. Oysa döngünün en güçlü işareti olan onarım ifadeleri çoğunlukla 3. mesajdan sonra geliyor.
+
+**Karar.** Model her sohbetten k = 2 ile 6 arası turlar için örnek alınarak yeniden eğitildi; 22 öznitelik eklentide birebir aynı hesaplanıyor (`turn_features.py`, `turn-features.ts`). Güçlü onarım kuralları ortak bir JSON dosyasına taşındı. Olasılıklar Platt ölçekleme ile kalibre edildi. Çıkış kartı, görev normuna ek olarak modelin yüksek güven eşiğini (kesinlik en az %40 olacak şekilde eğitim verisinden seçildi) geçtiği ve sohbette en az bir güçlü onarım ifadesi bulunduğu turda açılabiliyor. Kart, en çok katkı yapan özniteliğe göre bir gerekçe ve somut bir öneri gösteriyor; "Yerinde değildi" geri bildirimi yalnızca sayı olarak tutuluyor. Ayrıntılar: docs/09.
+
+**Neden.** Aynı test kullanıcılarında 2. turda PR-AUC 0,199'dan 0,213'e çıktı, 6. turda 0,364'e (rastgelenin 4,7 katı) ulaştı. Kalibrasyon hatası (ECE) 0,337'den 0,013'e indi. Kanıt şartı kartın isabetini %33'ten %38'e çıkardı, yakalanan döngü oranını yalnızca 1,6 puan düşürdü.
+
+**Bedeli.** Kart açıldığında yaklaşık 8 seferden 5'inde sohbet döngüye girmiyor; bu yüzden kart engellemiyor, kapatılabiliyor ve bekleme süresine uyuyor. Model asistanın cevaplarını görmüyor. Türkçe onarım ifadeleri henüz elle doğrulanmadı.
 
