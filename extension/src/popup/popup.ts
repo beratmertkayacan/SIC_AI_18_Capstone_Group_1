@@ -7,6 +7,7 @@ const ROWS: [CounterName, string][] = [
   ["stripSendAnyway", "“Yine de gönder” dediğin"],
   ["stripRepair", "Eksik cümlesi eklediğin"],
   ["exitCardShown", "Çıkış kartı gösterildi"],
+  ["modelCardShown", "Bunlardan modelin önerdiği"],
   ["freshStart", "Taze başlattığın"],
 ];
 

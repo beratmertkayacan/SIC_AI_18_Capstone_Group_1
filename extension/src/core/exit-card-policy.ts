@@ -1,5 +1,6 @@
 import { EXIT_CARD_COOLDOWN_TURNS, EXIT_CARD_MIN_REPEATS, EXIT_CARD_MIN_TURNS } from "../config";
 import { taskNorm, type TaskNorm, type TaskType } from "./tasks";
+import type { RiskLevel } from "./turn-model";
 
 /**
  * Çıkış kartının ne zaman çıkacağına karar verir. Yalnızca bellekte; sohbet değişince sıfırlanır.
@@ -8,11 +9,16 @@ import { taskNorm, type TaskNorm, type TaskType } from "./tasks";
  * Tur sınırı sohbetin görev türüne göre değişir: WildChat'te o türdeki çok turlu sohbetlerin
  * %90'ı kaç turda bitiyorsa, kart bir sonraki turda açılabilir. Görev türü bilinmiyorsa
  * EXIT_CARD_MIN_TURNS kullanılır.
+ *
+ * İkinci yol tur modeli: kullanıcının son mesajından sonra model yüksek risk tahmin ettiyse
+ * (src/core/turn-model.ts), kart tur sınırını beklemeden o turun sonunda açılabilir.
+ * Bekleme süresi iki yol için de aynıdır.
  */
 export class ExitCardPolicy {
   private repeats = 0;
   private quietUntilTurn = 0;
   private currentNorm: TaskNorm | null = null;
+  private highRiskTurn = -1;
 
   /** Sohbetin ilk mesajından tahmin edilen görev türü. Yalnızca ilk kez çağrıldığında etkili olur. */
   setTask(task: TaskType): void {
@@ -34,8 +40,20 @@ export class ExitCardPolicy {
     this.repeats += 1;
   }
 
+  /** Tur modelinin bu turdaki tahmini. Yalnızca "yuksek" seviye kartı açabilir. */
+  noteRisk(level: RiskLevel, turns: number): void {
+    if (level === "yuksek") this.highRiskTurn = turns;
+  }
+
+  /** Kart bu turda modelin yüksek risk tahmini yüzünden mi açılacak? */
+  modelTriggered(turns: number): boolean {
+    return this.highRiskTurn === turns && turns >= this.quietUntilTurn;
+  }
+
   shouldShow(turns: number): boolean {
-    return turns >= this.minTurns && this.repeats >= EXIT_CARD_MIN_REPEATS && turns >= this.quietUntilTurn;
+    if (turns < this.quietUntilTurn) return false;
+    const byNorm = turns >= this.minTurns && this.repeats >= EXIT_CARD_MIN_REPEATS;
+    return byNorm || this.highRiskTurn === turns;
   }
 
   /** Kart kapatıldı ya da yok sayıldı: bir süre tekrar çıkmasın. */
@@ -47,5 +65,6 @@ export class ExitCardPolicy {
     this.repeats = 0;
     this.quietUntilTurn = 0;
     this.currentNorm = null;
+    this.highRiskTurn = -1;
   }
 }

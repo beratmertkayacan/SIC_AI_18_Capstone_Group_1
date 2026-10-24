@@ -68,3 +68,39 @@ describe("ExitCardPolicy görev normları", () => {
     expect(p.minTurns).toBe(EXIT_CARD_MIN_TURNS);
   });
 });
+
+describe("ExitCardPolicy tur modeli", () => {
+  it("model yüksek risk dediğinde kart tur sınırını beklemeden o turda açılabilir", () => {
+    const p = new ExitCardPolicy();
+    p.setTask("kod");
+    expect(p.shouldShow(3)).toBe(false);
+    p.noteRisk("yuksek", 3);
+    expect(p.shouldShow(3)).toBe(true);
+    expect(p.modelTriggered(3)).toBe(true);
+    expect(p.shouldShow(4)).toBe(false); // yalnızca tahminin yapıldığı tur
+  });
+
+  it("'oneri' ve 'dusuk' seviyeleri kartı açmaz", () => {
+    const p = new ExitCardPolicy();
+    p.noteRisk("oneri", 3);
+    p.noteRisk("dusuk", 4);
+    expect(p.shouldShow(3)).toBe(false);
+    expect(p.shouldShow(4)).toBe(false);
+  });
+
+  it("bekleme süresi model kaynaklı kart için de geçerli", () => {
+    const p = new ExitCardPolicy();
+    p.noteRisk("yuksek", 3);
+    p.dismissed(3);
+    p.noteRisk("yuksek", 5);
+    expect(p.shouldShow(5)).toBe(false);
+    expect(p.modelTriggered(5)).toBe(false);
+  });
+
+  it("reset() model tahminini de siler", () => {
+    const p = new ExitCardPolicy();
+    p.noteRisk("yuksek", 3);
+    p.reset();
+    expect(p.shouldShow(3)).toBe(false);
+  });
+});

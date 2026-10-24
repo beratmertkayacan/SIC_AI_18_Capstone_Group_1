@@ -10,6 +10,8 @@ import { RepeatDetector } from "../core/repeat-detector";
 import { sendCounters } from "../core/send-stats";
 import { Session } from "../core/session";
 import { taskType } from "../core/tasks";
+import { turnFeatures } from "../core/turn-features";
+import { MODEL_MIN_TURN, predict, type Prediction } from "../core/turn-model";
 import {
   DEFAULT_SETTINGS,
   parseSettings,
@@ -34,6 +36,10 @@ function main(): void {
   const exitCard = new ExitCard();
   const policy = new ExitCardPolicy();
   const store = new SettingsStore(chromeStorage);
+  // Bu sohbetteki kullanıcı mesajları: yalnızca bellekte, tur modelinin öznitelikleri için.
+  // Sohbet değişince ya da sayfa kapanınca silinir; hiçbir yere yazılmaz.
+  let userTexts: string[] = [];
+  let lastPrediction: Prediction | null = null;
 
   // Ayarlar yüklenene kadar (null) eklenti hiçbir şey yapmaz.
   let settings: Settings | null = null;
@@ -50,15 +56,19 @@ function main(): void {
     if (strip.visible || exitCard.visible || !policy.shouldShow(session.turns)) return;
     const composer = adapter.composer();
     if (!composer || !composer.empty) return; // kullanıcı zaten yazmaya başladı
+    // Kart modelin yüksek risk tahmininden geliyorsa gerekçesi ve önerisi gösterilir.
+    const reason = policy.modelTriggered(session.turns) ? (lastPrediction?.reasons[0] ?? null) : null;
     if (!suggesting()) {
       // Yalnızca say: kart gösterilecekti. Aynı bekleme kuralı işlesin diye kapatılmış gibi say.
-      console.log(`[KafiAI] çıkış kartı gösterilecekti, sayıldı (tur ${session.turns})`);
+      console.log(`[KafiAI] çıkış kartı gösterilecekti, sayıldı (tur ${session.turns}${reason ? ", model" : ""})`);
       count("exitCardWouldShow");
+      if (reason) count("modelCardWouldShow");
       policy.dismissed(session.turns);
       return;
     }
-    console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns})`);
+    console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns}${reason ? `, model: ${reason.key}` : ""})`);
     count("exitCardShown");
+    if (reason) count("modelCardShown");
     exitCard.show(composer.anchor, session.turns, policy.norm, {
       getDraft: () => buildFreshStartDraft(adapter.readHistory()),
       onFreshStart: async (draft) => {
@@ -80,7 +90,22 @@ function main(): void {
         count(kind === "ara" ? "shortBreak" : kind === "kapat" ? "exitCardClosed" : "freshStart");
         console.log(`[KafiAI] çıkış kartı kapandı (${kind})`);
       },
-    });
+      onNotRelevant: () => {
+        console.log("[KafiAI] kullanıcı model önerisi için 'Yerinde değildi' dedi");
+        count("modelNotRelevant");
+      },
+    }, reason);
+  };
+
+  /** Tur modeli: kullanıcının o ana kadarki mesajlarından döngü riski. Metin günlüğe yazılmaz. */
+  const updatePrediction = (turns: number) => {
+    if (userTexts.length < MODEL_MIN_TURN) return;
+    lastPrediction = predict(turnFeatures(userTexts));
+    policy.noteRisk(lastPrediction.level, turns);
+    console.log(
+      `[KafiAI] model: risk %${Math.round(lastPrediction.probability * 100)}, ${lastPrediction.level}, ` +
+        `gerekçe ${lastPrediction.reasons.map((r) => r.key).join(", ")}`,
+    );
   };
   const history = new HistoryWatcher(
     () => adapter.readHistory(),
@@ -95,6 +120,7 @@ function main(): void {
         if (detector.check(text).soft) policy.noteRepeat();
         detector.remember(text);
       }
+      userTexts = [...texts];
       console.log(`[KafiAI] sohbet geçmişi okundu: ${texts.length} kullanıcı mesajı`);
     },
   );
@@ -123,6 +149,8 @@ function main(): void {
       session.restart();
       detector.reset();
       policy.reset();
+      userTexts = [];
+      lastPrediction = null;
       if (session.key !== null) history.begin(Date.now());
       if (!first) console.log("[KafiAI] eklenti açıldı");
     }
@@ -192,6 +220,8 @@ function main(): void {
       // Çıkış kartı için tekrar denemesi: farklı kelimelerle yapılanlar da sayılır (yumuşak eşik).
       // Öneriler açık da kapalı da olsa aynı kural işler; böylece iki mod karşılaştırılabilir.
       if (check.soft) policy.noteRepeat();
+      userTexts.push(text);
+      updatePrediction(n);
 
       const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : "farklı";
       console.log(
@@ -225,6 +255,8 @@ function main(): void {
       strip.hide();
       exitCard.hide();
       policy.reset();
+      userTexts = [];
+      lastPrediction = null;
       history.cancel();
       if (active() && session.key !== null) history.begin(Date.now()); // başka bir var olan sohbet açıldı
     }

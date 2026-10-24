@@ -30,9 +30,12 @@ export const COUNTER_NAMES = [
   "exitCardClosed", // Kapat / yok sayıldı
   "notRelevant", // "Yerinde değildi"
   "exitCardNever", // "Bir daha gösterme"
+  "modelCardShown", // çıkış kartı tur modelinin yüksek risk tahmini yüzünden açıldı
+  "modelNotRelevant", // model kaynaklı kartta "Yerinde değildi"
   // Yalnızca say modunda öneri gösterilseydi kaç kez gösterilecekti (kullanıcı hiçbir şey görmez).
   "stripWouldShow",
   "exitCardWouldShow",
+  "modelCardWouldShow",
   // Gönderilen mesajlar: karşılaştırılabilenler (en az MIN_NORMALIZED_CHARS karakter) ve bunlardan
   // son mesajlara benzeyenler. Öneriler açıkken ve kapalıyken ayrı sayılır; oran = benzer / karşılaştırılan.
   "checkedSendsOn",

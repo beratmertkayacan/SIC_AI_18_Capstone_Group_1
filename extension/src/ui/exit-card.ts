@@ -1,4 +1,5 @@
 import type { TaskNorm } from "../core/tasks";
+import type { Reason } from "../core/turn-model";
 import { CSS as BASE_CSS } from "./strip";
 
 /**
@@ -18,6 +19,8 @@ export interface ExitCardActions {
   onDismiss(kind: ExitDismissal): void;
   /** "Bir daha gösterme": kalıcı olarak kapat. Verilirse düğme gösterilir. */
   onNever?(): void;
+  /** Model kaynaklı kartta "Yerinde değildi" geri bildirimi. Verilirse düğme gösterilir. */
+  onNotRelevant?(): void;
 }
 
 const EXTRA_CSS = `
@@ -37,7 +40,11 @@ export class ExitCard {
     return this.host !== null;
   }
 
-  show(anchor: Element, turns: number, norm: TaskNorm | null, actions: ExitCardActions): void {
+  /**
+   * reason verilirse kart tur modelinden gelir: metin modelin gerekçesini ve somut bir öneriyi söyler.
+   * Verilmezse görev normuna dayalı metin gösterilir.
+   */
+  show(anchor: Element, turns: number, norm: TaskNorm | null, actions: ExitCardActions, reason: Reason | null = null): void {
     this.hide();
     const host = document.createElement("div");
     host.setAttribute("data-kafiai", "exit-card");
@@ -76,14 +83,20 @@ export class ExitCard {
 
     const showMain = () => {
       const fresh = button("Taze başlat", "", showDraft);
+      const notRelevant =
+        reason && actions.onNotRelevant
+          ? [button("Yerinde değildi", "link", () => {
+              actions.onNotRelevant?.();
+              dismiss("kapat");
+            })]
+          : [];
       box.replaceChildren(
-        el(
-          "p",
-          exitCardMessage(turns, norm),
-        ),
+        el("p", reason ? modelCardMessage(reason) : exitCardMessage(turns, norm)),
+        ...(reason ? [el("p", MODEL_NOTE, "note")] : []),
         row(
           fresh,
           button("Kısa ara ver", "secondary", showBreak),
+          ...notRelevant,
           ...(actions.onNever ? [button("Bir daha gösterme", "link", showNever)] : []),
           button("Kapat", "link", () => dismiss("kapat")),
         ),
@@ -168,4 +181,13 @@ export function exitCardMessage(turns: number, norm: TaskNorm | null): string {
   if (norm === null || norm.label === "Diğer") return `Bu sohbet ${turns}. turunda. ${tail}`;
   const p75 = Math.round(norm.p75_turns);
   return `${norm.label} sohbetlerinin çoğu ${p75} turda ya da daha kısa sürede bitiyor; bu sohbet ${turns}. turunda. ${tail}`;
+}
+
+/** Model kaynaklı kartta, önerinin nereden geldiğini söyleyen kısa not. */
+export const MODEL_NOTE =
+  "Bu öneri, sohbetin şu ana kadarki mesajlarına bakan küçük bir modelden geliyor; mesajların cihazından çıkmıyor.";
+
+/** Model kaynaklı kartın ana cümlesi: durum ve somut öneri. */
+export function modelCardMessage(reason: Reason): string {
+  return `${reason.why} ${reason.tip}`;
 }
