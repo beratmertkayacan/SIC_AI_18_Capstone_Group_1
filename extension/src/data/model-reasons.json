@@ -1,0 +1,70 @@
+{
+  "note": "Modelin öneri gösterirken söyleyeceği gerekçeler. Anahtar, tahmine en çok katkı yapan özniteliktir (src/core/turn-model.ts ve scripts/train_turn_model.py). 'why' durumu anlatır, 'tip' ne yapılabileceğini söyler. Dil suçlamayan, kısa ve somut olmalı.",
+  "reasons": {
+    "last_strong_repair": {
+      "short": "Son mesajda 'olmadı' gibi bir ifade",
+      "why": "Son mesajında bir önceki cevabın işe yaramadığını söyledin.",
+      "tip": "Neyin yanlış olduğunu ve tam olarak ne beklediğini tek cümleyle yazmak, aynı cevabın tekrar gelmesini çoğu zaman önlüyor."
+    },
+    "n_strong_repairs": {
+      "short": "Sohbette 'olmadı' denmiş",
+      "why": "Bu sohbette cevabın işe yaramadığını söylediğin mesajlar var.",
+      "tip": "Model bu noktada yolunu kaybetmiş olabilir. İsteklerini tek bir taslakta toplayıp yeni bir sohbette denemek genelde daha hızlı."
+    },
+    "n_exact": {
+      "short": "Aynı mesaj yeniden gönderilmiş",
+      "why": "Aynı mesajı birebir tekrar gönderdin.",
+      "tip": "Aynı soru genelde benzer bir cevap getiriyor. Önceki cevapta neyin eksik kaldığını eklemek daha farklı bir sonuç verir."
+    },
+    "last_sim": {
+      "short": "Son mesaj bir öncekine çok benziyor",
+      "why": "Son mesajın bir öncekine çok benziyor.",
+      "tip": "Neyi değiştirmek istediğini açıkça söylemek, modelin aynı yerde dönmesini engeller."
+    },
+    "turn": {
+      "short": "Sohbet uzadı",
+      "why": "Sohbet epey uzadı.",
+      "tip": "Uzun sohbetlerde modeller baştaki ayrıntıları kaçırabiliyor. Gerekirse taze bir sohbetle devam edebilirsin."
+    },
+    "has_code": {
+      "short": "Kod içeren sohbet",
+      "why": "Bu bir kod sohbeti; bu tür sohbetler daha sık uzuyor.",
+      "tip": "Hata mesajının tamamını, beklediğin davranışı ve daha önce denediklerini birlikte paylaşmak çözümü hızlandırır."
+    },
+    "task_kod": {
+      "short": "Kod ve hata ayıklama görevi",
+      "why": "Kod ve hata ayıklama sohbetleri diğerlerine göre daha sık uzuyor.",
+      "tip": "Sorunu küçük bir parçaya indirip yalnızca o kısmı sormak çoğu zaman işe yarıyor."
+    },
+    "first_words_log": {
+      "short": "Uzun ve çok parçalı ilk istek",
+      "why": "İlk isteğin uzun ve birden fazla parçadan oluşuyor.",
+      "tip": "İsteği adımlara bölüp sırayla ilerlemek, her adımı kontrol etmeni kolaylaştırır."
+    },
+    "last_words_log": {
+      "short": "Son mesaj çok uzun",
+      "why": "Son mesajın oldukça uzun.",
+      "tip": "Uzun bir metin ya da çıktı yapıştırdıysan, en önemli kısmını işaretleyip sorunu bir cümleyle özetlemek modele yön verir."
+    },
+    "first_lines": {
+      "short": "İlk mesajda uzun yapıştırılmış metin",
+      "why": "İlk mesajında uzun bir metin ya da kod var.",
+      "tip": "Modelin neye odaklanmasını istediğini metnin başında belirtmek iyi bir başlangıç olur."
+    },
+    "last_lines": {
+      "short": "Son mesajda uzun yapıştırılmış metin",
+      "why": "Son mesajında uzun bir metin ya da çıktı var.",
+      "tip": "Çıktının hangi satırının sorun olduğunu söylemek modelin doğru yere bakmasını sağlar."
+    },
+    "last_short": {
+      "short": "Kısa bir tepki mesajı",
+      "why": "Son mesajın çok kısa.",
+      "tip": "'Olmadı' ya da 'tekrar' yerine neyin olmadığını söylemek, bir sonraki cevabı belirgin şekilde değiştirir."
+    },
+    "genel": {
+      "short": "Genel örüntü",
+      "why": "Bu sohbet, uzayıp sonuca ulaşmayan sohbetlere benziyor.",
+      "tip": "İsteğini bir cümleyle yeniden özetlemek ya da taze bir sohbet başlatmak işe yarayabilir."
+    }
+  }
+}
