@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ExitCard, exitCardMessage } from "./exit-card";
+import { ExitCard, exitCardMessage, MODEL_NOTE, modelCardMessage } from "./exit-card";
 
 function shadowOf(): ShadowRoot {
   return document.querySelector<HTMLElement>('[data-kafiai="exit-card"]')!.shadowRoot!;
@@ -155,5 +155,32 @@ describe("exitCardMessage", () => {
   it("görev türü bilinmiyorsa ya da 'Diğer' ise yalnızca tur sayısını söyler", () => {
     expect(exitCardMessage(7, null)).toMatch(/^Bu sohbet 7\. turunda\./);
     expect(exitCardMessage(7, { label: "Diğer", median_turns: 3, p75_turns: 5, p90_turns: 8 })).toMatch(/^Bu sohbet 7\. turunda\./);
+  });
+});
+
+describe("ExitCard model gerekçesiyle", () => {
+  const card = new ExitCard();
+  afterEach(() => card.hide());
+  const reason = { key: "last_strong_repair", short: "kısa", why: "Son mesajında olmadı dedin.", tip: "Ne beklediğini yaz." };
+
+  it("gerekçeyi, öneriyi ve modelin cihazda çalıştığını söyler", () => {
+    card.show(document.body, 3, null, actions(), reason);
+    expect(visibleText()).toContain(modelCardMessage(reason));
+    expect(visibleText()).toContain(MODEL_NOTE);
+    expect(visibleText()).not.toContain("Bu sohbet 3. turunda.");
+  });
+
+  it("'Yerinde değildi' geri bildirimi verir ve kartı kapatır", () => {
+    const a = { ...actions(), onNotRelevant: vi.fn() };
+    card.show(document.body, 3, null, a, reason);
+    buttonByText("Yerinde değildi").click();
+    expect(a.onNotRelevant).toHaveBeenCalledOnce();
+    expect(a.onDismiss).toHaveBeenCalledWith("kapat");
+    expect(card.visible).toBe(false);
+  });
+
+  it("gerekçe yoksa 'Yerinde değildi' düğmesi çıkmaz", () => {
+    card.show(document.body, 7, null, { ...actions(), onNotRelevant: vi.fn() });
+    expect(buttonByText("Yerinde değildi")).toBeUndefined();
   });
 });

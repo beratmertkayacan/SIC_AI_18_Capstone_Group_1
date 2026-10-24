@@ -46,6 +46,10 @@ MAX_TURNS = 100
 
 # Model keşfi: kullanıcı bazlı çapraz doğrulamada kat sayısı ve test için ayrılan kullanıcı oranı.
 CV_FOLDS = 5
+
+# Tur modeli: eklenti her mesajda yeniden tahmin yapar. Model k = 2 ile MAX_TURN_K arasındaki
+# turlarla eğitilir; daha sonraki turlarda eklenti MAX_TURN_K'daki gibi davranır.
+MAX_TURN_K = 6
 TEST_SIZE = 0.2
 
 # Eklentiyle ortak değerler. Bunlar `extension/src/config.ts` dosyasındakilerle aynı olmak
