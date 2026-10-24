@@ -1,0 +1,60 @@
+{
+  "note": "Güçlü onarım ifadeleri: kullanıcının bir önceki cevabın işe yaramadığını söylediği mesajlar. Hem eklenti (src/core/strong-repair.ts) hem Python (src/kafiai/text.py) bu dosyayı okur. Kurallar sadeleştirilmiş metne (küçük harf, noktalama yok) iki kez uygulanır: Türkçe kuralla (I -> ı) ve İngilizce kuralla (I -> i), çünkü 'I said' ile 'HAYIR' aynı harfi farklı okuyor. 'markers' ham metne bakar. Liste WildFeedback'te memnuniyetsizliği en az 2 kat artıran ifadelerden seçildi (docs/08, Bölüm 5.1).",
+  "markers": [
+    "!!"
+  ],
+  "words": [
+    "error",
+    "wrong",
+    "incorrect",
+    "still",
+    "again",
+    "hala",
+    "hâlâ",
+    "yine",
+    "hata"
+  ],
+  "prefixes": [
+    "olmad",
+    "çalışmıyor",
+    "yanlış",
+    "anlamad"
+  ],
+  "phrases": [
+    "not work",
+    "not working",
+    "not worked",
+    "not works",
+    "doesn t work",
+    "doesnt work",
+    "does not work",
+    "didn t work",
+    "didnt work",
+    "isn t working",
+    "isnt working",
+    "is not working",
+    "same error",
+    "same problem",
+    "same issue",
+    "same result",
+    "same thing",
+    "you didn t",
+    "you didnt",
+    "you did not",
+    "you forgot",
+    "you missed",
+    "you ignored",
+    "i said",
+    "i asked",
+    "i told",
+    "not what i",
+    "ben ne dedim",
+    "öyle değil",
+    "aynı hata"
+  ],
+  "starts_with": [
+    "no",
+    "but",
+    "hayır"
+  ]
+}

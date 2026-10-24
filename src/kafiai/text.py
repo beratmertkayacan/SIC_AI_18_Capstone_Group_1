@@ -5,12 +5,15 @@ Model eğitimi sırasında da, ileride tarayıcı eklentisinde de aynı mantık 
 fonksiyonlar bilerek basit tutuldu: büyük bir dil modeli ya da internet bağlantısı gerektirmez.
 """
 
+import json
 import re
+from pathlib import Path
 
 import numpy as np
 from sklearn.feature_extraction.text import HashingVectorizer
 
 from kafiai.config import MAX_CHARS
+from kafiai.extension_similarity import normalize_text
 
 # Karakter n-gram tabanlı vektörleştirici. Eğitim gerektirmez (fit yok), bu yüzden
 # aynı sonuç tarayıcıda JavaScript ile de üretilebilir.
@@ -63,20 +66,30 @@ def has_repair(text):
 # Her ifade, geçtiği sohbetlerde memnuniyetsizlik oranını genel orana göre en az 2 kat artırıyor.
 # "try again", "please" gibi yeniden üretme istekleri bilerek yok: bunlar memnuniyetsizliği ancak
 # 1,3 kat artırıyor, yani çoğu zaman normal bir iş akışının parçası.
-STRONG_REPAIR_PATTERNS = [
-    r"\berror\b", r"not work", r"doesn'?t work", r"isn'?t working", r"\bwrong\b", r"\bincorrect\b",
-    r"^\s*no\b", r"^\s*but\b", r"\bsame (error|problem|issue|result|thing)\b",
-    r"\byou (didn'?t|did not|forgot|missed|ignored)\b", r"\bi (said|asked|told)\b", r"not what i",
-    r"\bstill\b", r"\bagain\b", r"!!",
-    r"olmadı", r"\bhala\b", r"hâlâ", r"\byine\b", r"\bhata\b", r"çalışmıyor", r"yanlış", r"anlamadın",
-    r"ben ne dedim", r"öyle değil", r"^\s*hayır\b", r"aynı hata",
-]
-_STRONG_REPAIR_RX = re.compile("|".join(STRONG_REPAIR_PATTERNS), re.IGNORECASE)
+# Kurallar eklentiyle ortak bir dosyada duruyor; tarayıcı ve Python aynı mesaja aynı cevabı veriyor.
+REPAIR_RULES_FILE = Path(__file__).resolve().parents[2] / "extension" / "src" / "data" / "repair-rules.json"
+REPAIR_RULES = json.loads(REPAIR_RULES_FILE.read_text(encoding="utf-8"))
+
+
+def _repair_match(normalized):
+    words = normalized.split()
+    if any(w in REPAIR_RULES["words"] for w in words):
+        return True
+    if any(w.startswith(p) for w in words for p in REPAIR_RULES["prefixes"]):
+        return True
+    padded = f" {normalized} "
+    if any(f" {p} " in padded for p in REPAIR_RULES["phrases"]):
+        return True
+    return bool(words) and words[0] in REPAIR_RULES["starts_with"]
 
 
 def has_strong_repair(text):
     """Mesajda bir önceki cevabın işe yaramadığını gösteren güçlü bir ifade var mı?"""
-    return bool(_STRONG_REPAIR_RX.search(text or ""))
+    raw = text or ""
+    if any(marker in raw for marker in REPAIR_RULES["markers"]):
+        return True
+    # Türkçe kural "I"yı "ı" yapar ("HAYIR" -> "hayır"); İngilizce "I said" için ikinci deneme.
+    return _repair_match(normalize_text(raw)) or _repair_match(normalize_text(raw.replace("I", "i")))
 
 
 # Talep türü: kullanıcı işi doğrudan yaptırmak mı, yoksa anlamak mı istiyor?
