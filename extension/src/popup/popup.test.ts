@@ -252,4 +252,13 @@ describe("popup", () => {
     await flush();
     expect(root.textContent).toContain("Şu an açılamadı");
   });
+
+  it("'KafiAI nasıl çalışır?' bağlantısı karşılama ekranını yeni sekmede açar", async () => {
+    await open();
+    const link = root.querySelector("p.help a") as HTMLAnchorElement;
+    expect(link.textContent).toBe("KafiAI nasıl çalışır?");
+    expect(link.getAttribute("href")).toBe("welcome.html");
+    expect(link.target).toBe("_blank");
+    expect(link.rel).toBe("noopener");
+  });
 });
