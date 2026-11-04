@@ -23,6 +23,8 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 | K17 | Eklentide her mesajda çalışan, kalibre edilmiş tur modeli; kart yalnızca yüksek güven ve kanıt şartıyla | Kabul |
 | K18 | Sayaç şeması v2: günlük, seyrek, boyutlu ve yalnızca sayı; ortak JSON şemasıyla doğrulanır | Kabul |
 | K19 | Platform kaydı: desteklenen siteler ve yetenekleri tek yapılandırma dosyasında | Kabul |
+| K20 | Şerit, yeni içerik kelimesi getiren mesajda çıkmaz | Kabul |
+| K21 | Karşılama ekranı: ilk kurulumda bir kez açılır, yalnızca üç şeyi söyler | Kabul |
 
 ---
 
@@ -267,3 +269,22 @@ Yeni kurallarla kart çok turlu sohbetlerin %6,9'unda, ortanca 9. turda açılı
 
 **Bedeli.** Platform başına yalnızca açma, kapama ve sayım ayarı var; tüm platformlar aynı modeli kullanıyor; platforma özel model yok.
 
+## K20. Şerit, yeni içerik kelimesi getiren mesajda çıkmaz
+
+**Bağlam.** Karakter 3-gram benzerliği "1. soruyu çöz" ile "2. soruyu çöz" ya da "Türkiye'nin başkenti neresi" ile "Amerika'nın başkenti neresi" gibi mesajları neredeyse aynı sayıyor ve şerit "Bunu az önce de sormuştun" diyordu. Oysa bunlar tekrar değil, seri ya da yeni bir istek. Gerçek kullanımda görülen bu hata, şeridin güvenini en çok zedeleyen şeydi.
+
+**Karar.** Benzerlik 0,8'i geçse bile yeni mesaj öncekinde olmayan bir içerik kelimesi getiriyorsa şerit çıkmaz. Dolgu kelimeleri ("lütfen", "yine", "tekrar" gibi) içerik sayılmaz; aynı kökten gelen kelimeler (ilk 4 harf) aynı sayılır; rakam içeren kelimeler tam karşılaştırılır. Kurallar `extension/src/data/repeat-rules.json` dosyasında durur; eklenti (`repeat-detector.ts`) ve Python (`extension_similarity.py`) aynı dosyayı okur.
+
+**Neden.** Yanlış uyarı vermek, uyarıyı kaçırmaktan daha zararlı: kullanıcı bir kez haksız yere uyarılırsa şeridi görmezden gelmeye başlar. Kuralın dosyada durması ayarlamayı kod değişikliği olmadan mümkün kılar.
+
+**Bedeli.** Mesaja bir kelime eklemek ("... lütfen" dışında) şeridi susturur; gerçekten tekrar olan ama yeni bir kelimeyle sunulan istekler artık yakalanmaz. Bu seçim bilerek yapıldı.
+
+## K21. Karşılama ekranı: ilk kurulumda bir kez açılır, yalnızca üç şeyi söyler
+
+**Bağlam.** Eklenti kullanıcının sohbetlerine bakıyor. Neye baktığını ve neye bakmadığını kullanıcıya baştan söylememek, eklentinin kendi gizlilik ilkesiyle çelişir (Bölüm 6, 3.1).
+
+**Karar.** Eklenti ilk kurulduğunda (`onInstalled` nedeni `install`) `welcome.html` yeni bir sekmede açılır; güncellemede ve yeniden yüklemede açılmaz. Sayfa neye baktığını, neye bakmadığını, verinin nerede durduğunu, ne göreceğini ve nasıl kapatılacağını anlatır; tek düğmesi "Anladım"dır. Araç çubuğu penceresinde "KafiAI nasıl çalışır?" bağlantısı sayfayı yeniden açar. Metinler `textContent` ile yazılır ve kodda gerçekten olan şeyleri anlatır; "bağımlı", "risk", "seri", "rozet" gibi sözler testle yasaklanmıştır.
+
+**Neden.** Gizlilik sözü kullanıcıya eklentiyle birlikte gelmeli. Sayfa ağ isteği yapmaz ve yeni izin istemez.
+
+**Bedeli.** Kullanım amacı ve gece sınırı gibi tercihler (Bölüm 6, 3.1) henüz sorulmuyor; ekran yalnızca bilgilendirir.
