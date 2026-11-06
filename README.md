@@ -28,15 +28,16 @@ Projenin ilk taslağında ikinci bir gösterge olarak "aşırı güven ve düş�
 
 | Özellik | Ne yapar | Ne zaman |
 |---|---|---|
-| **Benzer mesaj şeridi** | Gönder'e basıldığında mesaj son 5 mesajla karşılaştırılır; neredeyse aynıysa mesaj gönderilmeden önce kısa bir şerit çıkar: "Yine de gönder", onarım düğmeleri ("Biçim yanlış", "Bilgi yanlış", "Fazla uzun", "Fazla kısa"), "Yerinde değildi". | Benzerlik 0,8 ve üstü ([K14](docs/05_architecture_decisions.md)) |
+| **Benzer mesaj şeridi** | Gönder'e basıldığında mesaj son 5 mesajla karşılaştırılır; neredeyse aynıysa mesaj gönderilmeden önce kısa bir şerit çıkar: "Yine de gönder", onarım düğmeleri ("Biçim yanlış", "Bilgi yanlış", "Fazla uzun", "Fazla kısa"), "Yerinde değildi". | Benzerlik 0,8 ve üstü ([K14](docs/05_architecture_decisions.md)). Mesaj öncekinde olmayan yeni bir içerik kelimesi getiriyorsa ("1. soruyu çöz" / "2. soruyu çöz") şerit çıkmaz ([K20](docs/05_architecture_decisions.md)) |
 | **Çıkış kartı** | Cevap bittikten sonra, kullanıcı yazmaya başlamadan çıkar. "Taze başlat" sohbetteki istekleri tek bir taslakta toplar, panoya kopyalar ve yeni sohbet açar. | İki yoldan biriyle: sohbet, görev türünün normunu aştı ve tekrar görüldü ([K14](docs/05_architecture_decisions.md)); ya da tur modeli yüksek güvenle döngü tahmin etti ve sohbette en az bir "olmadı" ifadesi var ([K17](docs/05_architecture_decisions.md)) |
 | **Gerekçeli öneri** | Model kaynaklı kart nedenini ve somut bir öneriyi söyler; örneğin "Son mesajında bir önceki cevabın işe yaramadığını söyledin. Neyin yanlış olduğunu ve tam olarak ne beklediğini tek cümleyle yazmak…" | Model kartında |
 | **Araç çubuğu penceresi** | Eklentiyi, önerileri ve çıkış kartını açıp kapatma; son 7 günün sayaçları; "Sayaçlarımı kopyala"; "Tüm verilerimi sil". | Her zaman |
+| **Karşılama ekranı** | Eklenti ilk kurulduğunda bir sekmede açılır: neye baktığını, neye bakmadığını ve verinin nerede durduğunu söyler. Araç çubuğu penceresindeki "KafiAI nasıl çalışır?" bağlantısıyla yeniden açılır. | İlk kurulumda ve istendiğinde ([K21](docs/05_architecture_decisions.md)) |
 | **Yalnızca say** | Öneriler kapalıyken hiçbir şey gösterilmez, yalnızca "gösterilecek olsaydı" sayılır. Pilot karşılaştırması için. | Ayarlardan |
 
 **Tur modeli.** Eklenti, kullanıcının her yeni mesajında o ana kadarki kullanıcı mesajlarından 22 sayı hesaplar ve sohbetin döngüye girme olasılığını tahmin eder. Model 22 katsayılı bir Logistic Regression; eklentide yaklaşık 2 KB'lık bir JSON dosyası ([`turn-model.json`](extension/src/data/turn-model.json)) olarak duruyor, kütüphane kullanmadan çalışıyor. Python ile eklentinin aynı sohbete aynı sonucu verdiği parite testleriyle kontrol ediliyor. Ayrıntılar: [Bölüm 9](docs/09_turn_model.md).
 
-**Henüz olmayanlar.** Claude, Copilot ve Google AI Modu desteği; mesaj kutusu kenarındaki halka göstergesi; haftalık içgörü sayfası; YEDAM ya da başka bir destek kanalına yönlendirme (ikinci dalga, [Bölüm 6](docs/06_product_scope.md)). Güncel durum tablosu: [Bölüm 6, Uygulama durumu](docs/06_product_scope.md).
+**Henüz olmayanlar.** Claude, Copilot ve Google AI Modu desteği; mesaj kutusu kenarındaki halka göstergesi; YEDAM ya da başka bir destek kanalına yönlendirme (ikinci dalga, [Bölüm 6](docs/06_product_scope.md)). Güncel durum tablosu: [Bölüm 6, Uygulama durumu](docs/06_product_scope.md).
 
 ### Gizlilik
 
@@ -49,11 +50,11 @@ Projenin ilk taslağında ikinci bir gösterge olarak "aşırı güven ve düş�
 ```bash
 cd extension
 npm install
-npm test             # 304 test
+npm test             # 359 test
 npm run build        # çıktı: extension/dist
 ```
 
-Chrome'da `chrome://extensions` sayfasını aç, **Geliştirici modu**nu aç, **Paketlenmemiş öğe yükle** ile `extension/dist` klasörünü seç. ChatGPT ya da Gemini sekmesini yenile. Ne olduğunu görmek için sayfada geliştirici konsolunu açıp `[KafiAI]` diye süz.
+Chrome'da `chrome://extensions` sayfasını aç, **Geliştirici modu**nu aç, **Paketlenmemiş öğe yükle** ile `extension/dist` klasörünü seç. Kurulumdan hemen sonra karşılama ekranı açılır. ChatGPT ya da Gemini sekmesini yenile. Ne olduğunu görmek için sayfada geliştirici konsolunu açıp `[KafiAI]` diye süz.
 
 ---
 

@@ -140,6 +140,8 @@ Eklentinin içinde iki ayrı karar mekanizması bulunur:
 
 ## 7. Pilot çalışma
 
+> **Kapsam notu (Kasım 2026).** KafiAI bu dönem prototip olarak sunulacak; pilot yapılmayacak. Bu bölüm sonraki çalışma için plan olarak duruyor.
+
 | Konu | Plan |
 |---|---|
 | Katılımcılar | Yakın çevremizden 10 kişi; 18 ile 30 yaş arası, yapay zekayı ders veya iş için kullanan |
@@ -157,14 +159,14 @@ Eklentinin içinde iki ayrı karar mekanizması bulunur:
 | Anlaşılıyor mu? | Ankette "neden uyarıldığımı anladım" diyenlerin oranı |
 | Gizlilik vaadi tutuyor mu? | Eklentinin hiçbir ağ isteği yapmadığının açık kaynak kodla gösterilmesi |
 
-## 9. Uygulama durumu (Ekim 2026)
+## 9. Uygulama durumu (Kasım 2026)
 
 Yukarıdaki bölümler hedef ürünü anlatıyor. Aşağıdaki tablo `extension/` klasöründeki gerçek durumu gösteriyor. Bu bölüm her önemli özellikten sonra güncellenir.
 
 | Özellik | Durum | Not |
 |---|---|---|
 | ChatGPT ve Gemini sohbetlerini okuma | Hazır | Gönderme, cevabın bitişi, sohbet geçişi ve geçmişi okuma iki sitede de canlı sınandı. Gemini Gems sayfaları ve çok uzun sohbetlerde tembel yüklenen geçmiş doğrulanmadı. Claude, Copilot ve Google AI Modu henüz yok. |
-| Tekrar tespiti ve gönderirken uyarı şeridi | Hazır | Karakter 3-gram, son 5 mesaj. Şerit eşiği 0,8; 0,6 ile 0,8 arası yalnızca çıkış kartı için sayılır (Bölüm 5, K14). "Yine de gönder", "Yerinde değildi", "Kapat" seçenekleri var. |
+| Tekrar tespiti ve gönderirken uyarı şeridi | Hazır | Karakter 3-gram, son 5 mesaj. Şerit eşiği 0,8; 0,6 ile 0,8 arası yalnızca çıkış kartı için sayılır (Bölüm 5, K14). "Yine de gönder", "Yerinde değildi", "Kapat" seçenekleri var. Mesaj yeni bir içerik kelimesi getiriyorsa şerit çıkmaz (K20). |
 | Onarım düğmeleri | Hazır | Seçilen cümle mesaj kutusuna yeni satır olarak eklenir. |
 | Tur modeli | Hazır | 22 öznitelikli Logistic Regression, eklentide JSON olarak (`src/data/turn-model.json`); her gönderimde yeniden hesaplanır. Python ile birebir aynı sonucu verdiği parite testleriyle kontrol ediliyor (Bölüm 9, K17). |
 | Çıkış kartı ve "Taze başlat" (Katman 3) | Hazır | İki yoldan açılır: görev normunu aşan ve en az bir tekrar olan sohbet (K14) ya da modelin yüksek güvenli tahmini ve kanıt şartı (K17). Model kaynaklı kart gerekçe, somut öneri ve "Yerinde değildi" düğmesi gösterir. "Taze başlat", "Kısa ara ver", "Kapat" ve "Bir daha gösterme" çalışıyor. 5 tur bekleme süresi iki yol için de aynı. |
@@ -172,14 +174,14 @@ Yukarıdaki bölümler hedef ürünü anlatıyor. Aşağıdaki tablo `extension/
 | Öğrenme sorusu | Yok | İkinci dalga. |
 | Ayarlar | Kısmen | Eklenti açma/kapama, "Öneriler" (kapalıyken yalnızca say modu), çıkış kartı açma/kapama, "Sayaçlarımı kopyala" ve "Tüm verilerimi sil" araç çubuğu penceresinde. Hassasiyet ayarı yok. "Yerinde değildi" şeritte ve model kartında, yalnızca sayaç olarak. |
 | Haftalık özet | Kısmen | Pencerede son 7 günün sayaçları var (şerit, "Yine de gönder", onarım, çıkış kartı, modelin önerdiği kartlar, "Taze başlat"). Saat, görev türü, platform ve önceki haftayla değişim bölümleri yok. |
-| Kurulum tanıtım ekranı ve tercihler | Yok | Sonraki aşama. |
+| Kurulum tanıtım ekranı ve tercihler | Kısmen | Tanıtım ekranı hazır: ilk kurulumda açılır, pencereden yeniden açılabilir (K21). Kullanım amacı ve gece sınırı tercihleri sorulmuyor. |
 | Kademeli destek yolu ve YEDAM bağlantısı | Yok | İkinci dalga. Eklenti şu an hiçbir yere yönlendirme yapmıyor. |
 | Gece sınırı ve "yarına ertele" | Yok | İkinci dalga. |
 | Ağ isteği yok | Hazır | Eklenti sayfaları ve arka plan çalışanında `connect-src 'none'`; içerik betiği için derlenmiş kodda ağ API'si geçmediğini denetleyen test (Bölüm 5, K11). |
 
 **Pilot ölçüm altyapısı.** "Öneriler" kapalıyken eklenti yalnızca sayar: şerit ve çıkış kartı gösterilmez, mesajlar bekletilmez. Gönderilen mesajlar açık ve kapalı günler için ayrı sayılır (karşılaştırılabilen ve bunlardan benzer olan gönderimler). Günlük tekrar oranı, benzer gönderimlerin karşılaştırılan gönderimlere bölünmesiyle bulunur. Kapalıyken şerit, çıkış kartı ya da model kartı gösterilecek olsaydı bu da ayrıca sayılır. Sayaçlar yalnızca sayıdır; pencereden "Sayaçlarımı kopyala" ile alınabilir.
 
-**Pilottan önce eksik olanlar.**
+**Pilottan önce eksik olanlar.** (Pilot bu dönem yapılmayacağı için sonraki çalışmaya kalan işler.)
 
 - Bölüm 8'deki ilk ölçüt ("şerit veya kart gösterildikten sonra bir sonraki mesajın tekrar olma oranı") ile uygulanan ölçüt (günlük tekrar oranı) aynı tanım değil; pilot hazırlığında uygulanan tanıma eşitlenecek.
 - Açık ve kapalı günleri katılımcı elle değiştiriyor; kurulumdan itibaren otomatik geçiş yok.

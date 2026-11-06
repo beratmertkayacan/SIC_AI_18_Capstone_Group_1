@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KafiAI'ye hoş geldin</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #1d2420;
+        --muted: #5d6a63;
+        --line: #dfe5e1;
+        --accent: #1f6f54;
+        --soft: #eef4f0;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #1c211e;
+          --fg: #e8efe9;
+          --muted: #9aa8a0;
+          --line: #333b36;
+          --accent: #55b592;
+          --soft: #252c28;
+        }
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      #root { max-width: 560px; margin: 0 auto; padding: 48px 24px 64px; }
+      h1 { margin: 0 0 12px; font-size: 28px; }
+      .lead { margin: 0 0 24px; font-size: 18px; color: var(--muted); }
+      section { padding: 16px 0; border-top: 1px solid var(--line); }
+      h2 { margin: 0 0 8px; font-size: 14px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--accent); }
+      p { margin: 0 0 8px; }
+      button.primary {
+        margin-top: 24px;
+        font: inherit;
+        padding: 10px 22px;
+        border-radius: 999px;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: var(--bg);
+        cursor: pointer;
+      }
+      button.primary:hover { filter: brightness(1.08); }
+      button.primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="welcome.js"></script>
+  </body>
+</html>

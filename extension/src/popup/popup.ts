@@ -227,6 +227,13 @@ export function mountPopup(
     if (notice) data.append(el("p", "muted", notice));
     sections.push(data);
 
+    const help = el("p", "help");
+    const helpLink = el("a", undefined, "KafiAI nasıl çalışır?");
+    helpLink.href = "welcome.html";
+    helpLink.target = "_blank";
+    helpLink.rel = "noopener";
+    help.append(helpLink);
+    sections.push(help);
     sections.push(
       el("p", "privacy", "Hiçbir mesaj cihazından çıkmaz ve saklanmaz. Burada yalnızca üç ayar ve günlük sayılar tutulur."),
     );
