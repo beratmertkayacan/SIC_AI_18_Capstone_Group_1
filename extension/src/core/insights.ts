@@ -30,6 +30,10 @@ export interface WeeklyInsights {
   similar_sends: number;
   top_slot: string | null;
   fresh_starts: number;
+  /** "Taze başlat" ile açılan ve biten yeni sohbetler; kısa: 3 turda ya da daha kısa sürede biten */
+  fresh_followups: { total: number; short: number };
+  /** Bir önceki 7 gün: biten sohbet ve döngü sayısı (karşılaştırma için) */
+  previous: { conversations: number; loops: number };
   enough: boolean;
   tasks: TaskInsight[];
 }
@@ -65,6 +69,23 @@ function topSlot(bySlot: Map<string, number>): string | null {
 
 const add = (m: Map<string, number>, k: string, n: number) => m.set(k, (m.get(k) ?? 0) + n);
 
+/** Bir önceki pencere (8. ile 14. gün arası) için yalnızca sohbet ve döngü sayısı. */
+function previousWindow(counts: CountsV2, now: Date): { conversations: number; loops: number } {
+  const all = windowDays(now, config.window_days * 2);
+  const wanted = new Set(all.slice(config.window_days));
+  let conversations = 0;
+  let loops = 0;
+  for (const [day, rec] of Object.entries(counts.days)) {
+    if (!wanted.has(day)) continue;
+    for (const [key, n] of Object.entries(rec.c)) {
+      if (!key.startsWith("conversation|")) continue;
+      conversations += n;
+      if (key.endsWith("|dongu")) loops += n;
+    }
+  }
+  return { conversations, loops };
+}
+
 export function weeklyInsights(counts: CountsV2, now: Date): WeeklyInsights {
   const wanted = new Set(windowDays(now));
   const longBuckets = new Set(config.long_buckets);
@@ -76,6 +97,8 @@ export function weeklyInsights(counts: CountsV2, now: Date): WeeklyInsights {
   const slotsAll = new Map<string, number>();
   let freshStarts = 0;
   let similar = 0;
+  let followTotal = 0;
+  let followShort = 0;
 
   for (const [day, rec] of Object.entries(counts.days)) {
     if (!wanted.has(day)) continue;
@@ -100,6 +123,9 @@ export function weeklyInsights(counts: CountsV2, now: Date): WeeklyInsights {
         add(slotsByTask.get(task)!, slot, n);
       } else if (event === "card_action" && detail === "taze_baslat") {
         freshStarts += n;
+      } else if (event === "fresh_followup") {
+        followTotal += n;
+        if (detail === config.short_followup_bucket) followShort += n;
       }
     }
   }
@@ -129,6 +155,8 @@ export function weeklyInsights(counts: CountsV2, now: Date): WeeklyInsights {
     similar_sends: similar,
     top_slot: topSlot(slotsAll),
     fresh_starts: freshStarts,
+    fresh_followups: { total: followTotal, short: followShort },
+    previous: previousWindow(counts, now),
     enough: total >= config.min_conversations,
     tasks,
   };

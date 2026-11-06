@@ -52,7 +52,20 @@ export function weekHeadline(w: WeeklyInsights): string[] {
   );
   const slot = w.top_slot !== null ? SLOT_LABELS[w.top_slot] : undefined;
   if (slot && w.loops > 0) lines.push(`Benzer mesajlar en çok ${slot} saatlerinde oldu.`);
+  const fresh = freshStartLine(w);
+  if (fresh) lines.push(fresh);
+  if (w.previous.conversations >= config.min_conversations) {
+    lines.push(`Önceki 7 gün: ${w.previous.conversations} sohbet, ${w.previous.loops} tekrar.`);
+  }
   return lines;
+}
+
+/** "Ne işe yaradı": Taze başlat kaç kez kullanıldı, yeni sohbetlerin kaçı kısa sürede bitti. */
+export function freshStartLine(w: WeeklyInsights): string | null {
+  if (w.fresh_starts === 0) return null;
+  const base = `"Taze başlat" ${w.fresh_starts} kez kullanıldı`;
+  if (w.fresh_followups.total === 0) return `${base}.`;
+  return `${base}; yeni sohbetlerden ${w.fresh_followups.short} tanesi 3 turda ya da daha kısa sürede bitti.`;
 }
 
 export function taskSummary(t: TaskInsight): string {

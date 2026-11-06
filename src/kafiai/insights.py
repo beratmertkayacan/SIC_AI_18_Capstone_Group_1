@@ -38,12 +38,26 @@ def _add(d, k, n):
     d[k] = d.get(k, 0) + n
 
 
+def _previous_window(days, today):
+    wanted = set(window_days(today, CONFIG["window_days"] * 2)[CONFIG["window_days"]:])
+    conversations = loops = 0
+    for day, rec in days.items():
+        if day not in wanted:
+            continue
+        for key, n in rec.get("c", {}).items():
+            if key.startswith("conversation|"):
+                conversations += n
+                if key.endswith("|dongu"):
+                    loops += n
+    return {"conversations": conversations, "loops": loops}
+
+
 def weekly_insights(days, today):
     """`days`: sayaç çıktısındaki days alanı; `today`: YYYY-MM-DD."""
     wanted = set(window_days(today))
     long_buckets = set(CONFIG["long_buckets"])
     conv, loops, long, platforms, slots_by_task, slots_all = {}, {}, {}, {}, {}, {}
-    fresh = similar = 0
+    fresh = similar = follow_total = follow_short = 0
     for day, rec in days.items():
         if day not in wanted:
             continue
@@ -65,6 +79,10 @@ def weekly_insights(days, today):
                 _add(slots_by_task.setdefault(task, {}), slot, n)
             elif event == "card_action" and detail == "taze_baslat":
                 fresh += n
+            elif event == "fresh_followup":
+                follow_total += n
+                if detail == CONFIG["short_followup_bucket"]:
+                    follow_short += n
 
     def rank(t):
         return TASK_ORDER.index(t) if t in TASK_ORDER else len(TASK_ORDER)
@@ -91,6 +109,8 @@ def weekly_insights(days, today):
         "similar_sends": similar,
         "top_slot": _top_slot(slots_all),
         "fresh_starts": fresh,
+        "fresh_followups": {"total": follow_total, "short": follow_short},
+        "previous": _previous_window(days, today),
         "enough": total >= CONFIG["min_conversations"],
         "tasks": tasks,
     }

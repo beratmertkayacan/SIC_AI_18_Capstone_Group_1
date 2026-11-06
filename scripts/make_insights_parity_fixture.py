@@ -29,8 +29,10 @@ def random_days(rng, today, n_days, per_day):
             elif kind < 0.8:
                 key = "|".join(["send", rng.choice(D["platform"][:3]), rng.choice(D["slot"][2:] if rng.random() < 0.7 else D["slot"]),
                                 rng.choice(D["task"]), rng.choice(D["len"]), rng.choice(["benzer", "farkli"])])
-            elif kind < 0.9:
+            elif kind < 0.86:
                 key = "card_action|chatgpt|taze_baslat"
+            elif kind < 0.9:
+                key = "fresh_followup|" + rng.choice(D["platform"][:2]) + "|" + rng.choice(D["len"])
             else:
                 key = "strip|gemini|kod|gosterildi"
             assert is_valid_cell_key(key), key
