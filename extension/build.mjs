@@ -6,6 +6,16 @@ const watch = process.argv.includes("--watch");
 rmSync("dist", { recursive: true, force: true });
 mkdirSync("dist", { recursive: true });
 cpSync("public", "dist", { recursive: true });
+// Montserrat (SIL OFL 1.1) yalnızca eklenti sayfaları için; ağdan değil pakete gömülü olarak gelir.
+const FONT_DIR = "node_modules/@fontsource/montserrat/files";
+mkdirSync("dist/fonts", { recursive: true });
+for (const subset of ["latin", "latin-ext"]) {
+  for (const weight of [400, 500, 600]) {
+    const name = `montserrat-${subset}-${weight}-normal.woff2`;
+    cpSync(`${FONT_DIR}/${name}`, `dist/fonts/${name}`);
+  }
+}
+cpSync("node_modules/@fontsource/montserrat/LICENSE", "dist/fonts/OFL.txt");
 
 const options = {
   // Giriş listesi build-entries.json içinde; ağ testi de aynı listeyi okur.

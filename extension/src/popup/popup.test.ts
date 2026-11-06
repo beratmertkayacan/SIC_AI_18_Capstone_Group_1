@@ -74,7 +74,7 @@ describe("popup", () => {
     await open();
     checkbox("Eklenti açık").click();
     await flush();
-    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: true, suggestionsEnabled: true });
+    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: true, suggestionsEnabled: true, ringEnabled: true });
     expect(checkbox("Eklenti açık").checked).toBe(false);
     expect(checkbox("Çıkış kartı").disabled).toBe(true);
   });
@@ -83,7 +83,7 @@ describe("popup", () => {
     await open();
     checkbox("Çıkış kartı").click();
     await flush();
-    expect(await store.load()).toEqual({ enabled: true, exitCardEnabled: false, suggestionsEnabled: true });
+    expect(await store.load()).toEqual({ enabled: true, exitCardEnabled: false, suggestionsEnabled: true, ringEnabled: true });
   });
 
   it("öneriler kapatılınca yalnızca say moduna geçer ve çıkış kartı anahtarı devre dışı kalır", async () => {
@@ -91,7 +91,7 @@ describe("popup", () => {
     expect(checkbox("Öneriler").checked).toBe(true);
     checkbox("Öneriler").click();
     await flush();
-    expect(await store.load()).toEqual({ enabled: true, exitCardEnabled: true, suggestionsEnabled: false });
+    expect(await store.load()).toEqual({ enabled: true, exitCardEnabled: true, suggestionsEnabled: false, ringEnabled: true });
     expect(checkbox("Öneriler").checked).toBe(false);
     expect(checkbox("Çıkış kartı").disabled).toBe(true);
     expect(checkbox("Eklenti açık").disabled).toBe(false);
@@ -209,7 +209,7 @@ describe("popup", () => {
   });
 
   it("öneriler kapalıyken (yalnızca say) içgörü ve 'Bu sohbet' gösterilmez", async () => {
-    await store.update({ suggestionsEnabled: false });
+    await store.update({ suggestionsEnabled: false, ringEnabled: true });
     await conversations("kod", 6, "dongu");
     const { tab } = fakeTab(snap());
     await open(tab);
@@ -253,12 +253,24 @@ describe("popup", () => {
     expect(root.textContent).toContain("Şu an açılamadı");
   });
 
-  it("'KafiAI nasıl çalışır?' bağlantısı karşılama ekranını yeni sekmede açar", async () => {
+  it("'Kâfi nasıl çalışır?' bağlantısı karşılama ekranını yeni sekmede açar", async () => {
     await open();
     const link = root.querySelector("p.help a") as HTMLAnchorElement;
-    expect(link.textContent).toBe("KafiAI nasıl çalışır?");
+    expect(link.textContent).toBe("Kâfi nasıl çalışır?");
     expect(link.getAttribute("href")).toBe("welcome.html");
     expect(link.target).toBe("_blank");
     expect(link.rel).toBe("noopener");
+  });
+});
+
+describe("popup halka ayarı", () => {
+  it("halka anahtarı kaydeder; öneriler kapalıyken devre dışıdır", async () => {
+    await open();
+    checkbox("Halka").click();
+    await flush();
+    expect((await store.load()).ringEnabled).toBe(false);
+    checkbox("Öneriler").click();
+    await flush();
+    expect(checkbox("Halka").disabled).toBe(true);
   });
 });

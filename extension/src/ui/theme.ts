@@ -1,3 +1,5 @@
+import { BRAND_NAME, logoMark } from "../brand";
+
 /**
  * Sayfa içindeki kartların (şerit, çıkış kartı) ortak görünümü. Kartlar Shadow DOM içinde çizilir;
  * sitenin stilinden etkilenmez. Tema işletim sisteminin ayarından değil, kartın üzerinde duracağı
@@ -40,9 +42,9 @@ export function detectTheme(anchor: Element | null): Theme {
 export const CARD_CSS = `
 :host { all: initial; }
 .card {
-  --bg: #ffffff; --fg: #18201c; --muted: #5d6963; --line: rgba(20, 32, 26, .12); --soft: #f3f6f4;
-  --accent: #1f6f54; --accent-fg: #ffffff; --ring: rgba(31, 111, 84, .35);
-  --shadow: 0 1px 2px rgba(20, 32, 26, .06), 0 14px 36px -10px rgba(20, 32, 26, .28);
+  --bg: #fbf7f1; --fg: #2b2015; --muted: #7a6650; --line: rgba(68, 50, 27, .16); --soft: #f3eadc;
+  --accent: #8b6b46; --primary: #44321b; --primary-fg: #f7efe3; --ring: rgba(139, 107, 70, .45);
+  --shadow: 0 1px 2px rgba(68, 50, 27, .08), 0 14px 36px -10px rgba(68, 50, 27, .32);
   position: fixed; z-index: 2147483000; box-sizing: border-box;
   font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--fg); background: var(--bg);
@@ -51,16 +53,16 @@ export const CARD_CSS = `
   animation: kafiai-in .16s ease-out;
 }
 .card[data-theme="dark"] {
-  --bg: #262d29; --fg: #ecf2ee; --muted: #a7b3ad; --line: rgba(255, 255, 255, .14); --soft: #2f3732;
-  --accent: #5cc49c; --accent-fg: #0d1511; --ring: rgba(92, 196, 156, .4);
-  --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 18px 44px -10px rgba(0, 0, 0, .7);
+  --bg: #2a1f14; --fg: #f7efe3; --muted: #c9b79c; --line: rgba(247, 239, 227, .14); --soft: #35281a;
+  --accent: #c9a875; --primary: #c9a875; --primary-fg: #2a1f14; --ring: rgba(201, 168, 117, .5);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 18px 44px -10px rgba(0, 0, 0, .75);
 }
 .card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--accent); }
 @keyframes kafiai-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
 .head { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; }
-.mark { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
-.brand { font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--muted); }
+.mark { width: 16px; height: 16px; color: var(--accent); flex: none; display: block; }
+.brand { font-size: 12.5px; font-weight: 600; letter-spacing: .02em; color: var(--fg); }
 .chip { font-size: 11.5px; color: var(--muted); background: var(--soft); border-radius: 999px; padding: 1px 8px; }
 p { margin: 0 0 8px; }
 .title { font-weight: 600; font-size: 14.5px; margin-bottom: 2px; }
@@ -70,7 +72,7 @@ p { margin: 0 0 8px; }
 .spacer { flex: 1 1 auto; }
 button {
   font: inherit; font-size: 13.5px; cursor: pointer; border-radius: 999px; padding: 6px 14px;
-  border: 1px solid transparent; background: var(--accent); color: var(--accent-fg);
+  border: 1px solid transparent; background: var(--primary); color: var(--primary-fg);
   transition: filter .12s, background .12s, border-color .12s;
 }
 button:hover { filter: brightness(1.06); }
@@ -103,7 +105,8 @@ export function mountCard(kind: string, anchor: Element): MountedCard {
   box.className = "card strip";
   box.dataset.theme = detectTheme(anchor);
   box.setAttribute("role", "dialog");
-  box.setAttribute("aria-label", "KafiAI");
+  box.setAttribute("aria-label", BRAND_NAME);
+  box.setAttribute("aria-live", "polite"); // ekran okuyucu kartı açıldığında okur
   root.append(style, box);
 
   const rect = anchor.getBoundingClientRect();
@@ -115,15 +118,15 @@ export function mountCard(kind: string, anchor: Element): MountedCard {
   return { host, box };
 }
 
-/** Kartın üst satırı: küçük işaret, "KafiAI" ve isteğe bağlı bağlam etiketi. */
+/** Kartın üst satırı: logo işareti, marka adı ve isteğe bağlı bağlam etiketi. */
 export function header(chip?: string): HTMLDivElement {
   const head = document.createElement("div");
   head.className = "head";
-  const mark = document.createElement("span");
-  mark.className = "mark";
+  const mark = logoMark(16);
+  mark.classList.add("mark");
   const brand = document.createElement("span");
   brand.className = "brand";
-  brand.textContent = "KafiAI";
+  brand.textContent = BRAND_NAME;
   head.append(mark, brand);
   if (chip) {
     const c = document.createElement("span");

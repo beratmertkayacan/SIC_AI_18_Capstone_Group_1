@@ -5,7 +5,10 @@
   "min_task_conversations": 3,
   "min_pattern_loops": 3,
   "min_pattern_share": 0.5,
-  "long_buckets": ["7-10", "11+"],
+  "long_buckets": [
+    "7-10",
+    "11+"
+  ],
   "slot_labels": {
     "00-06": "gece",
     "06-12": "sabah",
@@ -26,5 +29,6 @@
     "yazma": "İstersen tonu, uzunluğu ve kime yazıldığını ilk mesajda ver; beğendiğin bir örnek de işe yarar.",
     "soru": "İstersen neyi zaten bildiğini ve cevabı ne için kullanacağını ekle.",
     "diger": "İstersen ilk mesajda ne elde etmek istediğini tek cümleyle yaz."
-  }
+  },
+  "short_followup_bucket": "1-3"
 }

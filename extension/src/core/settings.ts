@@ -15,9 +15,11 @@ export interface Settings {
    * çalışır: hiçbir şeyi bekletmez ve göstermez, yalnızca günlük sayıları tutar (pilot çalışma için).
    */
   suggestionsEnabled: boolean;
+  /** Mesaj kutusunun kenarındaki halka gösterilsin mi? (K29) Öneriler kapalıyken zaten gösterilmez. */
+  ringEnabled: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { enabled: true, exitCardEnabled: true, suggestionsEnabled: true };
+export const DEFAULT_SETTINGS: Settings = { enabled: true, exitCardEnabled: true, suggestionsEnabled: true, ringEnabled: true };
 
 /** chrome.storage.local ile uyumlu en küçük arayüz (testte bellekteki sahtesi kullanılır). */
 export interface KeyValueStorage {
@@ -40,6 +42,7 @@ export function parseSettings(raw: unknown): Settings {
     exitCardEnabled: typeof r.exitCardEnabled === "boolean" ? r.exitCardEnabled : DEFAULT_SETTINGS.exitCardEnabled,
     suggestionsEnabled:
       typeof r.suggestionsEnabled === "boolean" ? r.suggestionsEnabled : DEFAULT_SETTINGS.suggestionsEnabled,
+    ringEnabled: typeof r.ringEnabled === "boolean" ? r.ringEnabled : DEFAULT_SETTINGS.ringEnabled,
   };
 }
 

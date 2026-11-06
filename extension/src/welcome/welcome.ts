@@ -1,3 +1,5 @@
+import { BRAND_NAME, BRAND_TAGLINE, sitesList } from "../brand";
+
 /**
  * Karşılama ekranı: eklenti ilk kurulduğunda bir kez açılır; araç çubuğu penceresinden de açılabilir.
  * Üç şeyi söyler: neye baktığı, neye bakmadığı, verinin nerede durduğu.
@@ -11,7 +13,7 @@ export interface WelcomeSection {
 }
 
 export const WELCOME_LEAD =
-  "KafiAI, ChatGPT ya da Gemini'de aynı yerde dönmeye başladığını fark eder ve oradan çıkmanın kolay bir yolunu sunar. " +
+  `${BRAND_NAME}, yapay zeka sohbetlerinde (şu an ${sitesList()}) aynı yerde dönmeye başladığını fark eder ve oradan çıkmanın kolay bir yolunu sunar. ` +
   "Harcadığın süreye değil, yapay zekayı nasıl kullandığına bakar.";
 
 export const WELCOME_SECTIONS: WelcomeSection[] = [
@@ -25,7 +27,7 @@ export const WELCOME_SECTIONS: WelcomeSection[] = [
   {
     title: "Neye bakmaz",
     lines: [
-      "Klavyede bastığın tuşlara, ChatGPT ve Gemini dışındaki sitelere ve kişisel bilgilerine bakmaz.",
+      `Klavyede bastığın tuşlara, ${sitesList()} dışındaki sitelere ve kişisel bilgilerine bakmaz.`,
       "Kişisel ve duygusal konuşmalarda hiçbir öneri göstermez.",
     ],
   },
@@ -34,7 +36,7 @@ export const WELCOME_SECTIONS: WelcomeSection[] = [
     lines: [
       "Hiçbir mesaj bilgisayarından çıkmaz. Eklentide internete istek gönderen kod yoktur.",
       "Mesaj metni kaydedilmez; yalnızca sekme açıkken bellekte durur ve sekme kapanınca silinir.",
-      "Kalıcı olarak yalnızca ayarların ve günlük sayılar (kaç kez uyarı gösterildi gibi) tutulur. Sayılar 90 gün sonra silinir; istersen KafiAI penceresinden hemen silebilirsin.",
+      `Kalıcı olarak yalnızca ayarların ve günlük sayılar (kaç kez uyarı gösterildi gibi) tutulur. Sayılar 90 gün sonra silinir; istersen ${BRAND_NAME} penceresinden hemen silebilirsin.`,
     ],
   },
   {
@@ -47,7 +49,7 @@ export const WELCOME_SECTIONS: WelcomeSection[] = [
   {
     title: "İstediğin zaman kapatabilirsin",
     lines: [
-      "Chrome'un araç çubuğundaki KafiAI simgesine bas. Oradan eklentiyi ya da yalnızca önerileri kapatabilir, verilerini silebilirsin.",
+      `Chrome'un araç çubuğundaki ${BRAND_NAME} simgesine bas. Oradan eklentiyi ya da yalnızca önerileri kapatabilir, verilerini silebilirsin.`,
     ],
   },
 ];
@@ -69,5 +71,14 @@ export function mountWelcome(root: HTMLElement, close: () => void): void {
   });
   const done = el("button", "primary", "Anladım");
   done.addEventListener("click", close);
-  root.replaceChildren(el("h1", undefined, "KafiAI'ye hoş geldin"), el("p", "lead", WELCOME_LEAD), ...sections, done);
+  const hero = el("header", "hero");
+  const mark = el("img", "mark");
+  mark.src = "icons/logo256.png";
+  mark.alt = "";
+  mark.width = 64;
+  mark.height = 64;
+  const titles = el("div");
+  titles.append(el("h1", undefined, `${BRAND_NAME}'ye hoş geldin`), el("p", "tagline", BRAND_TAGLINE));
+  hero.append(mark, titles);
+  root.replaceChildren(hero, el("span", "privacy-chip", "Veriler cihazında kalır"), el("p", "lead", WELCOME_LEAD), ...sections, done);
 }

@@ -1,16 +1,35 @@
 {
   "manifest_version": 3,
-  "name": "KafiAI",
+  "name": "Kâfi",
   "version": "0.1.0",
-  "description": "Yapay zeka sohbetlerinde kısır döngüyü fark eder ve çıkış yolu sunar. Hiçbir mesaj cihazından çıkmaz.",
-  "permissions": ["storage", "clipboardWrite"],
+  "description": "Fark et. Durakla. Yeniden başla. Yapay zeka sohbetlerinde aynı yerde dönmeye başladığını fark eder ve çıkış yolu sunar; hiçbir mesaj cihazından çıkmaz.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "clipboardWrite"
+  ],
   "host_permissions": [
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
     "https://gemini.google.com/*"
   ],
-  "action": { "default_title": "KafiAI", "default_popup": "popup.html" },
-  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "Kâfi",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": [
@@ -18,7 +37,9 @@
         "https://chat.openai.com/*",
         "https://gemini.google.com/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],

@@ -21,10 +21,10 @@ describe("parseSettings", () => {
   it("öneriler ayarı yoksa ya da bozuksa açık sayılır; kapalı değeri korunur", () => {
     expect(parseSettings({ enabled: true }).suggestionsEnabled).toBe(true);
     expect(parseSettings({ suggestionsEnabled: "hayır" }).suggestionsEnabled).toBe(true);
-    expect(parseSettings({ suggestionsEnabled: false }).suggestionsEnabled).toBe(false);
+    expect(parseSettings({ suggestionsEnabled: false, ringEnabled: true }).suggestionsEnabled).toBe(false);
   });
   it("bilinmeyen alanları atar", () => {
-    expect(parseSettings({ enabled: false, mesaj: "gizli" })).toEqual({ enabled: false, exitCardEnabled: true, suggestionsEnabled: true });
+    expect(parseSettings({ enabled: false, mesaj: "gizli" })).toEqual({ enabled: false, exitCardEnabled: true, suggestionsEnabled: true, ringEnabled: true });
   });
 });
 
@@ -37,9 +37,9 @@ describe("SettingsStore", () => {
     const storage = memoryStorage();
     const store = new SettingsStore(storage);
     await store.update({ exitCardEnabled: false });
-    expect(await new SettingsStore(storage).load()).toEqual({ enabled: true, exitCardEnabled: false, suggestionsEnabled: true });
+    expect(await new SettingsStore(storage).load()).toEqual({ enabled: true, exitCardEnabled: false, suggestionsEnabled: true, ringEnabled: true });
     await store.update({ enabled: false });
-    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: false, suggestionsEnabled: true });
+    expect(await store.load()).toEqual({ enabled: false, exitCardEnabled: false, suggestionsEnabled: true, ringEnabled: true });
   });
 
   it("clearAll ayarları, sayaçları (v1 ve v2) ve taze başlat işaretini siler", async () => {

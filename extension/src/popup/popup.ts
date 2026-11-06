@@ -1,3 +1,4 @@
+import { BRAND_NAME, BRAND_TAGLINE } from "../brand";
 import { CounterStore, recentTotalsV2, type WeekTotals } from "../core/counters";
 import { weeklyInsights } from "../core/insights";
 import type { ConversationSnapshot } from "../core/messages";
@@ -61,6 +62,22 @@ function disclosure(title: string, meta: string | null, body: HTMLElement[], cla
   return box;
 }
 
+/** Üst satır: logo, marka adı ve slogan; sağda "Veriler cihazında kalır" etiketi. */
+function brandHeader(): HTMLElement {
+  const header = el("header", "top");
+  const head = el("div", "brand-head");
+  const mark = el("img", "mark");
+  mark.src = "icons/icon48.png";
+  mark.alt = "";
+  mark.width = 30;
+  mark.height = 30;
+  const text = el("div", "brand-text");
+  text.append(el("h1", "brand-name", BRAND_NAME), el("span", "brand-tagline", BRAND_TAGLINE));
+  head.append(mark, text);
+  header.append(head, el("span", "privacy-chip", "Veriler cihazında kalır"));
+  return header;
+}
+
 /** Araç çubuğu penceresini kurar. Tüm metinler textContent ile yazılır (HTML eklenmez). */
 export function mountPopup(
   root: HTMLElement,
@@ -80,7 +97,7 @@ export function mountPopup(
     const [settings, counts, snap] = await Promise.all([store.load(), counters.load(), tab.snapshot().catch(() => null)]);
     const totals = recentTotalsV2(counts, now());
     const suggesting = settings.enabled && settings.suggestionsEnabled;
-    const sections: HTMLElement[] = [el("h1", undefined, "KafiAI")];
+    const sections: HTMLElement[] = [brandHeader()];
 
     // Bu sohbet: yalnızca öneriler açıkken ve desteklenen bir sohbet sekmesindeyken.
     if (suggesting && snap !== null && snap.active) {
@@ -180,6 +197,17 @@ export function mountPopup(
           await render();
         },
       ),
+      toggle(
+        "Halka",
+        "Mesaj kutusunun kenarında sohbetin gidişini sakin bir tonla gösterir.",
+        settings.ringEnabled,
+        !settings.enabled || !settings.suggestionsEnabled,
+        async (v) => {
+          notice = "";
+          await store.update({ ringEnabled: v });
+          await render();
+        },
+      ),
       toggle("Çıkış kartı", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, !settings.enabled || !settings.suggestionsEnabled, async (v) => {
         notice = "";
         await store.update({ exitCardEnabled: v });
@@ -228,7 +256,7 @@ export function mountPopup(
     sections.push(data);
 
     const help = el("p", "help");
-    const helpLink = el("a", undefined, "KafiAI nasıl çalışır?");
+    const helpLink = el("a", undefined, `${BRAND_NAME} nasıl çalışır?`);
     helpLink.href = "welcome.html";
     helpLink.target = "_blank";
     helpLink.rel = "noopener";

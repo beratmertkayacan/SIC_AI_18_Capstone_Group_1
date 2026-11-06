@@ -207,6 +207,18 @@
         "ayrinti"
       ],
       "note": "Haftalık içgörü. pencere: araç çubuğu penceresi içgörüyle açıldı (görev 'na'); ayrinti: bir görev satırı açıldı."
+    },
+    "ring": {
+      "dims": [
+        "platform",
+        "task"
+      ],
+      "details": [
+        "yukseldi_1",
+        "yukseldi_2",
+        "aciklama"
+      ],
+      "note": "Halka (K29). yukseldi_n: halkanın tonu n. seviyeye çıktı; aciklama: kullanıcı açıklamayı görmek için halkanın üzerine geldi ya da odaklandı (halka başına bir kez)."
     }
   }
 }

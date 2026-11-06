@@ -16,6 +16,7 @@ import { buildFreshStartDraft } from "../core/fresh-start";
 import { HistoryWatcher } from "../core/history-watcher";
 import { isPopupMessage, MSG_OPEN_CARD, type ConversationSnapshot } from "../core/messages";
 import { isPersonal } from "../core/personal";
+import { ringLevel, ringText } from "../core/ring";
 import { RepeatDetector } from "../core/repeat-detector";
 import { Session } from "../core/session";
 import {
@@ -31,6 +32,7 @@ import { EXACT_REPEAT_THRESHOLD, turnFeatures } from "../core/turn-features";
 import { MODEL_MIN_TURN, predict, type Prediction } from "../core/turn-model";
 import { copyToClipboard } from "../ui/clipboard";
 import { ExitCard } from "../ui/exit-card";
+import { Ring } from "../ui/ring";
 import { Strip } from "../ui/strip";
 
 /** "Taze başlat" ile açılan yeni sohbetin tanınması için geçerlilik süresi. */
@@ -46,6 +48,7 @@ function main(): void {
   const detector = new RepeatDetector(); // yalnızca bellekte; sohbet değişince silinir
   const strip = new Strip();
   const exitCard = new ExitCard();
+  const ring = new Ring();
   const policy = new ExitCardPolicy();
   const store = new SettingsStore(chromeStorage);
   const counters = new CounterStore(chromeStorage);
@@ -61,6 +64,9 @@ function main(): void {
   let personal = false;
   /** Bu sohbette öncekine çok benzeyen mesaj sayısı ("Bu sohbet" bölümü için) */
   let similarCount = 0;
+  /** Bu sohbette halkanın ulaştığı en yüksek seviye (sayaç tekrarını önlemek için) */
+  let ringPeak = 0;
+  let ringExplained = false;
 
   // Ayarlar yüklenene kadar (null) eklenti hiçbir şey yapmaz.
   let settings: Settings | null = null;
@@ -130,6 +136,7 @@ function main(): void {
   const showCard = (source: "norm" | "model" | "elle", reason: Prediction["reasons"][number] | null, anchor: Element) => {
     console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns}, ${source}${reason ? `: ${reason.key}` : ""})`);
     record("card", `gosterildi_${source}`);
+    ring.hide();
     exitCard.show(
       anchor,
       session.turns,
@@ -154,6 +161,7 @@ function main(): void {
         },
         onDismiss: (kind) => {
           policy.dismissed(session.turns);
+          if (kind !== "taze") adapter.focusComposer(); // kart kapanınca odak mesaj kutusuna döner
           // "taze": kopyalama başarılıyken zaten sayıldı; ikinci kez sayılmaz.
           if (kind === "ara") record("card_action", "ara");
           else if (kind === "kapat") record("card_action", "kapat");
@@ -177,6 +185,31 @@ function main(): void {
       `[KafiAI] model: olasılık %${Math.round(lastPrediction.probability * 100)}, ${lastPrediction.level}, ` +
         `gerekçe ${lastPrediction.reasons.map((r) => r.key).join(", ")}`,
     );
+  };
+
+  /**
+   * Halka (K29): yalnızca öneriler açıkken, bu platformda öneri gösterilebiliyorken, sohbet kişisel
+   * değilken ve ayarı açıkken görünür. Şerit ya da kart açıkken üst üste binmesin diye gizlenir.
+   */
+  const updateRing = () => {
+    const composer = adapter.composer();
+    const allowed = suggesting() && intervening() && !personal && settings?.ringEnabled === true && userTexts.length > 0;
+    if (!allowed || !composer || strip.visible || exitCard.visible) {
+      ring.hide();
+      return;
+    }
+    const signals = { prediction: lastPrediction, similarCount };
+    const level = ringLevel(signals);
+    ring.update(composer.anchor, level, ringText(signals), () => {
+      if (ringExplained) return;
+      ringExplained = true;
+      record("ring", "aciklama");
+    });
+    // Halka şerit ya da kart yüzünden gizlenip yeniden çizilse de her seviye sohbet başına bir kez sayılır.
+    if (level > ringPeak) {
+      ringPeak = level;
+      record("ring", `yukseldi_${level}`);
+    }
   };
 
   /** Yeni boş bir sohbet "Taze başlat"tan mı geldi? İşaret bir kez kullanılır ve silinir. */
@@ -211,6 +244,8 @@ function main(): void {
         detector.remember(text);
       }
       userTexts = [...texts];
+      if (texts.length >= MODEL_MIN_TURN && capabilities.model === "on") lastPrediction = predict(turnFeatures(userTexts));
+      updateRing();
       console.log(`[KafiAI] sohbet geçmişi okundu: ${texts.length} kullanıcı mesajı`);
     },
   );
@@ -224,6 +259,7 @@ function main(): void {
     settings = next;
     if (first) console.log(`[KafiAI] ayarlar: ${next.enabled ? "açık" : "kapalı"}, çıkış kartı ${next.exitCardEnabled ? "açık" : "kapalı"}`);
     if (first) console.log(`[KafiAI] öneriler: ${next.suggestionsEnabled ? "açık" : "kapalı (yalnızca say)"}`);
+    if (!next.enabled || !next.suggestionsEnabled || !next.ringEnabled) ring.hide();
     if (!next.enabled || !next.suggestionsEnabled) {
       strip.hide();
       exitCard.hide();
@@ -291,6 +327,7 @@ function main(): void {
       exitCard.hide();
       const task = userTexts[0] !== undefined ? taskType(userTexts[0]) : null;
       const stripContext = { attempt: similarCount + 1, exact: check.score >= EXACT_REPEAT_THRESHOLD, task };
+      ring.hide();
       strip.show(anchor, {
         onSendAnyway: () => {
           console.log("[KafiAI] kullanıcı 'Yine de gönder' dedi");
@@ -348,6 +385,7 @@ function main(): void {
       if (check.soft) policy.noteRepeat();
       record("send", check.tooShort ? "kisa" : check.similar ? "benzer" : "farkli");
       updatePrediction(n);
+      updateRing();
 
       const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : "farklı";
       console.log(
@@ -378,6 +416,7 @@ function main(): void {
 
   let lastHref = location.href;
   const navTimer = window.setInterval(() => {
+    if (active()) updateRing(); // şerit ya da kart kapandıysa geri gelir, mesaj kutusu kaydıysa yeniden yerleşir
     if (location.href === lastHref) return;
     const previous = lastHref;
     lastHref = location.href;
@@ -388,6 +427,9 @@ function main(): void {
       detector.reset();
       strip.hide();
       exitCard.hide();
+      ring.hide();
+      ringPeak = 0;
+      ringExplained = false;
       policy.reset();
       userTexts = [];
       lastPrediction = null;
@@ -439,6 +481,7 @@ function main(): void {
     void counters.flush();
     stop();
     window.clearInterval(navTimer);
+    ring.hide();
     window.clearInterval(historyTimer);
   });
   // Sekme arka plana geçince biriken sayaçlar yazılır (sekme sonra kapatılabilir).

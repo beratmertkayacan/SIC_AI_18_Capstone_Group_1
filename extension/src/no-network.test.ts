@@ -17,7 +17,9 @@ import manifest from "../public/manifest.json";
 const FORBIDDEN = ["fetch", "XMLHttpRequest", "WebSocket", "sendBeacon", "EventSource", "importScripts"];
 
 const ENTRIES = buildEntries.entries as Record<string, string>;
-const ALLOWED_URLS = new Set(Object.values(platforms.platforms).flatMap((p) => p.matches));
+// SVG ad alanı bir web adresine benzer ama ağ isteği değildir: logo DOM API ile çizilirken gerekir.
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+const ALLOWED_URLS = new Set([...Object.values(platforms.platforms).flatMap((p) => p.matches), SVG_NAMESPACE]);
 
 async function bundle(entry: string): Promise<string> {
   const result = await build({
