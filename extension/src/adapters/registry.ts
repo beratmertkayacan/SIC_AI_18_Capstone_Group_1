@@ -1,5 +1,6 @@
 import platforms from "../data/platforms.json";
 import { chatgptAdapter } from "./chatgpt";
+import { claudeAdapter } from "./claude";
 import { geminiAdapter } from "./gemini";
 import type { Adapter, Capabilities, PlatformId } from "./types";
 
@@ -21,6 +22,7 @@ export interface PlatformEntry {
 const ADAPTERS: Partial<Record<PlatformId, Adapter>> = {
   chatgpt: chatgptAdapter,
   gemini: geminiAdapter,
+  claude: claudeAdapter,
 };
 
 type PlatformConfig = { label: string; matches: string[]; capabilities: Capabilities };

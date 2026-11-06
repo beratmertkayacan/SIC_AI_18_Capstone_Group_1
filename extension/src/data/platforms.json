@@ -10,6 +10,11 @@
       "label": "Gemini",
       "matches": ["https://gemini.google.com/*"],
       "capabilities": { "regenerate": false, "edit": false, "model": "on", "interventions": "full" }
+    },
+    "claude": {
+      "label": "Claude",
+      "matches": ["https://claude.ai/*"],
+      "capabilities": { "regenerate": false, "edit": false, "model": "on", "interventions": "full" }
     }
   }
 }
