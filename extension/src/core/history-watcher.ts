@@ -50,3 +50,24 @@ export class HistoryWatcher {
     if (now - this.startedAt > this.timeoutMs) this.running = false;
   }
 }
+
+/** Açılan sohbetin geçmişinden ne kadarını bildiğimiz. */
+export interface HistorySeed {
+  /** Sohbetteki kullanıcı mesajı sayısı (sayfanın bildirdiği toplam ya da okunan sayı). */
+  turns: number;
+  /** Okunamayan, sayfada çizilmemiş eski mesaj sayısı. */
+  hidden: number;
+  /** Geçmişin bir kısmı okunamadı mı? O zaman ilk mesaj gerçek ilk mesaj değildir. */
+  partial: boolean;
+}
+
+/**
+ * Okunan metinleri sayfanın bildirdiği toplamla birleştirir. Sanal liste kullanan sitelerde
+ * (Claude) yalnızca ekrandaki mesajlar okunabilir; toplam yine de doğru sayılır, eksik kısım
+ * "gizli" olarak işaretlenir. Bildirilen toplam okunandan azsa okunan sayı esas alınır.
+ */
+export function historySeed(texts: readonly string[], reported: number | null | undefined): HistorySeed {
+  const turns = Math.max(texts.length, reported ?? 0);
+  const hidden = turns - texts.length;
+  return { turns, hidden, partial: hidden > 0 };
+}
