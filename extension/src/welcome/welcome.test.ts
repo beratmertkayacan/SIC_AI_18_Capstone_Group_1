@@ -11,7 +11,8 @@ beforeEach(() => {
 describe("karşılama ekranı", () => {
   it("başlık, giriş, beş bölüm ve düğmeyi gösterir", () => {
     mountWelcome(root, () => {});
-    expect(root.querySelector("h1")?.textContent).toBe("KafiAI'ye hoş geldin");
+    expect(root.querySelector("h1")?.textContent).toBe("Kâfi'ye hoş geldin");
+    expect(root.querySelector(".tagline")?.textContent).toBe("Fark et. Durakla. Yeniden başla.");
     expect(root.querySelector(".lead")?.textContent).toBe(WELCOME_LEAD);
     expect(Array.from(root.querySelectorAll("h2")).map((h) => h.textContent)).toEqual([
       "Neye bakar",
@@ -49,7 +50,9 @@ describe("karşılama ekranı", () => {
 
   it("HTML eklenmez: etiket gibi görünen metin düz metin kalır", () => {
     mountWelcome(root, () => {});
-    expect(root.querySelectorAll("script, img, a").length).toBe(0);
+    expect(root.querySelectorAll("script, a").length).toBe(0);
+    const imgs = Array.from(root.querySelectorAll("img"));
+    expect(imgs.map((i) => i.getAttribute("src"))).toEqual(["icons/logo256.png"]); // yalnızca eklentinin kendi logosu
     expect(WELCOME_SECTIONS.every((s) => s.lines.every((l) => !/[<>]/.test(l)))).toBe(true);
   });
 });

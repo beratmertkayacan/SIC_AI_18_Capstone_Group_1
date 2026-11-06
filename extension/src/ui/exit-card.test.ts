@@ -126,7 +126,7 @@ describe("ExitCard: Bir daha gösterme", () => {
     card.show(document.body, 7, null, a);
     buttonByText("Bir daha gösterme").click();
     expect(onNever).toHaveBeenCalledTimes(1);
-    expect(visibleText()).toContain("KafiAI penceresinden yeniden açabilirsin");
+    expect(visibleText()).toContain("Kâfi penceresinden yeniden açabilirsin");
     expect(card.visible).toBe(true);
   });
 

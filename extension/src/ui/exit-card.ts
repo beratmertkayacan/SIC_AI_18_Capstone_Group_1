@@ -1,5 +1,6 @@
 import type { TaskNorm } from "../core/tasks";
 import type { Reason } from "../core/turn-model";
+import { BRAND_NAME } from "../brand";
 import { header, mountCard } from "./theme";
 
 /**
@@ -96,7 +97,7 @@ export class ExitCard {
       const close = button("Kapat", "", () => this.hide());
       box.replaceChildren(
         header(chip),
-        el("p", "Tamam, çıkış kartı bir daha gösterilmeyecek. İstersen KafiAI penceresinden yeniden açabilirsin.", "body"),
+        el("p", `Tamam, çıkış kartı bir daha gösterilmeyecek. İstersen ${BRAND_NAME} penceresinden yeniden açabilirsin.`, "body"),
         row(close),
       );
       close.focus();

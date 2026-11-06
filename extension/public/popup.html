@@ -3,41 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>KafiAI</title>
+    <title>Kâfi</title>
+    <link rel="stylesheet" href="brand.css" />
     <style>
-      :root {
-        --bg: #ffffff;
-        --fg: #1d2420;
-        --muted: #5d6a63;
-        --line: #dfe5e1;
-        --accent: #1f6f54;
-        --danger: #a23a2e;
-        --soft: #eef4f0;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #1c211e;
-          --fg: #e8efe9;
-          --muted: #9aa8a0;
-          --line: #333b36;
-          --accent: #55b592;
-          --danger: #e08a7c;
-          --soft: #252c28;
-        }
-      }
-      body {
-        margin: 0;
-        width: 340px;
-        background: var(--bg);
-        color: var(--fg);
-        font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
-      #root { padding: 16px; }
-      h1 { margin: 0 0 12px; font-size: 17px; letter-spacing: .01em; display: flex; align-items: center; gap: 8px; }
-      h1::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex: none; }
+      body { width: 360px; }
+      #root { padding: 14px 14px 16px; }
+      header.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 12px; }
+      header.top .brand-name { font-size: 18px; }
+      header.top .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
       h2 { margin: 0 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
-      section { padding: 12px 0; border-top: 1px solid var(--line); }
-      h1 + section { border-top: 0; padding-top: 0; }
+      section { padding: 12px 14px; margin: 0 0 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
       .toggle { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; }
       .toggle input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); }
       .toggle input:disabled + .toggle-text { opacity: 0.5; }
@@ -47,21 +22,13 @@
       .counts li { display: flex; justify-content: space-between; padding: 2px 0; }
       p { margin: 0 0 8px; }
       .actions { display: flex; gap: 8px; }
-      button {
-        font: inherit;
-        padding: 6px 12px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        background: transparent;
-        color: var(--fg);
-        cursor: pointer;
-      }
-      button:hover { border-color: var(--accent); }
-      button.danger { color: var(--danger); border-color: var(--danger); }
+      .actions button { white-space: nowrap; padding: 7px 12px; font-size: 12.5px; }
+      header.top .privacy-chip { font-size: 10.5px; padding: 2px 8px; }
       .rows { margin-top: 6px; }
       details.row { border: 1px solid var(--line); border-radius: 10px; margin: 6px 0; }
       details.row.plain { border-style: dashed; margin-top: 10px; }
       details.row[open] { background: var(--soft); }
+      details.row:not([open]):hover { border-color: var(--accent); }
       details.row summary {
         list-style: none;
         display: flex;
@@ -81,12 +48,10 @@
       .row-body p { margin: 0 0 6px; }
       .tip { color: var(--accent); }
       .conversation p { margin: 0 0 4px; }
-      button.primary { margin-top: 6px; background: var(--accent); border-color: var(--accent); color: var(--bg); }
-      button.primary:hover { filter: brightness(1.08); }
+      .conversation button.primary { margin-top: 6px; }
       @media (prefers-reduced-motion: reduce) { details.row summary::after { transition: none; } }
-      .help { margin: 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; }
-      .help a { color: var(--accent); }
-      .privacy { margin: 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+      .help { margin: 4px 2px 6px; font-size: 12.5px; font-weight: 500; }
+      .privacy { margin: 0 2px; color: var(--muted); font-size: 11.5px; }
     </style>
   </head>
   <body>
