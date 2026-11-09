@@ -38,10 +38,11 @@ import { Strip } from "../ui/strip";
 /** "Taze başlat" ile açılan yeni sohbetin tanınması için geçerlilik süresi. */
 const FRESH_START_WINDOW_MS = 10 * 60 * 1000;
 
-function main(): void {
+/** true: bu sayfada bir platform bulundu ve eklenti başladı. */
+function main(): boolean {
   const url = new URL(location.href);
   const entry = platformFor(url);
-  if (!entry) return; // tanımadığımız sitede sessizce devre dışı (K10)
+  if (!entry) return false; // tanımadığımız sitede sessizce devre dışı (K10)
   const { adapter, capabilities, platform } = entry;
 
   const session = new Session(adapter.conversationKey(url));
@@ -518,6 +519,21 @@ function main(): void {
   });
 
   console.log(`[KafiAI] ${adapter.name} adaptörü hazır`);
+  return true;
 }
 
-main();
+/**
+ * Google'da içerik betiği bütün arama sayfalarına yüklenir ama yalnızca AI Modu'nda çalışmalı.
+ * Kullanıcı normal aramadan AI Modu'na sayfa yenilenmeden geçebildiği için, arama sayfasında
+ * adres AI Modu'na dönene kadar yalnızca adrese bakılır; sayfadaki hiçbir şey okunmaz.
+ */
+function boot(): void {
+  if (main()) return;
+  if (!/(^|\.)google\.com$/.test(location.hostname) || location.pathname !== "/search") return;
+  const timer = window.setInterval(() => {
+    if (platformFor(new URL(location.href)) && main()) window.clearInterval(timer);
+  }, NAV_POLL_MS);
+  window.addEventListener("pagehide", () => window.clearInterval(timer));
+}
+
+boot();

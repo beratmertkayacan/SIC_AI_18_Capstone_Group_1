@@ -1,5 +1,5 @@
 {
-  "note": "Platform kaydı (karar K19). Her desteklenen site için içerik betiğinin çalıştığı adresler ve yetenekler. Manifestteki content_scripts.matches ve host_permissions bu listeyle aynı olmak zorunda (src/adapters/registry.test.ts). model: tur modeli bu platformda çalışsın mı; interventions: full ise şerit ve kart gösterilir, count_only ise yalnızca sayılır. regenerate ve edit: adaptör yeniden üretme ve düzenleme eylemlerini yakalayabiliyor mu (P6).",
+  "note": "Platform kaydı (karar K19). Her desteklenen site için içerik betiğinin çalıştığı adresler ve yetenekler. Manifestteki content_scripts.matches ve host_permissions bu listeyle aynı olmak zorunda (src/adapters/registry.test.ts). model: tur modeli bu platformda çalışsın mı; interventions: full ise şerit ve kart gösterilir, count_only ise yalnızca sayılır. regenerate ve edit: adaptör yeniden üretme ve düzenleme eylemlerini yakalayabiliyor mu (P6). Google AI Modu: içerik betiği google.com/search sayfalarına yüklenir ama adaptör yalnızca udm=50 (AI Modu) adresinde çalışır; normal aramada eklenti hiçbir şey yapmaz.",
   "platforms": {
     "chatgpt": {
       "label": "ChatGPT",
@@ -15,6 +15,11 @@
       "label": "Claude",
       "matches": ["https://claude.ai/*"],
       "capabilities": { "regenerate": false, "edit": false, "model": "on", "interventions": "full" }
+    },
+    "google_ai_mode": {
+      "label": "Google AI Modu",
+      "matches": ["https://www.google.com/search*"],
+      "capabilities": { "regenerate": false, "edit": true, "model": "on", "interventions": "full" }
     }
   }
 }
