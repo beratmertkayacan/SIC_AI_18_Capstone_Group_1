@@ -9,6 +9,7 @@ extension/src/data/signal-rules.json dosyasında; iki tarafın aynı kararı ver
 import json
 from pathlib import Path
 
+from kafiai.config import EXT_MIN_NORMALIZED_CHARS
 from kafiai.extension_similarity import cosine, ngram_vector, normalize_text
 from kafiai.tasks import task_type
 
@@ -63,6 +64,16 @@ def is_vague(text):
     return False
 
 
+def is_short(text):
+    n = normalize_text(text)
+    return 0 < len(n) < EXT_MIN_NORMALIZED_CHARS
+
+
+def is_short_repair(text):
+    """Kısa ve güçlü onarım ifadesi taşıyan mesaj ("olmadı", "yanlış", "hala hata")."""
+    return is_short(text) and _strong_repair(text) and not is_exit_message(text)
+
+
 def is_new_topic(text, recent, segment_task):
     normalized = normalize_text(text)
     if len(normalized) < RULES["topic"]["min_chars"] or _strong_repair(text):
@@ -90,6 +101,8 @@ class ConversationSignals:
         self.segment_task = None
         self.turns = 0
         self.exited = False
+        self.short_repeat_streak = 0
+        self.last_short_repair = False
 
     def note_user(self, text, similar):
         index = self.turns
@@ -104,17 +117,26 @@ class ConversationSignals:
             self.recent_flags = []
             self.apology_streak = 0
             self.vague_streak = 0
+            self.short_repeat_streak = 0
+        normalized = normalize_text(text)
+        previous = self.recent_texts[-1] if self.recent_texts else None
+        self.last_short_repair = index > 0 and is_short_repair(text)
         if is_exit_message(text):
             self.exited = True
             self.recent_flags = []
             self.apology_streak = 0
             self.vague_streak = 0
+            self.short_repeat_streak = 0
         else:
-            self.recent_flags.append(bool(similar))
+            self.recent_flags.append(bool(similar) or self.last_short_repair)
             if len(self.recent_flags) > RULES["recent_window"]:
                 self.recent_flags.pop(0)
             self.vague_streak = self.vague_streak + 1 if is_vague(text) else 0
-        self.recent_texts.append(normalize_text(text))
+            if is_short(text) and not self.last_short_repair:
+                self.short_repeat_streak = self.short_repeat_streak + 1 if normalized == previous else 1
+            else:
+                self.short_repeat_streak = 0
+        self.recent_texts.append(normalized)
         if len(self.recent_texts) > 5:
             self.recent_texts.pop(0)
 

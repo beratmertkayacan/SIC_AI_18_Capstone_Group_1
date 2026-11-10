@@ -184,3 +184,23 @@ describe("ExitCard model gerekçesiyle", () => {
     expect(buttonByText("Yerinde değildi")).toBeUndefined();
   });
 });
+
+describe("ExitCard: sohbet sinyalleri (K32)", () => {
+  const card = new ExitCard();
+  afterEach(() => card.hide());
+
+  it("özür döngüsü kartı kendi etiketini ve notunu gösterir, model notunu göstermez", () => {
+    const reason = { key: "ozur", short: "Cevaplar üst üste özürle başladı", why: "Son cevaplar özürle başladı.", tip: "Yeni sohbette dene." };
+    card.show(document.body, 3, null, { ...actions(), onNotRelevant: vi.fn() }, reason);
+    expect(visibleText()).toContain("Aynı yerde dönüyor");
+    expect(visibleText()).toContain("Son cevaplar özürle başladı. Yeni sohbette dene.");
+    expect(visibleText()).not.toContain(MODEL_NOTE);
+    expect(buttonByText("Yerinde değildi")).toBeTruthy();
+  });
+
+  it("konu kaydıysa taslak başlığı yalnızca son konunun alındığını söyler", () => {
+    card.show(document.body, 12, null, { ...actions(), focusedDraft: () => true });
+    buttonByText("Taze başlat").click();
+    expect(visibleText()).toContain("yalnızca son konudaki isteklerini aldım");
+  });
+});

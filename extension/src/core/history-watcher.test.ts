@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { HistoryWatcher, historySeed } from "./history-watcher";
+import { HistoryWatcher, historySeed, historySignature } from "./history-watcher";
 
 function setup(stableNeeded = 2, timeoutMs = 8000) {
   let texts: string[] = [];
@@ -85,5 +85,13 @@ describe("historySeed", () => {
 
   it("bildirilen toplam okunandan azsa okunan sayı esas alınır", () => {
     expect(historySeed(["a", "b", "c"], 2)).toEqual({ turns: 3, hidden: 0, partial: false });
+  });
+});
+
+describe("historySignature", () => {
+  it("boş liste imzasızdır; aynı uç mesajlı aynı uzunlukta liste aynı imzayı verir", () => {
+    expect(historySignature([])).toBeNull();
+    expect(historySignature(["a", "b", "c"])).toBe(historySignature(["a", "x", "c"]));
+    expect(historySignature(["a", "b"])).not.toBe(historySignature(["a", "b", "c"]));
   });
 });

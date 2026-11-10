@@ -30,5 +30,9 @@
     "max_similarity": 0.15,
     "min_chars": 25
   },
+  "short": {
+    "note": "Karşılaştırılamayacak kadar kısa mesajlar (12 karakterden az). Güçlü onarım ifadesi taşıyan kısa mesaj ('olmadı', 'yanlış', 'hala hata') tekrar denemesi gibi sayılır: WildFeedback'te o turda memnuniyetsizlik %45,8 (genel %5,8). Aynı kısa mesajın ('devam', 'alternatif') üst üste gelmesi tek başına memnuniyetsizlik göstermiyor (%4,9); yalnızca repeat_streak kez üst üste gelince halka bir kademe yükselir. Sayıların kaynağı: scripts/evaluate_short_messages.py (outputs/short_messages.json).",
+    "repeat_streak": 3
+  },
   "recent_window": 4
 }

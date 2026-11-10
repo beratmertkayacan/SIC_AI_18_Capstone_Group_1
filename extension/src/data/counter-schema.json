@@ -74,9 +74,10 @@
         "kisa",
         "farkli",
         "benzer",
-        "varyasyon"
+        "varyasyon",
+        "kisa_onarim"
       ],
-      "note": "Gönderilen mesaj. kisa: karşılaştırılamayacak kadar kısa; benzer: son mesajlardan birine şerit eşiği kadar benziyor; varyasyon: benzer ama bilerek yapılan bir yeni örnek isteği (sonraki soru, başka fikir), döngü sayılmaz."
+      "note": "Gönderilen mesaj. kisa: karşılaştırılamayacak kadar kısa; benzer: son mesajlardan birine şerit eşiği kadar benziyor; varyasyon: benzer ama bilerek yapılan bir yeni örnek isteği (sonraki soru, başka fikir), döngü sayılmaz. kisa_onarim: kısa ama önceki cevabın olmadığını söyleyen mesaj ('olmadı', 'yanlış'); tekrar denemesi gibi sayılır."
     },
     "strip": {
       "dims": [
@@ -86,6 +87,8 @@
       "details": [
         "tetiklendi",
         "gosterildi",
+        "tetiklendi_kisa",
+        "gosterildi_kisa",
         "gizlendi_sayim",
         "gizlendi_rastgele",
         "gizlendi_bekleme",
@@ -93,7 +96,7 @@
         "gizlendi_platform",
         "gizlendi_kisisel"
       ],
-      "note": "Benzer mesaj şeridi. tetiklendi: koşul sağlandı; ardından gösterildi ya da gizlendi (nedeniyle) sayılır. gizlendi_kisisel: sohbet kişisel ya da duygusal görünüyor, öneri gösterilmedi (içeriği değil yalnızca sayısı)."
+      "note": "Benzer mesaj şeridi. tetiklendi: koşul sağlandı; ardından gösterildi ya da gizlendi (nedeniyle) sayılır. gizlendi_kisisel: sohbet kişisel ya da duygusal görünüyor, öneri gösterilmedi (içeriği değil yalnızca sayısı). tetiklendi_kisa ve gosterildi_kisa: kısa onarım şeridi ('olmadı' gibi mesajlarda neyin olmadığını ekleme önerisi); gizlenme nedenleri iki şerit için ortak."
     },
     "strip_action": {
       "dims": [
@@ -116,6 +119,9 @@
         "info",
         "shorter",
         "longer",
+        "error",
+        "expected",
+        "wrong_part",
         "na"
       ],
       "note": "Onarım düğmesi; ayrıntı düğmenin türü (src/core/repairs.ts). 'na': sürüm 1'den göç edilen, türü bilinmeyen sayılar."
@@ -129,8 +135,10 @@
       "details": [
         "tetiklendi_norm",
         "tetiklendi_model",
+        "tetiklendi_ozur",
         "gosterildi_norm",
         "gosterildi_model",
+        "gosterildi_ozur",
         "gosterildi_elle",
         "gizlendi_sayim",
         "gizlendi_rastgele",
@@ -220,6 +228,19 @@
         "aciklama"
       ],
       "note": "Halka (K29). yukseldi_n: halkanın tonu n. seviyeye çıktı; aciklama: kullanıcı açıklamayı görmek için halkanın üzerine geldi ya da odaklandı (halka başına bir kez)."
+    },
+    "signal": {
+      "dims": [
+        "platform",
+        "task"
+      ],
+      "details": [
+        "ozur_dongusu",
+        "cikis",
+        "konu_kaymasi",
+        "belirsiz"
+      ],
+      "note": "Sohbet sinyalleri (K32), sohbet başına her biri en fazla bir kez. ozur_dongusu: yapay zekanın cevapları üst üste iki kez özürle başladı; cikis: benzer mesaj, özür ya da belirsiz istekten sonra kullanıcı teşekkür etti ya da 'oldu' dedi; konu_kaymasi: sohbet başka bir konuya geçti; belirsiz: üst üste iki kısa ve açıklamasız düzeltme isteği. Metin yok, yalnızca sayı."
     }
   }
 }

@@ -1,3 +1,4 @@
+import { MIN_NORMALIZED_CHARS } from "../config";
 import rules from "../data/signal-rules.json";
 import { cosine, ngramVector } from "./similarity";
 import { hasStrongRepair } from "./strong-repair";
@@ -12,6 +13,8 @@ import { normalizeText } from "./text";
  *   çıkış          kullanıcı teşekkür etti ya da "oldu, çalıştı" dedi: döngü sinyalleri sıfırlanır
  *   belirsiz istek "daha iyi yap", "kısalt" gibi neyin değişeceğini söylemeyen kısa düzeltme
  *   konu kayması   sohbet başka bir konuya geçti: yeni bir bölüm başlar
+ *   kısa onarım    "olmadı", "yanlış" gibi kısa ama açık bir memnuniyetsizlik: tekrar denemesi gibi sayılır
+ *   kısa tekrar    aynı kısa mesaj ("devam") üst üste: yalnızca rules.short.repeat_streak kez olunca halkaya yansır
  *
  * Kurallar src/data/signal-rules.json dosyasında; Python ikizi src/kafiai/signals.py.
  */
@@ -61,6 +64,17 @@ export function isVague(text: string): boolean {
   });
 }
 
+/** Karşılaştırılamayacak kadar kısa mesaj mı (tekrar dedektörü bunlara bakmaz)? */
+export function isShort(text: string): boolean {
+  const length = Array.from(normalizeText(text)).length;
+  return length > 0 && length < MIN_NORMALIZED_CHARS;
+}
+
+/** Kısa ve güçlü onarım ifadesi taşıyan mesaj mı ("olmadı", "yanlış", "hala hata")? */
+export function isShortRepair(text: string): boolean {
+  return isShort(text) && hasStrongRepair(text) && !isExitMessage(text);
+}
+
 export interface TopicContext {
   /** Son kullanıcı mesajlarının sadeleştirilmiş metinleri (eskiden yeniye). */
   recent: string[];
@@ -94,6 +108,8 @@ export class ConversationSignals {
   private segmentTask: TaskType | null = null;
   private turns = 0;
   private lastExit = false;
+  private shortRepeatRun = 0;
+  private lastShortRepair = false;
 
   /** Kullanıcı bir mesaj gönderdi (ya da geçmişten okundu). */
   noteUser(text: string, turn: UserTurn): void {
@@ -109,18 +125,28 @@ export class ConversationSignals {
       this.recentFlags = [];
       this.apologyRun = 0;
       this.vagueRun = 0;
+      this.shortRepeatRun = 0;
     }
+    const normalized = normalizeText(text);
+    const previous = this.recentTexts[this.recentTexts.length - 1];
+    this.lastShortRepair = index > 0 && isShortRepair(text);
     if (isExitMessage(text)) {
       this.lastExit = true;
       this.recentFlags = [];
       this.apologyRun = 0;
       this.vagueRun = 0;
+      this.shortRepeatRun = 0;
     } else {
-      this.recentFlags.push(turn.similar);
+      this.recentFlags.push(turn.similar || this.lastShortRepair);
       if (this.recentFlags.length > rules.recent_window) this.recentFlags.shift();
       this.vagueRun = isVague(text) ? this.vagueRun + 1 : 0;
+      if (isShort(text) && !this.lastShortRepair) {
+        this.shortRepeatRun = normalized === previous ? this.shortRepeatRun + 1 : 1;
+      } else {
+        this.shortRepeatRun = 0;
+      }
     }
-    this.recentTexts.push(normalizeText(text));
+    this.recentTexts.push(normalized);
     if (this.recentTexts.length > 5) this.recentTexts.shift();
   }
 
@@ -140,6 +166,16 @@ export class ConversationSignals {
 
   get vagueStreak(): number {
     return this.vagueRun;
+  }
+
+  /** Aynı kısa mesaj üst üste kaç kez geldi (1 = tek). */
+  get shortRepeatStreak(): number {
+    return this.shortRepeatRun;
+  }
+
+  /** Son mesaj kısa bir onarım mıydı ("olmadı")? */
+  get shortRepair(): boolean {
+    return this.lastShortRepair;
   }
 
   /** Sohbetteki konu bölümü sayısı (1 = tek konu). */
@@ -167,5 +203,7 @@ export class ConversationSignals {
     this.segmentTask = null;
     this.turns = 0;
     this.lastExit = false;
+    this.shortRepeatRun = 0;
+    this.lastShortRepair = false;
   }
 }

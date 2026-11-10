@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fixture from "../../../tests/fixtures/signals_parity.json";
-import { apologizes, ConversationSignals, isExitMessage, isNewTopic, isVague } from "./signals";
+import { apologizes, ConversationSignals, isExitMessage, isNewTopic, isShortRepair, isVague } from "./signals";
 import { normalizeText } from "./text";
 
 describe("sohbet sinyalleri: Python ikiziyle aynı karar (parite örnekleri)", () => {
@@ -8,6 +8,7 @@ describe("sohbet sinyalleri: Python ikiziyle aynı karar (parite örnekleri)", (
     for (const [text, expected] of fixture.units.apology as [string, boolean][]) expect([text, apologizes(text)]).toEqual([text, expected]);
     for (const [text, expected] of fixture.units.exit as [string, boolean][]) expect([text, isExitMessage(text)]).toEqual([text, expected]);
     for (const [text, expected] of fixture.units.vague as [string, boolean][]) expect([text, isVague(text)]).toEqual([text, expected]);
+    for (const [text, expected] of fixture.units.short_repair as [string, boolean][]) expect([text, isShortRepair(text)]).toEqual([text, expected]);
   });
 
   it("sohbet boyunca durum aynı", () => {
@@ -23,6 +24,8 @@ describe("sohbet sinyalleri: Python ikiziyle aynı karar (parite örnekleri)", (
           segments: s.segments,
           segment_start: s.segmentStart,
           exited: s.exited,
+          short_repeat: s.shortRepeatStreak,
+          short_repair: s.shortRepair,
         }]).toEqual([user, conv.expected[i]]);
       });
     }
@@ -30,6 +33,24 @@ describe("sohbet sinyalleri: Python ikiziyle aynı karar (parite örnekleri)", (
 });
 
 describe("ConversationSignals", () => {
+  it("kısa onarım ilk mesajda sayılmaz, sonrasında tekrar denemesi gibi sayılır", () => {
+    const s = new ConversationSignals();
+    s.noteUser("olmadı", { similar: false });
+    expect([s.shortRepair, s.recentSimilar]).toEqual([false, 0]);
+    s.noteUser("yanlış", { similar: false });
+    expect([s.shortRepair, s.recentSimilar]).toEqual([true, 1]);
+  });
+
+  it("aynı kısa mesaj üst üste sayılır, farklı mesaj seriyi bozar", () => {
+    const s = new ConversationSignals();
+    for (const n of [1, 2, 3]) {
+      s.noteUser("devam et", { similar: false });
+      expect(s.shortRepeatStreak).toBe(n);
+    }
+    s.noteUser("başka", { similar: false });
+    expect(s.shortRepeatStreak).toBe(1);
+  });
+
   it("üst üste özür sayılır, özürsüz cevap sıfırlar", () => {
     const s = new ConversationSignals();
     s.noteAnswer("I apologize for the confusion.");

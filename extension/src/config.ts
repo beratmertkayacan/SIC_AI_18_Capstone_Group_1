@@ -11,6 +11,9 @@ export const START_TIMEOUT_MS = 15_000;
 
 /** Sayfa adresinin değişip değişmediğini kontrol etme aralığı (ms). */
 export const NAV_POLL_MS = 1000;
+/** Adres değişmeden boşalan sayfa: son gönderimden bu kadar sonra ve bu kadar ardışık ölçümde hiç mesaj yoksa yeni sohbet sayılır. */
+export const BLANK_AFTER_SEND_MS = 5000;
+export const BLANK_TICKS = 3;
 
 /** Benzerlik kuralları: tüm eşikler burada (karar K06). */
 /**
@@ -41,6 +44,11 @@ export const HISTORY_TIMEOUT_MS = 8_000; // bu sürede hiç mesaj görülmezse v
  */
 export const EXIT_CARD_MIN_TURNS = 9; // görev türü bilinmiyorsa en az bu kadar kullanıcı mesajı
 export const EXIT_CARD_MIN_REPEATS = 1; // bu sohbette en az bu kadar benzer mesaj denemesi
+/**
+ * Cevaplar üst üste bu kadar kez özürle başlarsa çıkış kartı açılabilir (K32). WildFeedback'te iki
+ * özürden sonra kullanıcının memnuniyetsizlik oranı %43,8 (tüm turlarda %5,9).
+ */
+export const APOLOGY_CARD_STREAK = 2;
 export const EXIT_CARD_COOLDOWN_TURNS = 5; // kapatılınca / yok sayılınca bu kadar tur boyunca tekrar çıkmaz
 export const FRESH_START_MAX_CHARS = 400; // taslakta her istek en fazla bu kadar karakter
 

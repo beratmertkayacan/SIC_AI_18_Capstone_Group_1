@@ -1,250 +1,426 @@
 {
- "units": {
-  "apology": [
-   [
-    "I apologize for the confusion. Here is the corrected code:",
-    true
-   ],
-   [
-    "Haklısınız, özür dilerim. Doğrusu şu:",
-    true
-   ],
-   [
-    "You're right, my mistake.",
-    true
-   ],
-   [
-    "Here is the code you asked for.",
-    false
-   ],
-   [
-    "Sorry, I can't help with that.",
-    false
-   ],
-   [
-    "Özür dilerim, bu konuda yardımcı olamam ama alternatif şunlar.",
-    true
-   ]
-  ],
-  "exit": [
-   [
-    "teşekkürler",
-    true
-   ],
-   [
-    "Teşekkür ederim, oldu!",
-    true
-   ],
-   [
-    "it works now thanks",
-    true
-   ],
-   [
-    "Thank you!",
-    true
-   ],
-   [
-    "harika, çalıştı",
-    true
-   ],
-   [
-    "hala çalışmıyor teşekkürler",
-    false
-   ],
-   [
-    "bu kodu düzelt",
-    false
-   ],
-   [
-    "Thanks but it still doesn't work",
-    false
-   ],
-   [
-    "great, now add a test for the parser function and explain how it works",
-    false
-   ]
-  ],
-  "vague": [
-   [
-    "daha iyi yap",
-    true
-   ],
-   [
-    "kısalt",
-    true
-   ],
-   [
-    "make it better",
-    true
-   ],
-   [
-    "shorter please",
-    true
-   ],
-   [
-    "biraz daha kısa olsun",
-    true
-   ],
-   [
-    "daha detaylı yaz",
-    true
-   ],
-   [
-    "başka",
-    false
-   ],
-   [
-    "devam et",
-    false
-   ],
-   [
-    "bu metni daha resmi bir dille yeniden yaz",
-    false
-   ],
-   [
-    "better",
-    true
-   ],
-   [
-    "improve it",
-    true
-   ],
-   [
-    "kod çalışmıyor",
-    false
-   ]
-  ]
- },
- "conversations": [
-  {
-   "user": [
-    "Python'da bir listeyi nasıl ters çeviririm?",
-    "bu kodu düzelt hata veriyor",
-    "bu kodu düzelt hata veriyor",
-    "teşekkürler oldu",
-    "Bana İstanbul'da hafta sonu gezilecek yerler hakkında bir yazı yaz"
-   ],
-   "answers": [
-    "liste[::-1]",
-    "I apologize, here is the fix",
-    "I apologize again, try this",
-    "Rica ederim",
-    "İşte yazı"
-   ],
-   "similar": [
-    false,
-    false,
-    true,
-    false,
-    false
-   ],
-   "expected": [
-    {
-     "recent_similar": 0,
-     "apology": 0,
-     "vague": 0,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
-    },
-    {
-     "recent_similar": 0,
-     "apology": 1,
-     "vague": 0,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
-    },
-    {
-     "recent_similar": 1,
-     "apology": 2,
-     "vague": 0,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
-    },
-    {
-     "recent_similar": 0,
-     "apology": 0,
-     "vague": 0,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": true
-    },
-    {
-     "recent_similar": 0,
-     "apology": 0,
-     "vague": 0,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
-    }
-   ]
+  "units": {
+    "apology": [
+      [
+        "I apologize for the confusion. Here is the corrected code:",
+        true
+      ],
+      [
+        "Haklısınız, özür dilerim. Doğrusu şu:",
+        true
+      ],
+      [
+        "You're right, my mistake.",
+        true
+      ],
+      [
+        "Here is the code you asked for.",
+        false
+      ],
+      [
+        "Sorry, I can't help with that.",
+        false
+      ],
+      [
+        "Özür dilerim, bu konuda yardımcı olamam ama alternatif şunlar.",
+        true
+      ]
+    ],
+    "exit": [
+      [
+        "teşekkürler",
+        true
+      ],
+      [
+        "Teşekkür ederim, oldu!",
+        true
+      ],
+      [
+        "it works now thanks",
+        true
+      ],
+      [
+        "Thank you!",
+        true
+      ],
+      [
+        "harika, çalıştı",
+        true
+      ],
+      [
+        "hala çalışmıyor teşekkürler",
+        false
+      ],
+      [
+        "bu kodu düzelt",
+        false
+      ],
+      [
+        "Thanks but it still doesn't work",
+        false
+      ],
+      [
+        "great, now add a test for the parser function and explain how it works",
+        false
+      ]
+    ],
+    "vague": [
+      [
+        "daha iyi yap",
+        true
+      ],
+      [
+        "kısalt",
+        true
+      ],
+      [
+        "make it better",
+        true
+      ],
+      [
+        "shorter please",
+        true
+      ],
+      [
+        "biraz daha kısa olsun",
+        true
+      ],
+      [
+        "daha detaylı yaz",
+        true
+      ],
+      [
+        "başka",
+        false
+      ],
+      [
+        "devam et",
+        false
+      ],
+      [
+        "bu metni daha resmi bir dille yeniden yaz",
+        false
+      ],
+      [
+        "better",
+        true
+      ],
+      [
+        "improve it",
+        true
+      ],
+      [
+        "kod çalışmıyor",
+        false
+      ]
+    ],
+    "short_repair": [
+      [
+        "olmadı",
+        true
+      ],
+      [
+        "Yanlış!",
+        true
+      ],
+      [
+        "hala hata",
+        true
+      ],
+      [
+        "still wrong",
+        true
+      ],
+      [
+        "wrong",
+        true
+      ],
+      [
+        "hayır",
+        true
+      ],
+      [
+        "olmadı teşekkürler ama",
+        false
+      ],
+      [
+        "devam",
+        false
+      ],
+      [
+        "teşekkürler",
+        false
+      ],
+      [
+        "bu kod hala çalışmıyor yine aynı hata",
+        false
+      ]
+    ]
   },
-  {
-   "user": [
-    "Bir e-posta yaz: toplantı ertelendi",
-    "daha iyi yap",
-    "kısalt",
-    "daha kısa olsun",
-    "Translate this paragraph into English please, it is about the project timeline"
-   ],
-   "answers": [
-    "Merhaba...",
-    "You're right, my mistake. Here:",
-    "Haklısınız, özür dilerim.",
-    "Kısa hali",
-    "Here is the translation"
-   ],
-   "similar": [
-    false,
-    false,
-    false,
-    false,
-    false
-   ],
-   "expected": [
+  "conversations": [
     {
-     "recent_similar": 0,
-     "apology": 0,
-     "vague": 0,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
+      "user": [
+        "Python'da bir listeyi nasıl ters çeviririm?",
+        "bu kodu düzelt hata veriyor",
+        "bu kodu düzelt hata veriyor",
+        "teşekkürler oldu",
+        "Bana İstanbul'da hafta sonu gezilecek yerler hakkında bir yazı yaz"
+      ],
+      "answers": [
+        "liste[::-1]",
+        "I apologize, here is the fix",
+        "I apologize again, try this",
+        "Rica ederim",
+        "İşte yazı"
+      ],
+      "similar": [
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "expected": [
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 1,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 1,
+          "apology": 2,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": true,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        }
+      ]
     },
     {
-     "recent_similar": 0,
-     "apology": 1,
-     "vague": 1,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
+      "user": [
+        "Bir e-posta yaz: toplantı ertelendi",
+        "daha iyi yap",
+        "kısalt",
+        "daha kısa olsun",
+        "Translate this paragraph into English please, it is about the project timeline"
+      ],
+      "answers": [
+        "Merhaba...",
+        "You're right, my mistake. Here:",
+        "Haklısınız, özür dilerim.",
+        "Kısa hali",
+        "Here is the translation"
+      ],
+      "similar": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "expected": [
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 1,
+          "vague": 1,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 2,
+          "vague": 2,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 1,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 3,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 2,
+          "segment_start": 4,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        }
+      ]
     },
     {
-     "recent_similar": 0,
-     "apology": 2,
-     "vague": 2,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
-    },
-    {
-     "recent_similar": 0,
-     "apology": 0,
-     "vague": 3,
-     "segments": 1,
-     "segment_start": 0,
-     "exited": false
-    },
-    {
-     "recent_similar": 0,
-     "apology": 0,
-     "vague": 0,
-     "segments": 2,
-     "segment_start": 4,
-     "exited": false
+      "user": [
+        "Python'da listeyi tersine çevirecek bir fonksiyon yaz",
+        "olmadı",
+        "olmadı",
+        "devam",
+        "devam",
+        "devam",
+        "alternatif",
+        "teşekkürler"
+      ],
+      "answers": [
+        "def f(x): return x[::-1]",
+        "Haklısın, özür dilerim. Şöyle dene:",
+        "İşte yeni sürüm",
+        "Devamı",
+        "Devamı",
+        "Devamı",
+        "Başka yol",
+        "Rica ederim"
+      ],
+      "similar": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "expected": [
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 1,
+          "apology": 1,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": true
+        },
+        {
+          "recent_similar": 2,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 0,
+          "short_repair": true
+        },
+        {
+          "recent_similar": 2,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 1,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 2,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 2,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 1,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 3,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": false,
+          "short_repeat": 1,
+          "short_repair": false
+        },
+        {
+          "recent_similar": 0,
+          "apology": 0,
+          "vague": 0,
+          "segments": 1,
+          "segment_start": 0,
+          "exited": true,
+          "short_repeat": 0,
+          "short_repair": false
+        }
+      ]
     }
-   ]
-  }
- ]
+  ]
 }

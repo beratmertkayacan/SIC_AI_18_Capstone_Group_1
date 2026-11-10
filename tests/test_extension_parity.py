@@ -51,6 +51,7 @@ def test_config_matches_extension():
         "EXIT_CARD_MIN_TURNS": config.EXT_EXIT_CARD_MIN_TURNS,
         "EXIT_CARD_MIN_REPEATS": config.EXT_EXIT_CARD_MIN_REPEATS,
         "EXIT_CARD_COOLDOWN_TURNS": config.EXT_EXIT_CARD_COOLDOWN_TURNS,
+        "APOLOGY_CARD_STREAK": config.EXT_APOLOGY_CARD_STREAK,
     }
     for name, python_value in pairs.items():
         assert ts_value(name) == python_value, f"{name}: config.ts ile config.py farklı"

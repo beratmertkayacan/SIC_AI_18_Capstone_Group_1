@@ -24,8 +24,18 @@ export interface ConversationSnapshot {
   /** Bu sohbetteki kullanıcı mesajı sayısı */
   turns: number;
   task: TaskType | null;
-  /** Öncekine çok benzeyen mesaj sayısı */
+  /** Öncekine çok benzeyen mesaj sayısı (sohbet boyu) */
   similar: number;
+  /** Son dört mesajdan öncekine çok benzeyenler (çıkışta ve konu değişince sıfırlanır, K32) */
+  recent_similar: number;
+  /** Üst üste özürle başlayan cevap sayısı */
+  apology_streak: number;
+  /** Üst üste kısa ve açıklamasız düzeltme isteği */
+  vague_streak: number;
+  /** Sohbetteki konu bölümü sayısı (1 = tek konu) */
+  segments: number;
+  /** Son mesaj "teşekkürler, oldu" gibi bir çıkış mesajı mıydı? */
+  exited: boolean;
   /** Bu görev türünde sohbetlerin genelde bittiği tur sayıları */
   norm: { median: number; p75: number } | null;
   /** "Yeni sohbete geç" kartı şu an açılabilir mi? */
@@ -42,6 +52,11 @@ export const SNAPSHOT_KEYS: (keyof ConversationSnapshot)[] = [
   "turns",
   "task",
   "similar",
+  "recent_similar",
+  "apology_streak",
+  "vague_streak",
+  "segments",
+  "exited",
   "norm",
   "card_available",
 ];

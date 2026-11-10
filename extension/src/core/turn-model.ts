@@ -73,3 +73,9 @@ export function predict(features: Record<string, number>, maxReasons = 2): Predi
 
   return { probability, level, reasons: picked };
 }
+
+/** Model dışı kurallardan gelen kartlar için gerekçe (örneğin "ozur", K32); yoksa null. */
+export function reasonByKey(key: string): Reason | null {
+  const r = reasons[key];
+  return r ? { key, ...r } : null;
+}

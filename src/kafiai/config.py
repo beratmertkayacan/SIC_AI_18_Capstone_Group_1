@@ -63,6 +63,8 @@ EXT_SOFT_SIMILARITY_THRESHOLD = 0.6
 EXT_EXIT_CARD_MIN_TURNS = 9
 EXT_EXIT_CARD_MIN_REPEATS = 1
 EXT_EXIT_CARD_COOLDOWN_TURNS = 5
+# Cevaplar üst üste bu kadar kez özürle başlarsa çıkış kartı açılabilir (K32, eklentide APOLOGY_CARD_STREAK).
+EXT_APOLOGY_CARD_STREAK = 2
 
 # Çok platformlu sınama (P4, scripts/evaluate_platforms.py). Model eğitime girmeyen veri
 # setlerinde (ShareChat, LMSYS, WildChat'in test kullanıcıları) platform ya da model ailesi

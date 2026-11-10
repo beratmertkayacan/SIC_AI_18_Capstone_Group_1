@@ -65,6 +65,11 @@
       "short": "Genel örüntü",
       "why": "Bu sohbet, uzayıp sonuca ulaşmayan sohbetlere benziyor.",
       "tip": "İsteğini bir cümleyle yeniden özetlemek ya da taze bir sohbet başlatmak işe yarayabilir."
+    },
+    "ozur": {
+      "short": "Cevaplar üst üste özürle başladı",
+      "why": "Son cevaplar üst üste \"haklısınız, özür dilerim\" diye başladı.",
+      "tip": "Bu genelde modelin aynı yerde takıldığını gösteriyor. İsteğini tek bir taslakta toplayıp yeni bir sohbette denemek çoğu zaman daha hızlı sonuç veriyor."
     }
   }
 }

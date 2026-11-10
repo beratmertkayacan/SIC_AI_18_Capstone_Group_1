@@ -1,4 +1,4 @@
-import { REPAIRS, type Repair } from "../core/repairs";
+import { REPAIRS, shortRepairs, type Repair } from "../core/repairs";
 import { header, mountCard } from "./theme";
 
 /**
@@ -29,6 +29,11 @@ export interface StripContext {
   exact: boolean;
   /** Görev türü (src/core/tasks.ts); bilinmiyorsa null. */
   task: string | null;
+  /**
+   * repeat: benzer mesaj (varsayılan). short_repair: "olmadı", "yanlış" gibi kısa bir onarım;
+   * mesaj tekrar değil, yalnızca neyin olmadığını söylemiyor.
+   */
+  kind?: "repeat" | "short_repair";
 }
 
 /** Bu denemeden sonra şeritte "Yeni sohbete geç" önerilir. */
@@ -45,6 +50,13 @@ const TASK_HINTS: Record<string, string> = {
 /** Şeridin başlığı, açıklaması ve görev ipucu. Testler ve popup önizlemesi de kullanır. */
 export function stripMessage(ctx: StripContext): { title: string; body: string; hint: string | null } {
   const hint = ctx.task !== null ? (TASK_HINTS[ctx.task] ?? null) : null;
+  if (ctx.kind === "short_repair") {
+    return {
+      title: "Neyin olmadığını bir cümleyle eklersen cevap daha isabetli olur.",
+      body: "Kısa bir düzeltmede model neyi değiştireceğini tahmin etmek zorunda kalıyor.",
+      hint: null,
+    };
+  }
   if (ctx.attempt >= FRESH_START_FROM_ATTEMPT) {
     return {
       title: "Birkaç denemedir aynı yerdesin.",
@@ -113,7 +125,39 @@ export class Strip {
       actions.onClose();
     };
     const msg = stripMessage(ctx);
-    const chip = ctx.attempt >= 2 ? `${ctx.attempt}. deneme` : "Benzer mesaj";
+    const chip = ctx.kind === "short_repair" ? "Kısa düzeltme" : ctx.attempt >= 2 ? `${ctx.attempt}. deneme` : "Benzer mesaj";
+
+    /** Kısa onarım görünümü: onarım cümleleri doğrudan ilk satırda, ara adım yok. */
+    const showShortRepair = () => {
+      const row = document.createElement("div");
+      row.className = "row";
+      for (const repair of shortRepairs(ctx.task)) {
+        row.append(
+          button(repair.label, row.childElementCount === 0 ? "" : "secondary", () => {
+            this.hide();
+            actions.onRepair(repair.sentence, repair.id);
+          }),
+        );
+      }
+      row.append(
+        button("Olduğu gibi gönder", "secondary", () => {
+          this.hide();
+          actions.onSendAnyway();
+        }),
+        spacer(),
+      );
+      if (actions.onNotRelevant) {
+        row.append(
+          button("Yerinde değildi", "link", () => {
+            this.hide();
+            actions.onNotRelevant?.();
+          }),
+        );
+      }
+      row.append(button("Kapat", "link", close));
+      box.replaceChildren(header(chip), paragraph(msg.title, "title"), paragraph(msg.body, "body"), row);
+      (row.firstElementChild as HTMLButtonElement | null)?.focus();
+    };
 
     const showChoice = () => {
       const row = document.createElement("div");
@@ -169,7 +213,8 @@ export class Strip {
       (row.firstElementChild as HTMLButtonElement | null)?.focus();
     };
 
-    showChoice();
+    if (ctx.kind === "short_repair") showShortRepair();
+    else showChoice();
     this.host = host;
 
     this.onKey = (e: KeyboardEvent) => {
