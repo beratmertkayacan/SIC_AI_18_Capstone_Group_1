@@ -67,6 +67,13 @@ export function isEditBox(box: Element): boolean {
   return box.closest("[data-turn-key]") !== null;
 }
 
+/** Verilen düğüm bir mesajı düzenleme kutusunun içindeyse o kutuyu döndürür. */
+export function editBoxContaining(node: EventTarget | null): HTMLElement | null {
+  if (!(node instanceof Element)) return null;
+  const box = node.closest<HTMLElement>(COMPOSER_SELECTOR);
+  return box && box.closest("form") && isEditBox(box) ? box : null;
+}
+
 /** Verilen düğüm asıl mesaj kutusunun içindeyse o kutuyu döndürür (düzenleme kutusu sayılmaz). */
 export function composerContaining(node: EventTarget | null): HTMLElement | null {
   if (!(node instanceof Element)) return null;
@@ -224,6 +231,11 @@ export const chatgptAdapter: Adapter = {
     // temizlemeden önce metni okuyabilmek için.
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Enter" || event.shiftKey || event.altKey || event.isComposing) return;
+      const edit = editBoxContaining(event.target);
+      if (edit) {
+        if (readComposerText(edit) !== "") handlers.onEdit?.();
+        return;
+      }
       const composer = composerContaining(event.target);
       if (!composer) return;
       if (isGenerating(document)) return; // üretim sürerken Enter mesaj göndermez
@@ -236,6 +248,11 @@ export const chatgptAdapter: Adapter = {
     const onClick = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return;
       const button = event.target.closest('button[type="submit"]');
+      const edit = editBoxContaining(button?.closest("form")?.querySelector(COMPOSER_SELECTOR) ?? null);
+      if (edit) {
+        if (readComposerText(edit) !== "") handlers.onEdit?.();
+        return;
+      }
       const composer = composerContaining(button?.closest("form")?.querySelector<HTMLElement>(COMPOSER_SELECTOR) ?? null);
       if (!composer) return;
       const text = readComposerText(composer);
