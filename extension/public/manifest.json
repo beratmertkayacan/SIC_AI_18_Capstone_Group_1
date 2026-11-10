@@ -18,6 +18,7 @@
     "https://chat.openai.com/*",
     "https://gemini.google.com/*",
     "https://claude.ai/*",
+    "https://copilot.microsoft.com/*",
     "https://www.google.com/search*"
   ],
   "action": {
@@ -39,6 +40,7 @@
         "https://chat.openai.com/*",
         "https://gemini.google.com/*",
         "https://claude.ai/*",
+        "https://copilot.microsoft.com/*",
         "https://www.google.com/search*"
       ],
       "js": [

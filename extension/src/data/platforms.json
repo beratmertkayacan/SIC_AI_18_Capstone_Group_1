@@ -16,6 +16,11 @@
       "matches": ["https://claude.ai/*"],
       "capabilities": { "regenerate": false, "edit": false, "model": "on", "interventions": "full" }
     },
+    "copilot": {
+      "label": "Copilot",
+      "matches": ["https://copilot.microsoft.com/*"],
+      "capabilities": { "regenerate": true, "edit": false, "model": "on", "interventions": "full" }
+    },
     "google_ai_mode": {
       "label": "Google AI Modu",
       "matches": ["https://www.google.com/search*"],

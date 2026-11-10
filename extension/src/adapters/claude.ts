@@ -1,6 +1,7 @@
 import { POLL_MS } from "../config";
 import { ResponseWatcher } from "../core/response-watcher";
 import { appendAsNewLine } from "./insert";
+import { reportedUserTurns } from "./virtual-list";
 import type { Adapter, AdapterHandlers } from "./types";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
@@ -32,7 +33,6 @@ const SEND_SELECTOR = '[data-testid="chat-input-send"]';
 const STOP_SELECTOR = '[data-testid="chat-input-stop"]';
 const STREAMING_SELECTOR = '[data-is-streaming="true"]';
 const USER_MESSAGE_SELECTOR = '[data-testid="user-message"]';
-const ROW_SELECTOR = '[role="article"][aria-setsize]';
 
 const HOSTS = new Set(["claude.ai"]);
 
@@ -85,19 +85,7 @@ export function readUserMessages(root: ParentNode = document): string[] {
     .filter((text) => text.length > 0);
 }
 
-/**
- * Sayfanın bildirdiği toplam kullanıcı mesajı sayısı. Mesajlar kullanıcı ve Claude arasında
- * sırayla gider; toplam mesaj sayısının yarısı (yukarı yuvarlanmış) kullanıcınındır.
- * Bilgi yoksa null.
- */
-export function reportedUserTurns(root: ParentNode = document): number | null {
-  let total = 0;
-  for (const row of Array.from(root.querySelectorAll(ROW_SELECTOR))) {
-    const size = Number(row.getAttribute("aria-setsize"));
-    if (Number.isFinite(size) && size > total) total = size;
-  }
-  return total > 0 ? Math.ceil(total / 2) : null;
-}
+export { reportedUserTurns };
 
 /** Arayüzün yerleşeceği öğe: mesaj kutusunun çerçevesi; yoksa kutunun kendisi. */
 function anchorOf(box: HTMLElement): Element {
