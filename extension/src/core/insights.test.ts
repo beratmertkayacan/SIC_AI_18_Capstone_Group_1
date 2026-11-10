@@ -36,7 +36,7 @@ describe("haftalık içgörü", () => {
   it("çıktıda yalnızca sayılar ve şemadaki sabit sözcükler var", () => {
     const w = weeklyInsights({ v: 2, days: fixture[4]!.days } as unknown as CountsV2, at(fixture[4]!.today));
     const words = JSON.stringify(w).match(/"[^"]*"/g) ?? [];
-    const allowed = /^"(days|conversations|loops|similar_sends|top_slot|fresh_starts|fresh_followups|total|short|previous|enough|tasks|task|long|platforms|kod|ceviri|ozet|yazma|soru|diger|na|chatgpt|gemini|claude|copilot|google_ai_mode|00-06|06-12|12-18|18-24)"$/;
+    const allowed = /^"(days|conversations|loops|similar_sends|top_slot|fresh_starts|fresh_followups|total|short|signals|ozur_dongusu|cikis|konu_kaymasi|belirsiz|variation_sends|previous|enough|tasks|task|long|platforms|kod|ceviri|ozet|yazma|soru|diger|na|chatgpt|gemini|claude|copilot|google_ai_mode|00-06|06-12|12-18|18-24)"$/;
     for (const w2 of words) expect(w2).toMatch(allowed);
   });
 });

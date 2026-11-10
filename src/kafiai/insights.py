@@ -57,7 +57,8 @@ def weekly_insights(days, today):
     wanted = set(window_days(today))
     long_buckets = set(CONFIG["long_buckets"])
     conv, loops, long, platforms, slots_by_task, slots_all = {}, {}, {}, {}, {}, {}
-    fresh = similar = follow_total = follow_short = 0
+    fresh = similar = follow_total = follow_short = variation = 0
+    sig = {"ozur_dongusu": 0, "cikis": 0, "konu_kaymasi": 0, "belirsiz": 0}
     for day, rec in days.items():
         if day not in wanted:
             continue
@@ -77,6 +78,10 @@ def weekly_insights(days, today):
                 similar += n
                 _add(slots_all, slot, n)
                 _add(slots_by_task.setdefault(task, {}), slot, n)
+            elif event == "send" and detail == "varyasyon":
+                variation += n
+            elif event == "signal" and detail in sig:
+                sig[detail] += n
             elif event == "card_action" and detail == "taze_baslat":
                 fresh += n
             elif event == "fresh_followup":
@@ -110,6 +115,8 @@ def weekly_insights(days, today):
         "top_slot": _top_slot(slots_all),
         "fresh_starts": fresh,
         "fresh_followups": {"total": follow_total, "short": follow_short},
+        "signals": sig,
+        "variation_sends": variation,
         "previous": _previous_window(days, today),
         "enough": total >= CONFIG["min_conversations"],
         "tasks": tasks,

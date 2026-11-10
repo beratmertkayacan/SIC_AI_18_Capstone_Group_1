@@ -28,11 +28,14 @@ def random_days(rng, today, n_days, per_day):
                                 rng.choice(D["first_len"]), rng.choice(["dongu", "normal", "normal"])])
             elif kind < 0.8:
                 key = "|".join(["send", rng.choice(D["platform"][:3]), rng.choice(D["slot"][2:] if rng.random() < 0.7 else D["slot"]),
-                                rng.choice(D["task"]), rng.choice(D["len"]), rng.choice(["benzer", "farkli"])])
+                                rng.choice(D["task"]), rng.choice(D["len"]), rng.choice(["benzer", "farkli", "varyasyon"])])
             elif kind < 0.86:
                 key = "card_action|chatgpt|taze_baslat"
             elif kind < 0.9:
                 key = "fresh_followup|" + rng.choice(D["platform"][:2]) + "|" + rng.choice(D["len"])
+            elif kind < 0.95:
+                key = "|".join(["signal", rng.choice(D["platform"]), rng.choice(D["task"]),
+                                rng.choice(["ozur_dongusu", "cikis", "konu_kaymasi", "belirsiz"])])
             else:
                 key = "strip|gemini|kod|gosterildi"
             assert is_valid_cell_key(key), key

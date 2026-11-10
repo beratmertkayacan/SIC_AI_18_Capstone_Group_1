@@ -43,7 +43,8 @@ async function open(tab?: TabBridge) {
 }
 const snap = (over: Partial<ConversationSnapshot> = {}): ConversationSnapshot => ({
   platform: "chatgpt", active: true, suggesting: true, intervening: true, personal: false, turns: 7, task: "kod",
-  similar: 2, norm: { median: 3, p75: 5 }, card_available: true, ...over,
+  similar: 2, recent_similar: 2, apology_streak: 0, vague_streak: 0, segments: 1, exited: false,
+  norm: { median: 3, p75: 5 }, card_available: true, ...over,
 });
 function fakeTab(s: ConversationSnapshot | null, openOk = true) {
   const calls = { open: 0 };
