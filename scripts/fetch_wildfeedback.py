@@ -10,7 +10,10 @@ Veri tur tur (mesaj mesaj) tutuluyor ve sohbet kimliği yok. Her sohbette mesaj 
 
 Çıktı (repoya eklenmez):
     data/processed/wildfeedback_conversations.parquet
-        conv_id, user_msgs, n_user_msgs, dsat_turns, sat_turns, first_intent, first_domain, dsat_reasons
+        conv_id, user_msgs, assistant_msgs, n_user_msgs, dsat_turns, sat_turns, first_intent,
+        first_domain, dsat_reasons
+    assistant_msgs[i]: kullanıcının i. mesajına gelen cevap (yoksa boş metin), ilk 2.000 karakter.
+    Cevap tarafı sinyali için (scripts/evaluate_response_signal.py).
 
 Çalıştırma (repo kök klasöründe, internet gerekir, yaklaşık 0,6 GB indirir):
     python scripts/fetch_wildfeedback.py
@@ -54,8 +57,13 @@ def to_conversations(df):
     new_conv = [True] + [ids[i] <= ids[i - 1] for i in range(1, len(ids))]
     df = df.assign(conv_id=pd.Series(new_conv).cumsum().to_numpy() - 1)
 
-    users = df[df[role].astype(str).str.lower() == "user"].copy()
-    users["user_turn"] = users.groupby("conv_id").cumcount()
+    is_user = df[role].astype(str).str.lower() == "user"
+    # Her mesaja, kendisinden önceki son kullanıcı mesajının sırası: cevaplar bununla eşlenir.
+    df = df.assign(user_turn=is_user.groupby(df["conv_id"]).cumsum() - 1)
+    answers = (df[~is_user & (df["user_turn"] >= 0)]
+               .groupby(["conv_id", "user_turn"])[content]
+               .agg(lambda s: "\n".join(str(m or "") for m in s)[:KEEP_CHARS]))
+    users = df[is_user].copy()
 
     def flag(series):
         return series.astype(str).str.lower().isin(["true", "1", "yes"])
@@ -69,6 +77,7 @@ def to_conversations(df):
         rows.append({
             "conv_id": int(conv_id),
             "user_msgs": msgs,
+            "assistant_msgs": [answers.get((conv_id, t), "") for t in g["user_turn"]],
             "n_user_msgs": len(msgs),
             "dsat_turns": g.loc[g["is_dsat"], "user_turn"].tolist(),
             "sat_turns": g.loc[g["is_sat"], "user_turn"].tolist(),

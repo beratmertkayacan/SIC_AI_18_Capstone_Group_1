@@ -56,6 +56,17 @@ def extract(row):
     conv = row["conversation"] or []
     users = [(t.get("content") or "")[:KEEP_CHARS] for t in conv if t.get("role") == "user"]
     assistant_chars = sum(len(t.get("content") or "") for t in conv if t.get("role") == "assistant")
+    # Her kullanıcı mesajına gelen cevap (ilk KEEP_CHARS karakter); cevap tarafı sinyali için.
+    answers, current = [], None
+    for t in conv:
+        if t.get("role") == "user":
+            if current is not None:
+                answers.append(current[:KEEP_CHARS])
+            current = ""
+        elif t.get("role") == "assistant" and current is not None:
+            current += (t.get("content") or "")
+    if current is not None:
+        answers.append(current[:KEEP_CHARS])
     return {
         "conversation_hash": row["conversation_hash"],
         "timestamp": row["timestamp"],
@@ -67,6 +78,7 @@ def extract(row):
         "toxic": row["toxic"],
         "redacted": row["redacted"],
         "user_msgs": users,
+        "assistant_msgs": answers,
         "n_user_msgs": len(users),
         "first_prompt": users[0] if users else "",
         "first_prompt_chars": len(users[0]) if users else 0,
