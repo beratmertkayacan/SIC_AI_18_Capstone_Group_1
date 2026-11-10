@@ -85,9 +85,27 @@ _REPEAT_RULES = json.loads(
 _FILLER = set(_REPEAT_RULES["filler"])
 
 
-def _content_tokens(normalized):
-    return [t for t in normalized.split() if t not in _FILLER
-            and (len(t) >= _REPEAT_RULES["min_token_chars"] or any(c.isdigit() for c in t))]
+_CHOICE = set(_REPEAT_RULES["choice_letters"])
+_VARIATION = _REPEAT_RULES["variation"]
+_VARIATION_WORDS = set(_VARIATION["words"])
+
+
+def has_variation_cue(text):
+    """Varyasyon işareti: yeni bir örnek isteği ("başka", "sonraki", "bir tane daha", "more", "next")."""
+    normalized = normalize_text(text)
+    tokens = normalized.split()
+    if any(t in _VARIATION_WORDS for t in tokens):
+        return True
+    if any(t.startswith(p) for t in tokens for p in _VARIATION["prefixes"]):
+        return True
+    padded = f" {normalized} "
+    return any(f" {p} " in padded for p in _VARIATION["phrases"])
+
+
+def is_variation(text):
+    """Varyasyon isteği: işaret var, güçlü onarım ifadesi yok (repeat-detector.ts, isVariation)."""
+    from kafiai.text import has_strong_repair
+    return has_variation_cue(text) and not has_strong_repair(text)
 
 
 def new_content(new_text, previous_text):
@@ -96,8 +114,17 @@ def new_content(new_text, previous_text):
     prev = normalize_text(previous_text).split()
     prev_set = set(prev)
     prev_stems = {t[:stem] for t in prev if len(t) >= stem and not any(c.isdigit() for c in t)}
+    words = normalize_text(new_text).split()
+    short = len(words) <= _REPEAT_RULES["choice_max_words"]
     out = []
-    for t in _content_tokens(normalize_text(new_text)):
+    for t in words:
+        if short and t in _CHOICE:
+            # Kısa mesajda tek başına şık harfi içeriktir: "cevabım B" ile "cevabım C" farklı.
+            if t not in prev_set:
+                out.append(t)
+            continue
+        if t in _FILLER or not (len(t) >= _REPEAT_RULES["min_token_chars"] or any(c.isdigit() for c in t)):
+            continue
         if t in prev_set:
             continue
         if not any(c.isdigit() for c in t) and len(t) >= stem and t[:stem] in prev_stems:
@@ -107,7 +134,8 @@ def new_content(new_text, previous_text):
 
 
 def is_repeat(new_text, previous_text, threshold=None):
-    """Şerit kuralı: benzerlik eşiği geçiyor ve yeni mesaj yeni bir içerik getirmiyor."""
+    """Şerit kuralı: benzerlik eşiği geçiyor, yeni mesaj yeni bir içerik getirmiyor ve bir varyasyon isteği değil."""
     from kafiai.config import EXT_SIMILARITY_THRESHOLD
     limit = EXT_SIMILARITY_THRESHOLD if threshold is None else threshold
-    return similarity(new_text, previous_text) >= limit and not new_content(new_text, previous_text)
+    return (similarity(new_text, previous_text) >= limit and not new_content(new_text, previous_text)
+            and not is_variation(new_text))

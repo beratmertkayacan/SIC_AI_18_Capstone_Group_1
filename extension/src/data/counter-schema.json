@@ -73,9 +73,10 @@
       "details": [
         "kisa",
         "farkli",
-        "benzer"
+        "benzer",
+        "varyasyon"
       ],
-      "note": "Gönderilen mesaj. kisa: karşılaştırılamayacak kadar kısa; benzer: son mesajlardan birine şerit eşiği kadar benziyor."
+      "note": "Gönderilen mesaj. kisa: karşılaştırılamayacak kadar kısa; benzer: son mesajlardan birine şerit eşiği kadar benziyor; varyasyon: benzer ama bilerek yapılan bir yeni örnek isteği (sonraki soru, başka fikir), döngü sayılmaz."
     },
     "strip": {
       "dims": [

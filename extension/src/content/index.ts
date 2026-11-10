@@ -411,11 +411,11 @@ function main(): boolean {
       // Çıkış kartı için tekrar denemesi: farklı kelimelerle yapılanlar da sayılır (yumuşak eşik).
       // Öneriler açık da kapalı da olsa aynı kural işler; böylece iki mod karşılaştırılabilir.
       if (check.soft) policy.noteRepeat();
-      record("send", check.tooShort ? "kisa" : check.similar ? "benzer" : "farkli");
+      record("send", check.tooShort ? "kisa" : check.similar ? "benzer" : check.variation ? "varyasyon" : "farkli");
       updatePrediction(n);
       updateRing();
 
-      const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : "farklı";
+      const verdict = check.tooShort ? "kısa, bakılmadı" : check.similar ? "BENZER" : check.variation ? "varyasyon isteği" : "farklı";
       console.log(
         `[KafiAI] mesaj gönderildi: ${text.length} karakter, oturumda ${n}. mesaj, ${verdict} (skor ${check.score.toFixed(2)})`,
       );

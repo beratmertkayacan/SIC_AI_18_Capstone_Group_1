@@ -1,5 +1,5 @@
 {
-  "note": "Benzer mesaj şeridi için ek kural: 3-gram benzerliği eşiği geçse bile, yeni mesaj öncekinde olmayan bir içerik kelimesi getiriyorsa ('1. soruyu çöz' / '2. soruyu çöz', 'liste' / 'sözlük', 'France' / 'Germany') bu bir tekrar değil, seri ya da yeni bir istektir ve şerit çıkmaz. Kelime, öncekindeki bir kelimeyle ilk stem_chars harfini paylaşıyorsa aynı kök sayılır ('düzelt' / 'düzeltir'). Rakam içeren kelimeler tam karşılaştırılır. Aşağıdaki dolgu kelimeleri içerik sayılmaz. Eklenti (src/core/repeat-detector.ts) ve Python (src/kafiai/extension_similarity.py) bu dosyayı okur. İngilizce büyük I harfi Türkçe kurala göre ı'ya döndüğü için 'ıs', 'ın' gibi biçimler de listede.",
+  "note": "Benzer mesaj şeridi için ek kural: 3-gram benzerliği eşiği geçse bile, yeni mesaj öncekinde olmayan bir içerik kelimesi getiriyorsa ('1. soruyu çöz' / '2. soruyu çöz', 'liste' / 'sözlük', 'France' / 'Germany') bu bir tekrar değil, seri ya da yeni bir istektir ve şerit çıkmaz. Kelime, öncekindeki bir kelimeyle ilk stem_chars harfini paylaşıyorsa aynı kök sayılır ('düzelt' / 'düzeltir'). Rakam içeren kelimeler tam karşılaştırılır. Aşağıdaki dolgu kelimeleri içerik sayılmaz. Eklenti (src/core/repeat-detector.ts) ve Python (src/kafiai/extension_similarity.py) bu dosyayı okur. İngilizce büyük I harfi Türkçe kurala göre ı'ya döndüğü için 'ıs', 'ın' gibi biçimler de listede. Şık harfleri (choice_letters): kısa bir mesajda (en fazla choice_max_words kelime) tek başına duran a, b, c, d, e harfleri içerik sayılır; 'cevabım B' ile 'cevabım C' farklı mesajdır. Varyasyon isteği (variation): kullanıcı aynı isteği bilerek, yeni bir örnek almak için tekrarlıyorsa ('sonraki soruyu sor', 'başka fikir ver', 'bir tane daha', 'more', 'next') bu bir döngü değil seri üretimdir; mesaj güçlü bir onarım ifadesi (repair-rules.json) taşımıyorsa şerit çıkmaz, halka yükselmez ve çıkış kartı için tekrar sayılmaz. Liste WildFeedback'te ölçüldü: şeridi açan çiftlerde varyasyon işaretlilerin memnuniyetsizlik oranı %9,7, onarım ifadelilerin %28,2.",
   "stem_chars": 4,
   "min_token_chars": 2,
   "filler": [
@@ -100,5 +100,51 @@
     "gibi",
     "ne",
     "nasıl"
-  ]
+  ],
+  "choice_letters": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e"
+  ],
+  "choice_max_words": 6,
+  "variation": {
+    "words": [
+      "yeni",
+      "another",
+      "different",
+      "new",
+      "next",
+      "more",
+      "other",
+      "others",
+      "continue",
+      "else",
+      "alternative",
+      "alternatives",
+      "regenerate"
+    ],
+    "prefixes": [
+      "başka",
+      "farklı",
+      "diğer",
+      "sonraki",
+      "sıradaki",
+      "devam",
+      "yenisi",
+      "alternatif"
+    ],
+    "phrases": [
+      "bir tane daha",
+      "birkaç tane daha",
+      "bir soru daha",
+      "bir örnek daha",
+      "daha fazla",
+      "one more",
+      "give me more",
+      "few more",
+      "some more"
+    ]
+  }
 }
