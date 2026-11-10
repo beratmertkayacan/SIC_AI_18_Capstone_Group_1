@@ -59,6 +59,12 @@ export interface Adapter {
   insertText(text: string): boolean;
   /** Sayfada görünen önceki kullanıcı mesajlarının metinleri (eskiden yeniye). Yalnızca bellekte kullanılır. */
   readHistory(): string[];
+  /**
+   * Sayfanın bildirdiği toplam kullanıcı mesajı sayısı. Yalnızca ekrandaki mesajları çizen
+   * (sanal liste kullanan) sitelerde verilir; readHistory() o zaman sohbetin yalnızca bir
+   * kısmını döndürebilir. Bilgi yoksa null ya da tanımsız.
+   */
+  historyTotal?(): number | null;
   /** Yeni (boş) bir sohbetin adresi. */
   newChatUrl(): string;
   /** Mesaj kutusu: arayüzü yerleştirmek için çapa ve kutunun boş olup olmadığı. Kutu yoksa null. */

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { HistoryWatcher } from "./history-watcher";
+import { HistoryWatcher, historySeed } from "./history-watcher";
 
 function setup(stableNeeded = 2, timeoutMs = 8000) {
   let texts: string[] = [];
@@ -70,5 +70,20 @@ describe("HistoryWatcher", () => {
     t.watcher.tick(500);
     t.watcher.tick(750);
     expect(t.onReady).not.toHaveBeenCalled();
+  });
+});
+
+describe("historySeed", () => {
+  it("toplam bildirilmezse okunan sayı esas alınır", () => {
+    expect(historySeed(["a", "b"], null)).toEqual({ turns: 2, hidden: 0, partial: false });
+    expect(historySeed(["a", "b"], undefined)).toEqual({ turns: 2, hidden: 0, partial: false });
+  });
+
+  it("sanal listede okunamayan mesajlar gizli sayılır", () => {
+    expect(historySeed(["son"], 9)).toEqual({ turns: 9, hidden: 8, partial: true });
+  });
+
+  it("bildirilen toplam okunandan azsa okunan sayı esas alınır", () => {
+    expect(historySeed(["a", "b", "c"], 2)).toEqual({ turns: 3, hidden: 0, partial: false });
   });
 });

@@ -27,17 +27,26 @@ describe("platform kaydı", () => {
   });
 
   it("her adres deseni kendi adaptörüne yönlenir", () => {
+    // Deseni doğrudan sohbet adresine çevrilemeyen platformlar için örnek adres (derlemeye girmesin diye burada).
+    const examples: Partial<Record<string, string>> = { google_ai_mode: "https://www.google.com/search?udm=50&q=ornek" };
     for (const p of PLATFORMS) {
-      for (const pattern of p.matches) {
-        const url = new URL(pattern.replace("*", "c/ornek"));
-        expect(platformFor(url)?.platform).toBe(p.platform);
-      }
+      const example = examples[p.platform];
+      const urls = example ? [example] : p.matches.map((pattern) => pattern.replace("*", "c/ornek"));
+      for (const u of urls) expect(platformFor(new URL(u))?.platform).toBe(p.platform);
     }
+  });
+
+  it("Google'da yalnızca AI Modu sayfası tanınır; normal arama ve diğer sayfalar değil", () => {
+    expect(platformFor(new URL("https://www.google.com/search?udm=50&q=ornek"))?.platform).toBe("google_ai_mode");
+    expect(platformFor(new URL("https://www.google.com/search?q=ornek"))).toBeNull();
+    expect(platformFor(new URL("https://www.google.com/search?udm=2&q=ornek"))).toBeNull();
+    expect(platformFor(new URL("https://www.google.com/maps"))).toBeNull();
   });
 
   it("tanınmayan sitede platform yok", () => {
     expect(platformFor(new URL("https://example.com/"))).toBeNull();
     expect(platformFor(new URL("https://www.google.com/search?q=test"))).toBeNull();
+    expect(platformFor(new URL("https://mail.google.com/"))).toBeNull();
   });
 
   it("yetenek değerleri geçerli", () => {

@@ -13,7 +13,7 @@ import {
 } from "../core/counters";
 import { ExitCardPolicy } from "../core/exit-card-policy";
 import { buildFreshStartDraft } from "../core/fresh-start";
-import { HistoryWatcher } from "../core/history-watcher";
+import { HistoryWatcher, historySeed } from "../core/history-watcher";
 import { isPopupMessage, MSG_OPEN_CARD, type ConversationSnapshot } from "../core/messages";
 import { isPersonal } from "../core/personal";
 import { ringLevel, ringText } from "../core/ring";
@@ -27,7 +27,7 @@ import {
   SettingsStore,
   type Settings,
 } from "../core/settings";
-import { taskNorm, taskType } from "../core/tasks";
+import { taskNorm, taskType, type TaskType } from "../core/tasks";
 import { EXACT_REPEAT_THRESHOLD, turnFeatures } from "../core/turn-features";
 import { MODEL_MIN_TURN, predict, type Prediction } from "../core/turn-model";
 import { copyToClipboard } from "../ui/clipboard";
@@ -38,10 +38,11 @@ import { Strip } from "../ui/strip";
 /** "Taze başlat" ile açılan yeni sohbetin tanınması için geçerlilik süresi. */
 const FRESH_START_WINDOW_MS = 10 * 60 * 1000;
 
-function main(): void {
+/** true: bu sayfada bir platform bulundu ve eklenti başladı. */
+function main(): boolean {
   const url = new URL(location.href);
   const entry = platformFor(url);
-  if (!entry) return; // tanımadığımız sitede sessizce devre dışı (K10)
+  if (!entry) return false; // tanımadığımız sitede sessizce devre dışı (K10)
   const { adapter, capabilities, platform } = entry;
 
   const session = new Session(adapter.conversationKey(url));
@@ -55,6 +56,15 @@ function main(): void {
   // Bu sohbetteki kullanıcı mesajları: yalnızca bellekte, tur modelinin öznitelikleri ve sohbet
   // sonucu için. Sohbet değişince ya da sayfa kapanınca silinir; hiçbir yere yazılmaz.
   let userTexts: string[] = [];
+  /**
+   * Açılan sohbette sayfada çizilmediği için okunamayan eski mesaj sayısı (sanal liste, Claude).
+   * Sıfırdan büyükse ilk mesaj bilinmez: görev türü ve tur modeli bu sohbette kullanılmaz,
+   * tur sayısı yine doğru tutulur.
+   */
+  let hiddenTurns = 0;
+  /** Görev türü ilk mesajdan çıkarılır; ilk mesaj okunamadıysa bilinmez. */
+  const currentTask = (): TaskType | null =>
+    hiddenTurns === 0 && userTexts[0] !== undefined ? taskType(userTexts[0]) : null;
   let lastPrediction: Prediction | null = null;
   /** Bu ziyarette kullanıcı en az bir mesaj gönderdi mi? (Yalnızca bakılan eski sohbetler sayılmaz.) */
   let sentThisVisit = false;
@@ -81,7 +91,7 @@ function main(): void {
   const dims = (extra: Dims = {}): Dims => ({
     platform,
     slot: slotOf(new Date()),
-    task: userTexts[0] !== undefined ? taskType(userTexts[0]) : undefined,
+    task: currentTask() ?? undefined,
     len: lenBucket(session.turns),
     ...extra,
   });
@@ -90,10 +100,12 @@ function main(): void {
   /** Sohbet bitti (başka sohbete geçildi ya da sekme kapandı): sonucu bir kez say. */
   const endConversation = () => {
     if (sentThisVisit && userTexts.length > 0) {
-      const first = userTexts[0] ?? "";
       // Tur sayısı mesaj listesinden alınır: adres değişince oturum sayacı çoktan sıfırlanmış olur.
-      record("conversation", loopOutcome(userTexts), { len: lenBucket(userTexts.length), first_len: firstLenBucket(first) });
-      if (freshFollowup) record("fresh_followup", lenBucket(userTexts.length));
+      const turns = userTexts.length + hiddenTurns;
+      const extra: Dims = { len: lenBucket(turns) };
+      if (hiddenTurns === 0) extra.first_len = firstLenBucket(userTexts[0] ?? "");
+      record("conversation", loopOutcome(userTexts), extra);
+      if (freshFollowup) record("fresh_followup", lenBucket(turns));
     }
     sentThisVisit = false;
     freshFollowup = false;
@@ -142,7 +154,12 @@ function main(): void {
       session.turns,
       policy.norm,
       {
-        getDraft: () => buildFreshStartDraft(adapter.readHistory()),
+        // Bellekteki liste, sayfadan okunandan uzunsa onu kullan: sanal liste kullanan sitelerde
+        // eski mesajlar kaydırınca sayfadan kalkar ama bu ziyarette gönderilenler bellekte durur.
+        getDraft: () => {
+          const onPage = adapter.readHistory();
+          return buildFreshStartDraft(userTexts.length >= onPage.length ? userTexts : onPage);
+        },
         onFreshStart: async (draft) => {
           const copied = await copyToClipboard(draft);
           if (copied) {
@@ -178,7 +195,8 @@ function main(): void {
 
   /** Tur modeli: kullanıcının o ana kadarki mesajlarından döngü olasılığı. Metin günlüğe yazılmaz. */
   const updatePrediction = (turns: number) => {
-    if (capabilities.model !== "on" || userTexts.length < MODEL_MIN_TURN) return;
+    // Geçmişin bir kısmı okunamadıysa öznitelikler eksik kalır; model bu sohbette çalışmaz.
+    if (capabilities.model !== "on" || hiddenTurns > 0 || userTexts.length < MODEL_MIN_TURN) return;
     lastPrediction = predict(turnFeatures(userTexts));
     policy.noteRisk(lastPrediction.level, turns);
     console.log(
@@ -232,10 +250,13 @@ function main(): void {
     (texts) => {
       if (!active()) return;
       // Kullanıcı bu arada kendisi mesaj gönderdiyse karışmayalım.
-      if (!session.seedTurns(texts.length)) return;
+      const seed = historySeed(texts, adapter.historyTotal?.());
+      if (!session.seedTurns(seed.turns)) return;
+      hiddenTurns = seed.hidden;
       // Geçmişteki mesajlar da canlı gönderim gibi işlenir: görev türü ilk mesajdan,
       // tekrar denemeleri sırayla karşılaştırarak (kalibrasyondaki simülasyonla aynı kural).
-      if (texts[0] !== undefined) policy.setTask(taskType(texts[0]));
+      // İlk mesaj okunamadıysa görev türü bilinmez; kart genel normla çalışır.
+      if (texts[0] !== undefined && !seed.partial) policy.setTask(taskType(texts[0]));
       for (const text of texts) {
         const check = detector.check(text);
         if (check.soft) policy.noteRepeat();
@@ -244,9 +265,15 @@ function main(): void {
         detector.remember(text);
       }
       userTexts = [...texts];
-      if (texts.length >= MODEL_MIN_TURN && capabilities.model === "on") lastPrediction = predict(turnFeatures(userTexts));
+      if (!seed.partial && texts.length >= MODEL_MIN_TURN && capabilities.model === "on") {
+        lastPrediction = predict(turnFeatures(userTexts));
+      }
       updateRing();
-      console.log(`[KafiAI] sohbet geçmişi okundu: ${texts.length} kullanıcı mesajı`);
+      console.log(
+        seed.partial
+          ? `[KafiAI] sohbet geçmişi okundu: ${seed.turns} kullanıcı mesajından ${texts.length} tanesi sayfada`
+          : `[KafiAI] sohbet geçmişi okundu: ${texts.length} kullanıcı mesajı`,
+      );
     },
   );
   const historyTimer = window.setInterval(() => history.tick(Date.now()), POLL_MS);
@@ -276,6 +303,7 @@ function main(): void {
       detector.reset();
       policy.reset();
       userTexts = [];
+      hiddenTurns = 0;
       lastPrediction = null;
       sentThisVisit = false;
       personal = false;
@@ -325,7 +353,7 @@ function main(): void {
       console.log(`[KafiAI] benzer mesaj, gönderim bekletildi (skor ${check.score.toFixed(2)})`);
       record("strip", "gosterildi");
       exitCard.hide();
-      const task = userTexts[0] !== undefined ? taskType(userTexts[0]) : null;
+      const task = currentTask();
       const stripContext = { attempt: similarCount + 1, exact: check.score >= EXACT_REPEAT_THRESHOLD, task };
       ring.hide();
       strip.show(anchor, {
@@ -432,6 +460,7 @@ function main(): void {
       ringExplained = false;
       policy.reset();
       userTexts = [];
+      hiddenTurns = 0;
       lastPrediction = null;
       personal = false;
       similarCount = 0;
@@ -446,7 +475,7 @@ function main(): void {
 
   // Araç çubuğu penceresinden gelen istekler. Cevapta mesaj metni yok; yalnızca sayılar.
   const snapshot = (): ConversationSnapshot => {
-    const task = userTexts[0] !== undefined ? taskType(userTexts[0]) : null;
+    const task = currentTask();
     const norm = task !== null ? taskNorm(task) : null;
     return {
       platform,
@@ -454,7 +483,7 @@ function main(): void {
       suggesting: suggesting(),
       intervening: intervening(),
       personal,
-      turns: userTexts.length,
+      turns: userTexts.length + hiddenTurns,
       task,
       similar: similarCount,
       norm: norm && task !== "diger" ? { median: norm.median_turns, p75: norm.p75_turns } : null,
@@ -490,6 +519,21 @@ function main(): void {
   });
 
   console.log(`[KafiAI] ${adapter.name} adaptörü hazır`);
+  return true;
 }
 
-main();
+/**
+ * Google'da içerik betiği bütün arama sayfalarına yüklenir ama yalnızca AI Modu'nda çalışmalı.
+ * Kullanıcı normal aramadan AI Modu'na sayfa yenilenmeden geçebildiği için, arama sayfasında
+ * adres AI Modu'na dönene kadar yalnızca adrese bakılır; sayfadaki hiçbir şey okunmaz.
+ */
+function boot(): void {
+  if (main()) return;
+  if (!/(^|\.)google\.com$/.test(location.hostname) || location.pathname !== "/search") return;
+  const timer = window.setInterval(() => {
+    if (platformFor(new URL(location.href)) && main()) window.clearInterval(timer);
+  }, NAV_POLL_MS);
+  window.addEventListener("pagehide", () => window.clearInterval(timer));
+}
+
+boot();

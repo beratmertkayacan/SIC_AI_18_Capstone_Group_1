@@ -1,6 +1,9 @@
 import platforms from "../data/platforms.json";
 import { chatgptAdapter } from "./chatgpt";
+import { claudeAdapter } from "./claude";
+import { copilotAdapter } from "./copilot";
 import { geminiAdapter } from "./gemini";
+import { googleAiModeAdapter } from "./google-ai-mode";
 import type { Adapter, Capabilities, PlatformId } from "./types";
 
 /**
@@ -21,6 +24,9 @@ export interface PlatformEntry {
 const ADAPTERS: Partial<Record<PlatformId, Adapter>> = {
   chatgpt: chatgptAdapter,
   gemini: geminiAdapter,
+  claude: claudeAdapter,
+  copilot: copilotAdapter,
+  google_ai_mode: googleAiModeAdapter,
 };
 
 type PlatformConfig = { label: string; matches: string[]; capabilities: Capabilities };

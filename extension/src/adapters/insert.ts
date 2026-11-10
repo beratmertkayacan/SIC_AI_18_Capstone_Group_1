@@ -26,3 +26,19 @@ export function appendAsNewLine(composer: HTMLElement, text: string): boolean {
   }
   return document.execCommand("insertText", false, text);
 }
+
+/**
+ * Metni bir <textarea> kutusunun sonuna, kutu doluysa yeni satırda ekler. Sayfa değişikliği görsün
+ * diye tarayıcının yazma komutunu kullanır (input olayı tetiklenir); olmazsa değeri doğrudan yazıp
+ * input olayını kendisi gönderir.
+ */
+export function appendToTextarea(box: HTMLTextAreaElement, text: string): boolean {
+  box.focus();
+  const end = box.value.length;
+  box.setSelectionRange(end, end);
+  const addition = box.value.trim() !== "" ? `\n${text}` : text;
+  if (typeof document.execCommand === "function" && document.execCommand("insertText", false, addition)) return true;
+  box.value = box.value + addition;
+  box.dispatchEvent(new Event("input", { bubbles: true }));
+  return true;
+}
