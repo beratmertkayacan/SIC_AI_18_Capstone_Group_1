@@ -1,0 +1,89 @@
+{
+  "kaynak": "WildFeedback (sat_dsat_annotation)",
+  "esikler": {
+    "kullanici_tekrari": 0.8,
+    "ayni_cevap": 0.8,
+    "farkli_cevap": 0.5
+  },
+  "tum_turlarda_dsat": 0.0585,
+  "kullanici_tekrari": 12232,
+  "cevaba_gore": {
+    "ayni_cevap": {
+      "n": 7517,
+      "sonraki_dsat": 0.1084,
+      "sonraki_sat": 0.015,
+      "sonraki_tekrar": 0.3258,
+      "sonraki_onarim": 0.0622
+    },
+    "farkli_cevap": {
+      "n": 1399,
+      "sonraki_dsat": 0.089,
+      "sonraki_sat": 0.0062,
+      "sonraki_tekrar": 0.4377,
+      "sonraki_onarim": 0.0498
+    },
+    "kismen": {
+      "n": 3316,
+      "sonraki_dsat": 0.1177,
+      "sonraki_sat": 0.0065,
+      "sonraki_tekrar": 0.3698,
+      "sonraki_onarim": 0.0616
+    }
+  },
+  "isaretsiz_tekrarlarda_cevaba_gore": {
+    "ayni_cevap": {
+      "n": 4966,
+      "sonraki_dsat": 0.1057,
+      "sonraki_sat": 0.0068,
+      "sonraki_tekrar": 0.2879,
+      "sonraki_onarim": 0.0216
+    },
+    "farkli_cevap": {
+      "n": 1095,
+      "sonraki_dsat": 0.0779,
+      "sonraki_sat": 0.0056,
+      "sonraki_tekrar": 0.4492,
+      "sonraki_onarim": 0.0203
+    },
+    "kismen": {
+      "n": 2314,
+      "sonraki_dsat": 0.1214,
+      "sonraki_sat": 0.0055,
+      "sonraki_tekrar": 0.3429,
+      "sonraki_onarim": 0.0236
+    }
+  },
+  "varyasyon_isaretlilerde_cevaba_gore": {
+    "ayni_cevap": {
+      "n": 2023,
+      "sonraki_dsat": 0.0813,
+      "sonraki_sat": 0.0303,
+      "sonraki_tekrar": 0.4239,
+      "sonraki_onarim": 0.0239
+    },
+    "farkli_cevap": {
+      "n": 235,
+      "sonraki_dsat": 0.0939,
+      "sonraki_sat": 0.011,
+      "sonraki_tekrar": 0.3923,
+      "sonraki_onarim": 0.0331
+    },
+    "kismen": {
+      "n": 783,
+      "sonraki_dsat": 0.0776,
+      "sonraki_sat": 0.0099,
+      "sonraki_tekrar": 0.4505,
+      "sonraki_onarim": 0.0248
+    }
+  },
+  "ozur": {
+    "cevap_sayisi": 331037,
+    "ozur_payi": 0.0545,
+    "ozurden_sonra_dsat": 0.2971,
+    "ozur_yokken_dsat": 0.0484,
+    "ust_uste_ozur_payi": 0.0151,
+    "ust_uste_ozurden_sonra_dsat": 0.4383
+  },
+  "wildchat48_multiturn": "assistant_msgs kolonu yok (python scripts/fetch_wildchat48.py ile yeniden indirilmeli)",
+  "wildchat48_turkish": "assistant_msgs kolonu yok (python scripts/fetch_wildchat48.py ile yeniden indirilmeli)"
+}
