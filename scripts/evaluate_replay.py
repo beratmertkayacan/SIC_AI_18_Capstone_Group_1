@@ -41,7 +41,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from kafiai import config  # noqa: E402
 from kafiai.extension_similarity import is_comparable, is_variation, new_content, similarity  # noqa: E402
-from kafiai.signals import ConversationSignals  # noqa: E402
+from kafiai.signals import RULES as SIGNAL_RULES, ConversationSignals  # noqa: E402
 from kafiai.tasks import task_type  # noqa: E402
 from kafiai.turn_features import turn_features  # noqa: E402
 from kafiai.turn_model import load_model, load_reasons, predict  # noqa: E402
@@ -78,10 +78,11 @@ def detector_flags(msgs, use_variation):
     return flags
 
 
-def ring_level(prediction, similar_signal, apology, vague):
+def ring_level(prediction, similar_signal, apology, vague, short_repeat=0):
     if (prediction and prediction["level"] == "yuksek") or similar_signal >= 2 or apology >= 2:
         return 2
-    if (prediction and prediction["level"] == "oneri") or similar_signal == 1 or apology == 1 or vague >= 2:
+    if ((prediction and prediction["level"] == "oneri") or similar_signal == 1 or apology == 1 or vague >= 2
+            or short_repeat >= SIGNAL_RULES["short"]["repeat_streak"]):
         return 1
     return 0
 
@@ -118,7 +119,7 @@ def replay(msgs, answers, model, reasons, policy, predictions=None):
         if after:
             signals.note_answer(answers[t] if t < len(answers) else "")
             level = ring_level(None if signals.exited else prediction, signals.recent_similar,
-                               signals.apology_streak, signals.vague_streak)
+                               signals.apology_streak, signals.vague_streak, signals.short_repeat_streak)
         else:
             level = ring_level(prediction, similar_total, 0, 0)
         card = None
@@ -131,7 +132,7 @@ def replay(msgs, answers, model, reasons, policy, predictions=None):
                 card = "norm"
         if card:
             quiet_until = n + config.EXT_EXIT_CARD_COOLDOWN_TURNS
-        turns.append({"strip": similar, "variation": variation, "ring": level, "card": card,
+        turns.append({"strip": similar, "short_strip": after and signals.last_short_repair, "variation": variation, "ring": level, "card": card,
                       "exit": after and signals.exited, "segments": signals.segments, "segment_start": signals.segment_start})
     return turns
 
@@ -148,6 +149,7 @@ class Tally:
     def __init__(self):
         self.n = self.user_turns = 0
         self.strips = self.strip_hits = 0
+        self.short_strips = self.short_strip_hits = 0
         self.ring1 = self.ring2 = self.ring2_hits = 0
         self.exits = self.exit_high = 0
         self.cards = self.card_hits = 0
@@ -164,6 +166,9 @@ class Tally:
             if d["strip"]:
                 self.strips += 1
                 self.strip_hits += t in ds
+            if d.get("short_strip"):
+                self.short_strips += 1
+                self.short_strip_hits += t in ds
             if d["ring"] >= 1:
                 self.ring1 += 1
             if d["ring"] == 2:
@@ -197,6 +202,8 @@ class Tally:
             "sohbet": n,
             "kullanici_turu": self.user_turns,
             "serit": {"100_sohbette": round(100 * self.strips / n, 2), "isabet_yuzde": pct(self.strip_hits, self.strips)},
+            "kisa_onarim_seridi": {"100_sohbette": round(100 * self.short_strips / n, 2),
+                                   "isabet_yuzde": pct(self.short_strip_hits, self.short_strips)},
             "halka": {"seviye1_ve_ustu_tur_yuzde": pct(self.ring1, self.user_turns),
                       "seviye2_tur_yuzde": pct(self.ring2, self.user_turns),
                       "seviye2_isabet_yuzde": pct(self.ring2_hits, self.ring2),
