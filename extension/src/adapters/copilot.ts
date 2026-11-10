@@ -3,6 +3,7 @@ import { ResponseWatcher } from "../core/response-watcher";
 import { appendAsNewLine } from "./insert";
 import type { Adapter, AdapterHandlers } from "./types";
 import { reportedUserTurns } from "./virtual-list";
+import { lastOf, responseText } from "./response-text";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
 let heldComposer: HTMLElement | null = null;
@@ -118,6 +119,10 @@ export const copilotAdapter: Adapter = {
 
   newChatUrl() {
     return `${location.origin}/`;
+  },
+
+  lastResponse() {
+    return responseText(lastOf('[data-testid="markdown-reply"]'));
   },
 
   readHistory() {

@@ -2,6 +2,7 @@ import { POLL_MS } from "../config";
 import { ResponseWatcher } from "../core/response-watcher";
 import { appendToTextarea } from "./insert";
 import type { Adapter, AdapterHandlers } from "./types";
+import { lastOf, responseText } from "./response-text";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
 let heldComposer: HTMLTextAreaElement | null = null;
@@ -147,6 +148,11 @@ export const googleAiModeAdapter: Adapter = {
 
   newChatUrl() {
     return `${location.origin}/search?udm=50`;
+  },
+
+  lastResponse() {
+    const last = lastOf(ANSWER);
+    return responseText(last?.querySelector('[data-xid="VpUvz"]') ?? last, `h3, ${ANSWER_DONE}`);
   },
 
   readHistory() {

@@ -2,6 +2,7 @@ import { POLL_MS } from "../config";
 import { ResponseWatcher } from "../core/response-watcher";
 import { appendAsNewLine } from "./insert";
 import type { Adapter, AdapterHandlers } from "./types";
+import { lastOf, responseText } from "./response-text";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
 let heldComposer: HTMLElement | null = null;
@@ -134,6 +135,11 @@ export const geminiAdapter: Adapter = {
     // Hesap dizini korunur: /u/1/app/<kimlik> → /u/1/app
     const base = /^(\/u\/\d+)?\/app/.exec(location.pathname)?.[0] ?? "/app";
     return `${location.origin}${base}`;
+  },
+
+  lastResponse() {
+    const last = lastOf("model-response");
+    return responseText(last?.querySelector(".markdown, message-content") ?? last, ".cdk-visually-hidden");
   },
 
   readHistory() {

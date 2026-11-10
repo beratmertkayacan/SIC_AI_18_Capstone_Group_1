@@ -3,6 +3,7 @@ import { ResponseWatcher } from "../core/response-watcher";
 import { appendAsNewLine } from "./insert";
 import { reportedUserTurns } from "./virtual-list";
 import type { Adapter, AdapterHandlers } from "./types";
+import { lastOf, responseText } from "./response-text";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
 let heldComposer: HTMLElement | null = null;
@@ -121,6 +122,10 @@ export const claudeAdapter: Adapter = {
 
   newChatUrl() {
     return `${location.origin}/new`;
+  },
+
+  lastResponse() {
+    return responseText(lastOf('[data-testid="assistant-message"]'), "[data-find-omitted]");
   },
 
   readHistory() {

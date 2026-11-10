@@ -280,3 +280,14 @@ describe("composer ve insertText", () => {
     expect(googleAiModeAdapter.submitHeld()).toBe(false);
   });
 });
+
+describe("lastResponse", () => {
+  it("son cevabın başını okur; başlığı ve geri bildirim alanını almaz", () => {
+    load("cevap_bitince");
+    const text = googleAiModeAdapter.lastResponse!()!;
+    expect(text).toMatch(/dilimleme/);
+    expect(text).not.toMatch(/AI Modu yanıtı|hata olabilir/);
+    load("bos_sohbet");
+    expect(googleAiModeAdapter.lastResponse!()).toBeNull();
+  });
+});

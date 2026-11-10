@@ -537,3 +537,15 @@ describe("newChatUrl", () => {
     expect(chatgptAdapter.newChatUrl()).toBe(`${location.origin}/`);
   });
 });
+
+describe("lastResponse", () => {
+  it("son asistan cevabının metnini okur", () => {
+    document.body.innerHTML = `
+      <div data-content-search-unit-key="t0:1:user"><p>soru</p></div>
+      <div data-content-search-unit-key="t0:2:assistant"><p>ilk cevap</p></div>
+      <div data-content-search-unit-key="t1:2:assistant"><p>I apologize for the confusion.</p></div>`;
+    expect(chatgptAdapter.lastResponse!()).toBe("I apologize for the confusion.");
+    document.body.innerHTML = "";
+    expect(chatgptAdapter.lastResponse!()).toBeNull();
+  });
+});

@@ -1,6 +1,7 @@
 import { POLL_MS } from "../config";
 import { ResponseWatcher } from "../core/response-watcher";
 import type { Adapter, AdapterHandlers } from "./types";
+import { lastOf, responseText } from "./response-text";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
 let heldComposer: HTMLElement | null = null;
@@ -139,6 +140,10 @@ export const chatgptAdapter: Adapter = {
 
   focusComposer() {
     findComposer()?.focus();
+  },
+
+  lastResponse() {
+    return responseText(lastOf('[data-content-search-unit-key$=":assistant"], [data-message-author-role="assistant"]'), ".sr-only");
   },
 
   readHistory() {

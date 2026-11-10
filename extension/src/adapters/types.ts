@@ -65,6 +65,11 @@ export interface Adapter {
    * kısmını döndürebilir. Bilgi yoksa null ya da tanımsız.
    */
   historyTotal?(): number | null;
+  /**
+   * Son yapay zeka cevabının başı (en fazla 600 karakter, src/adapters/response-text.ts). Yalnızca
+   * bellekte, cevabın özürle başlayıp başlamadığına bakmak için kullanılır; hiçbir yere yazılmaz.
+   */
+  lastResponse?(): string | null;
   /** Yeni (boş) bir sohbetin adresi. */
   newChatUrl(): string;
   /** Mesaj kutusu: arayüzü yerleştirmek için çapa ve kutunun boş olup olmadığı. Kutu yoksa null. */
