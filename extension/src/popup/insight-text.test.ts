@@ -4,7 +4,7 @@ import type { CountsV2 } from "../core/counters";
 import { weeklyInsights } from "../core/insights";
 import type { ConversationSnapshot } from "../core/messages";
 import { taskNorm, type TaskType } from "../core/tasks";
-import { conversationLines, numberIn, taskDetails, weekHeadline } from "./insight-text";
+import { conversationLines, signalLines, numberIn, taskDetails, weekHeadline } from "./insight-text";
 
 const FORBIDDEN = ["bağımlı", "risk", "tehlike", "seri", "rozet", "puan", "sıra", "ödül", "%", "kötü", "başarısız", "fazla kullan"];
 
@@ -41,14 +41,15 @@ describe("içgörü metinleri", () => {
 
   const snap = (over: Partial<ConversationSnapshot> = {}): ConversationSnapshot => ({
     platform: "chatgpt", active: true, suggesting: true, intervening: true, personal: false, turns: 7, task: "kod",
-    similar: 2, norm: { median: 3, p75: 5 }, card_available: true, ...over,
+    similar: 2, recent_similar: 2, apology_streak: 0, vague_streak: 0, segments: 1, exited: false,
+  norm: { median: 3, p75: 5 }, card_available: true, ...over,
   });
 
   it("'Bu sohbet' satırları", () => {
     expect(conversationLines(snap())).toEqual([
       "Kod yazma ve hata ayıklama · 7 mesaj",
       "Bu tür sohbetler genelde 3 turda, çoğu en geç 5 turda bitiyor.",
-      "2 mesaj öncekine çok benziyordu.",
+      "Son mesajlarından 2 tanesi öncekine çok benziyordu.",
     ]);
     expect(conversationLines(snap({ personal: true }))).toEqual(["Bu sohbette öneri göstermiyorum."]);
     expect(conversationLines(snap({ turns: 0 }))).toEqual(["Henüz mesaj yok."]);
@@ -70,5 +71,39 @@ describe("ne işe yaradı ve önceki hafta", () => {
     const lines = weekHeadline({ ...w, previous: { conversations: 12, loops: 3 } });
     expect(lines).toContain("Önceki 7 gün: 12 sohbet, 3 tekrar.");
     expect(weekHeadline({ ...w, previous: { conversations: 2, loops: 1 } }).some((l) => l.startsWith("Önceki"))).toBe(false);
+  });
+});
+
+describe("içgörü metinleri: sohbet sinyalleri (K32)", () => {
+  const snap = (over: Partial<ConversationSnapshot> = {}): ConversationSnapshot => ({
+    platform: "chatgpt", active: true, suggesting: true, intervening: true, personal: false, turns: 9, task: "kod",
+    similar: 3, recent_similar: 0, apology_streak: 0, vague_streak: 0, segments: 1, exited: false,
+    norm: null, card_available: true, ...over,
+  });
+
+  it("'Bu sohbet': özür, son mesajlar, belirsiz istek ve konu değişimi", () => {
+    const lines = conversationLines(snap({ apology_streak: 2, recent_similar: 1, vague_streak: 2, segments: 3 })).join(" ");
+    expect(lines).toContain("Son 2 cevap özürle başladı");
+    expect(lines).toContain("Son mesajlarından 1 tanesi");
+    expect(lines).toContain("isteklerin kısa");
+    expect(lines).toContain("konu 2 kez değişti");
+  });
+
+  it("'Bu sohbet': kullanıcı çıktıysa döngü satırları yerine bunu söyler", () => {
+    const lines = conversationLines(snap({ exited: true, apology_streak: 0, recent_similar: 0 })).join(" ");
+    expect(lines).toContain("işin çözüldüğünü söyledin");
+    expect(lines).not.toContain("benziyordu");
+  });
+
+  it("haftalık sinyal cümleleri yalnızca sayı varsa ve yargılamadan", () => {
+    const base = weeklyInsights({ v: 2, days: {} } as unknown as CountsV2, new Date(2026, 9, 26, 12));
+    expect(signalLines(base)).toEqual([]);
+    const w = { ...base, signals: { ozur_dongusu: 2, cikis: 3, konu_kaymasi: 1, belirsiz: 0 }, variation_sends: 4 };
+    const lines = signalLines(w);
+    expect(lines[0]).toContain("3 sohbette");
+    expect(lines.join(" ")).toContain("özürle başladı");
+    expect(lines.join(" ")).toContain("İstersen yeni konuya");
+    expect(lines.join(" ")).toContain("4 mesaj tekrar sayılmadı");
+    for (const l of lines) expect(l).not.toMatch(/bağımlı|risk|puan|seri|ödül/i);
   });
 });

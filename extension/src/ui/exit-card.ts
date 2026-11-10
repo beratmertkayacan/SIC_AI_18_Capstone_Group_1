@@ -22,6 +22,8 @@ export interface ExitCardActions {
   onNever?(): void;
   /** Model kaynaklı kartta "Yerinde değildi" geri bildirimi. Verilirse düğme gösterilir. */
   onNotRelevant?(): void;
+  /** Sohbette konu değiştiyse true: taslağa yalnızca son konunun istekleri girer ve bu söylenir (K32). */
+  focusedDraft?(): boolean;
 }
 
 
@@ -40,7 +42,8 @@ export class ExitCard {
   show(anchor: Element, turns: number, norm: TaskNorm | null, actions: ExitCardActions, reason: Reason | null = null): void {
     this.hide();
     const { host, box } = mountCard("exit-card", anchor);
-    const chip = reason ? "Modelin önerisi" : "Uzun sohbet";
+    const apology = reason?.key === APOLOGY_REASON;
+    const chip = reason ? (apology ? "Aynı yerde dönüyor" : "Modelin önerisi") : "Uzun sohbet";
 
     const el = <K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, cls?: string): HTMLElementTagNameMap[K] => {
       const node = document.createElement(tag);
@@ -78,7 +81,7 @@ export class ExitCard {
       box.replaceChildren(
         header(chip),
         el("p", reason ? modelCardMessage(reason) : exitCardMessage(turns, norm), "body"),
-        ...(reason ? [el("p", MODEL_NOTE, "note")] : []),
+        ...(reason ? [el("p", apology ? APOLOGY_NOTE : MODEL_NOTE, "note")] : []),
         row(
           fresh,
           button("Kısa ara ver", "secondary", showBreak),
@@ -129,7 +132,10 @@ export class ExitCard {
           }
         });
       });
-      box.replaceChildren(header(chip), el("p", "İsteklerini tek taslakta topladım. İstersen düzenle:", "title"), area, note, row(go, spacer(), button("Geri", "link", showMain)));
+      const title = actions.focusedDraft?.()
+        ? "Sohbette konu birkaç kez değişti; taslağa yalnızca son konudaki isteklerini aldım. İstersen düzenle:"
+        : "İsteklerini tek taslakta topladım. İstersen düzenle:";
+      box.replaceChildren(header(chip), el("p", title, "title"), area, note, row(go, spacer(), button("Geri", "link", showMain)));
       area.focus();
     };
 
@@ -168,6 +174,13 @@ export function exitCardMessage(turns: number, norm: TaskNorm | null): string {
 /** Model kaynaklı kartta, önerinin nereden geldiğini söyleyen kısa not. */
 export const MODEL_NOTE =
   "Bu öneri, sohbetin şu ana kadarki mesajlarına bakan küçük bir modelden geliyor; mesajların cihazından çıkmıyor.";
+
+/** Özür döngüsü kartının gerekçe anahtarı (src/data/model-reasons.json, K32). */
+export const APOLOGY_REASON = "ozur";
+
+/** Özür döngüsü kartında, önerinin nereden geldiğini söyleyen kısa not. */
+export const APOLOGY_NOTE =
+  "Bu öneri, yapay zekanın son cevaplarının nasıl başladığına bakan basit bir kuraldan geliyor; cevaplar cihazından çıkmıyor.";
 
 /** Model kaynaklı kartın ana cümlesi: durum ve somut öneri. */
 export function modelCardMessage(reason: Reason): string {

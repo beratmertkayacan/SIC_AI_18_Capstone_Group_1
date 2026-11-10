@@ -89,6 +89,26 @@ def test_leftovers_detects_dirty_html():
     assert ss.leftovers('<div data-testid="conversation-turn-12" class="w-[calc(100%-2rem)]">x</div>') == []
 
 
+def test_gemini_framework_attributes():
+    """Gemini (Angular) sayfasındaki derleme ve izleme öznitelikleri temizliği durdurmamalı."""
+    raw = ('<div _ngcontent-ng-c1234567890="" class="x"><button _nghost-ng-c9876543210="" '
+           'data-gtm-vis-first-on-screen123456789_12="12" data-gtm-vis-total-visible-time123456789_12="400">'
+           'Gönder</button></div>')
+    out, report = ss.sanitize(raw, NAMES)
+    assert "data-gtm-" not in out
+    assert "_ngcontent-ng-c1234567890" in out
+    assert report["izleme özniteliği"] == 2
+    assert ss.leftovers(out, NAMES) == []
+
+
+def test_gemini_title_without_link_replaced():
+    raw = '<div class="conversation-title gds-title-m">Kira sözleşmesi taslağı<span>!</span></div><p>Merhaba</p>'
+    out, report = ss.sanitize(raw, NAMES)
+    assert "Kira" not in out and "Merhaba" in out
+    assert out.count(ss.TITLE_PLACEHOLDER) == 2
+    assert report["sohbet başlığı"] == 2
+
+
 def test_target_path_requires_naming_scheme():
     assert ss.target_path(Path("claude_tr_bos_sohbet.html")) == ss.OUT_DIR / "claude" / "tr_bos_sohbet.html"
     assert ss.target_path(Path("google_ai_mode_en_takip.html")) == ss.OUT_DIR / "google_ai_mode" / "en_takip.html"

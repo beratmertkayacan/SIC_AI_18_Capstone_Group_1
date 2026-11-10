@@ -1,0 +1,38 @@
+{
+  "note": "Sohbet sinyalleri (karar K32). Hem eklenti (src/core/signals.ts) hem Python (src/kafiai/signals.py) bu dosyayı okur; parite testi iki tarafın aynı kararı verdiğini kontrol eder. Kurallar sadeleştirilmiş metne (küçük harf, noktalama yok) uygulanır; İngilizce 'I' için ikinci deneme yapılır. Sayıların kaynağı: outputs/response_signal.json ve outputs/replay_eval.json (WildFeedback).",
+  "apology": {
+    "note": "Yapay zeka cevabının başında özür ya da 'haklısınız'. WildFeedback'te özürle başlayan cevaptan sonra kullanıcının memnuniyetsizlik oranı %29,7, özür yokken %4,8; üst üste iki özürden sonra %43,8.",
+    "head_chars": 300,
+    "phrases": [
+      "i apologize", "apologies for", "my apologies", "sorry for the confusion", "sorry for any confusion",
+      "you are right", "you re right", "you are correct", "my mistake", "i made a mistake",
+      "özür dilerim", "haklısınız", "haklısın", "kusura bakmayın", "hata yaptım"
+    ]
+  },
+  "exit": {
+    "note": "Kullanıcının döngüden çıktığını söyleyen kısa mesajlar (teşekkür, 'oldu', 'çalıştı'). Onarım ifadesi taşıyan mesaj çıkış sayılmaz.",
+    "max_words": 12,
+    "words": ["teşekkürler", "teşekkür", "sağol", "sağolun", "eyvallah", "süper", "harika", "mükemmel", "oldu", "çalıştı",
+              "thanks", "thank", "thx", "perfect", "great", "awesome", "excellent", "worked"],
+    "phrases": ["teşekkür ederim", "sağ ol", "işe yaradı", "thank you", "it works", "that works", "works now", "it worked"]
+  },
+  "vague": {
+    "note": "Kısa ve açıklamasız düzeltme isteği ('daha iyi yap', 'kısalt', 'better'). Neyin değişmesi gerektiğini söylemediği için model çoğu zaman tahmin ediyor. Seri üretim kelimeleri (başka, sonraki, devam) burada yok; onlar varyasyon isteği (repeat-rules.json).",
+    "max_words": 5,
+    "core": ["better", "shorter", "longer", "improve", "rewrite", "simpler", "simplify", "redo", "concise", "expand", "elaborate",
+             "iyi", "iyileştir", "kısa", "kısalt", "uzat", "uzun", "basit", "sadeleştir", "güzel", "düzelt", "detaylı", "detailed"],
+    "allowed": ["make", "it", "this", "that", "the", "a", "an", "please", "pls", "more", "less", "so", "bit", "little", "much", "too",
+                "very", "again", "one", "version", "do", "can", "you", "daha", "bir", "biraz", "çok", "yap", "yaz", "şunu", "bunu",
+                "onu", "lütfen", "şekilde", "olsun", "tekrar", "yeniden", "et", "misin", "mısın", "hale", "getir"]
+  },
+  "topic": {
+    "note": "Yeni konu: mesaj son mesajların hiçbirine benzemiyor, yeterince uzun, onarım ifadesi yok ve görev türü o anki bölümden farklı.",
+    "max_similarity": 0.15,
+    "min_chars": 25
+  },
+  "short": {
+    "note": "Karşılaştırılamayacak kadar kısa mesajlar (12 karakterden az). Güçlü onarım ifadesi taşıyan kısa mesaj ('olmadı', 'yanlış', 'hala hata') tekrar denemesi gibi sayılır: WildFeedback'te o turda memnuniyetsizlik %45,8 (genel %5,8). Aynı kısa mesajın ('devam', 'alternatif') üst üste gelmesi tek başına memnuniyetsizlik göstermiyor (%4,9); yalnızca repeat_streak kez üst üste gelince halka bir kademe yükselir. Sayıların kaynağı: scripts/evaluate_short_messages.py (outputs/short_messages.json).",
+    "repeat_streak": 3
+  },
+  "recent_window": 4
+}

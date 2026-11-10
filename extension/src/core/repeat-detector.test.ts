@@ -89,7 +89,7 @@ describe("RepeatDetector", () => {
 });
 
 import repeatFixture from "../../../tests/fixtures/repeat_parity.json";
-import { newContent, rememberForTest } from "./repeat-detector";
+import { isVariation, newContent, rememberForTest } from "./repeat-detector";
 
 describe("şerit kuralı: yeni içerik getiren mesaj tekrar sayılmaz", () => {
   it("Python ile aynı kararı verir", () => {
@@ -98,6 +98,7 @@ describe("şerit kuralı: yeni içerik getiren mesaj tekrar sayılmaz", () => {
       d.remember(row.previous);
       const r = d.check(row.new);
       expect([row.new, r.similar]).toEqual([row.new, row.repeat]);
+      expect([row.new, isVariation(row.new)]).toEqual([row.new, row.variation]);
       expect(newContent(normalizeText(row.new), rememberForTest(normalizeText(row.previous)))).toEqual(row.new_content);
     }
   });
@@ -109,5 +110,59 @@ describe("şerit kuralı: yeni içerik getiren mesaj tekrar sayılmaz", () => {
     expect(r.similar).toBe(false);
     expect(r.newContent).toBe(true);
     expect(r.soft).toBe(true);
+  });
+});
+
+describe("varyasyon isteği: bilerek yapılan seri üretim döngü sayılmaz", () => {
+  it("'sonraki soruyu sor' tekrarında şerit çıkmaz, kart için tekrar sayılmaz", () => {
+    const d = new RepeatDetector();
+    d.remember("sonraki soruyu sor");
+    const r = d.check("sonraki soruyu sor");
+    expect(r.similar).toBe(false);
+    expect(r.soft).toBe(false);
+    expect(r.variation).toBe(true);
+  });
+
+  it("varyasyon işareti olsa da onarım ifadesi varsa tekrar sayılır", () => {
+    const d = new RepeatDetector();
+    d.remember("başka bir yol göster hala çalışmıyor");
+    const r = d.check("başka bir yol göster hala çalışmıyor");
+    expect(r.similar).toBe(true);
+    expect(r.variation).toBe(false);
+  });
+
+  it("işaretsiz birebir tekrar hâlâ benzer sayılır", () => {
+    const d = new RepeatDetector();
+    d.remember("bana motivasyon sözü yaz");
+    expect(d.check("bana motivasyon sözü yaz").similar).toBe(true);
+  });
+
+  it("farklı bir mesajda varyasyon işaretlenmez", () => {
+    const d = new RepeatDetector();
+    d.remember("Python'da liste nasıl sıralanır");
+    expect(d.check("başka bir şehir öner bana tatil için").variation).toBe(false);
+  });
+
+  it("İngilizce ve Türkçe işaretleri tanır", () => {
+    for (const t of ["give me more ideas", "next question please", "bir tane daha yaz", "diğerlerini de listele", "farklı sorular hazırla", "devam et lütfen"]) {
+      expect([t, isVariation(t)]).toEqual([t, true]);
+    }
+    for (const t of ["bu kodu düzelt", "aynı hata yine geldi, başka yol dene", "translate this paragraph"]) {
+      expect([t, isVariation(t)]).toEqual([t, false]);
+    }
+  });
+});
+
+describe("şık harfleri", () => {
+  it("kısa mesajda farklı şık farklı mesajdır", () => {
+    const d = new RepeatDetector();
+    d.remember("cevabım B şıkkı");
+    expect(d.check("cevabım C şıkkı").similar).toBe(false);
+    expect(d.check("cevabım B şıkkı").similar).toBe(true);
+  });
+
+  it("uzun mesajda tek harf içerik sayılmaz", () => {
+    const prev = rememberForTest(normalizeText("give me a short summary of this article about the economy"));
+    expect(newContent(normalizeText("give me short summary of this article about the economy a"), prev)).toEqual([]);
   });
 });

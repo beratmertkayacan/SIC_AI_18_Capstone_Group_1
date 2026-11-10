@@ -282,3 +282,12 @@ describe("composer ve historyTotal", () => {
     expect(copilotAdapter.submitHeld()).toBe(false);
   });
 });
+
+describe("lastResponse", () => {
+  it("son cevabın başını okur; boş sohbette null", () => {
+    load("ilk_cevap");
+    expect(copilotAdapter.lastResponse!()).toMatch(/ters çevirmek/);
+    load("bos_sohbet");
+    expect(copilotAdapter.lastResponse!()).toBeNull();
+  });
+});

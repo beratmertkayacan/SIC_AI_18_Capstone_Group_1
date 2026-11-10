@@ -52,11 +52,31 @@ export function weekHeadline(w: WeeklyInsights): string[] {
   );
   const slot = w.top_slot !== null ? SLOT_LABELS[w.top_slot] : undefined;
   if (slot && w.loops > 0) lines.push(`Benzer mesajlar en çok ${slot} saatlerinde oldu.`);
+  lines.push(...signalLines(w));
   const fresh = freshStartLine(w);
   if (fresh) lines.push(fresh);
   if (w.previous.conversations >= config.min_conversations) {
     lines.push(`Önceki 7 gün: ${w.previous.conversations} sohbet, ${w.previous.loops} tekrar.`);
   }
+  return lines;
+}
+
+/**
+ * Sohbet sinyallerinden haftalık cümleler (K32). Önce kullanıcının kendi çıkışı (olumlu ve somut),
+ * sonra modelin takıldığı yerler, sonra konu değişimi; en sonda tekrar sayılmayan seri üretim
+ * (eklentinin neyi bilerek görmezden geldiğini söylemek güveni artırır).
+ */
+export function signalLines(w: WeeklyInsights): string[] {
+  const s = w.signals;
+  const lines: string[] = [];
+  if (s.cikis > 0) lines.push(`${s.cikis} sohbette aynı yerde dönmeye başlamışken aynı sohbette çözüme ulaştın.`);
+  if (s.ozur_dongusu > 0) {
+    lines.push(`${s.ozur_dongusu} sohbette yapay zekanın cevapları üst üste özürle başladı; bu genelde modelin takıldığını gösterir.`);
+  }
+  if (s.konu_kaymasi > 0) {
+    lines.push(`${s.konu_kaymasi} sohbette konu değişti. İstersen yeni konuya yeni bir sohbette başla; model eski ayrıntılara takılmaz.`);
+  }
+  if (w.variation_sends > 0) lines.push(`Bilerek yeni örnek istediğin ${w.variation_sends} mesaj tekrar sayılmadı.`);
   return lines;
 }
 
@@ -110,6 +130,16 @@ export function conversationLines(s: ConversationSnapshot): string[] {
         : `Bu tür sohbetler genelde ${median} turda, çoğu en geç ${p75} turda bitiyor.`,
     );
   }
-  if (s.similar > 0) lines.push(`${s.similar} mesaj öncekine çok benziyordu.`);
+  if (s.exited) {
+    lines.push("Son mesajında işin çözüldüğünü söyledin; şimdilik bir şey önermiyorum.");
+  } else {
+    if (s.apology_streak >= 2) lines.push(`Son ${s.apology_streak} cevap özürle başladı; model aynı yerde dönüyor olabilir.`);
+    else if (s.apology_streak === 1) lines.push("Son cevap bir özürle başladı.");
+    if (s.recent_similar > 0) lines.push(`Son mesajlarından ${s.recent_similar} tanesi öncekine çok benziyordu.`);
+    if (s.vague_streak >= 2) lines.push("Son isteklerin kısa; neyin değişmesini istediğini yazarsan model daha iyi tutturur.");
+  }
+  if (s.segments > 1) {
+    lines.push(`Bu sohbette konu ${s.segments - 1} kez değişti. Taze başlatırsan taslağa yalnızca son konuyu alırım.`);
+  }
   return lines;
 }

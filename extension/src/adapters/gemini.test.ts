@@ -370,3 +370,13 @@ describe("insertText, composer ve focusComposer", () => {
     expect(document.activeElement?.id).toBe("real");
   });
 });
+
+describe("lastResponse", () => {
+  it("son model cevabının metnini okur, gizli etiketi almaz", () => {
+    document.body.innerHTML = `<model-response><message-content><div class="markdown">ilk cevap</div></message-content></model-response>
+      <model-response><span class="cdk-visually-hidden">Gemini şunu dedi</span><message-content><div class="markdown">Haklısınız, özür dilerim.</div></message-content></model-response>`;
+    expect(geminiAdapter.lastResponse!()).toBe("Haklısınız, özür dilerim.");
+    document.body.innerHTML = "";
+    expect(geminiAdapter.lastResponse!()).toBeNull();
+  });
+});

@@ -1,0 +1,80 @@
+{
+  "kaynak": "WildFeedback (sat_dsat_annotation)",
+  "tum_turlarda_dsat_yuzde": 5.04,
+  "once": {
+    "sohbet": 20000,
+    "kullanici_turu": 115052,
+    "serit": {
+      "100_sohbette": 18.84,
+      "isabet_yuzde": 15.02
+    },
+    "halka": {
+      "seviye1_ve_ustu_tur_yuzde": 21.19,
+      "seviye2_tur_yuzde": 8.68,
+      "seviye2_isabet_yuzde": 21.04,
+      "cikistan_sonra_yuksek_kalan_yuzde": null,
+      "cikis_mesaji": 0
+    },
+    "kart": {
+      "100_sohbette": 29.34,
+      "isabet_yuzde": 14.91,
+      "kaynaga_gore": {
+        "model": {
+          "sayi": 2762,
+          "isabet_yuzde": 23.82
+        },
+        "norm": {
+          "sayi": 3107,
+          "isabet_yuzde": 6.98
+        }
+      },
+      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 20.17,
+      "tekrarlayan_memnuniyetsizlik_sohbeti": 1294
+    },
+    "taze_baslat": {
+      "konu_kayan_sohbet_yuzde": 0.0,
+      "taslaktaki_istek_ortalama_once": null,
+      "taslaktaki_istek_ortalama_sonra": null
+    }
+  },
+  "sonra": {
+    "sohbet": 20000,
+    "kullanici_turu": 115052,
+    "serit": {
+      "100_sohbette": 14.26,
+      "isabet_yuzde": 16.63
+    },
+    "halka": {
+      "seviye1_ve_ustu_tur_yuzde": 21.15,
+      "seviye2_tur_yuzde": 8.26,
+      "seviye2_isabet_yuzde": 26.13,
+      "cikistan_sonra_yuksek_kalan_yuzde": 18.13,
+      "cikis_mesaji": 342
+    },
+    "kart": {
+      "100_sohbette": 21.6,
+      "isabet_yuzde": 24.17,
+      "kaynaga_gore": {
+        "model": {
+          "sayi": 2717,
+          "isabet_yuzde": 23.0
+        },
+        "ozur": {
+          "sayi": 630,
+          "isabet_yuzde": 50.16
+        },
+        "norm": {
+          "sayi": 973,
+          "isabet_yuzde": 10.59
+        }
+      },
+      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 20.87,
+      "tekrarlayan_memnuniyetsizlik_sohbeti": 1294
+    },
+    "taze_baslat": {
+      "konu_kayan_sohbet_yuzde": 7.0,
+      "taslaktaki_istek_ortalama_once": 6.35,
+      "taslaktaki_istek_ortalama_sonra": 4.21
+    }
+  }
+}

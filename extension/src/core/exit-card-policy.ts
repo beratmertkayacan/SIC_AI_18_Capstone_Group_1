@@ -1,4 +1,4 @@
-import { EXIT_CARD_COOLDOWN_TURNS, EXIT_CARD_MIN_REPEATS, EXIT_CARD_MIN_TURNS } from "../config";
+import { APOLOGY_CARD_STREAK, EXIT_CARD_COOLDOWN_TURNS, EXIT_CARD_MIN_REPEATS, EXIT_CARD_MIN_TURNS } from "../config";
 import { taskNorm, type TaskNorm, type TaskType } from "./tasks";
 import type { RiskLevel } from "./turn-model";
 
@@ -10,15 +10,23 @@ import type { RiskLevel } from "./turn-model";
  * %90'ı kaç turda bitiyorsa, kart bir sonraki turda açılabilir. Görev türü bilinmiyorsa
  * EXIT_CARD_MIN_TURNS kullanılır.
  *
+ * Tur sınırı geçildiğinde kart için bir döngü işareti de gerekir: son dört mesajdan biri öncekine
+ * çok benziyor (src/core/signals.ts) ya da model o turda öneri seviyesinde. Çevrimdışı
+ * değerlendirmede (scripts/evaluate_replay.py, K33) eski koşul ("sohbette bir kez yumuşak tekrar")
+ * uzun sohbetlerde memnuniyetsizliği rastgeleden iyi ayırmıyordu (%6,3, taban %6,6); yeni koşul
+ * yaklaşık %11.
+ *
  * İkinci yol tur modeli: kullanıcının son mesajından sonra model yüksek risk tahmin ettiyse
- * (src/core/turn-model.ts), kart tur sınırını beklemeden o turun sonunda açılabilir.
- * Bekleme süresi iki yol için de aynıdır.
+ * (src/core/turn-model.ts), kart tur sınırını beklemeden o turun sonunda açılabilir. Üçüncü yol
+ * özür döngüsü: cevaplar üst üste özürle başladıysa (K32). Bekleme süresi hepsi için aynıdır.
  */
 export class ExitCardPolicy {
   private repeats = 0;
   private quietUntilTurn = 0;
   private currentNorm: TaskNorm | null = null;
   private highRiskTurn = -1;
+  private suggestTurn = -1;
+  private apologyTurn = -1;
 
   /** Sohbetin ilk mesajından tahmin edilen görev türü. Yalnızca ilk kez çağrıldığında etkili olur. */
   setTask(task: TaskType): void {
@@ -35,14 +43,35 @@ export class ExitCardPolicy {
     return this.currentNorm ? Math.floor(this.currentNorm.p90_turns) + 1 : EXIT_CARD_MIN_TURNS;
   }
 
-  /** Kullanıcı bu sohbette benzer bir mesaj göndermeyi denedi. */
+  /** Kullanıcı benzer bir mesaj gönderdi. */
   noteRepeat(): void {
     this.repeats += 1;
+  }
+
+  /** Son birkaç mesajdan kaçı öncekine çok benziyor (src/core/signals.ts, çıkışta sıfırlanır). */
+  setRepeats(count: number): void {
+    this.repeats = count;
+  }
+
+  /**
+   * Kullanıcı döngüden çıktı (teşekkür etti, "oldu" dedi) ya da konu değişti: o ana kadarki benzer
+   * mesaj denemeleri artık kartı açtırmaz (K32).
+   */
+  clearRepeats(): void {
+    this.repeats = 0;
+    this.apologyTurn = -1;
+    this.suggestTurn = -1;
+  }
+
+  /** Cevaplar üst üste özürle başladı (src/core/signals.ts); iki ve üstü kartı açabilir (K32). */
+  noteApologies(streak: number, turns: number): void {
+    if (streak >= APOLOGY_CARD_STREAK) this.apologyTurn = turns;
   }
 
   /** Tur modelinin bu turdaki tahmini. Yalnızca "yuksek" seviye kartı açabilir. */
   noteRisk(level: RiskLevel, turns: number): void {
     if (level === "yuksek") this.highRiskTurn = turns;
+    if (level === "yuksek" || level === "oneri") this.suggestTurn = turns;
   }
 
   /** Kart bu turda modelin yüksek risk tahmini yüzünden mi açılacak? */
@@ -55,10 +84,16 @@ export class ExitCardPolicy {
    * Model yolu önce gelir, çünkü gerekçe gösterebilir. Sayaçlar "tetiklendi" ile "gösterildi"
    * arasındaki farkı (bekleme, ayar, sayım modu) bu sayede ayırabiliyor.
    */
-  triggerSource(turns: number): "norm" | "model" | null {
+  triggerSource(turns: number): "norm" | "model" | "ozur" | null {
     if (this.highRiskTurn === turns) return "model";
-    if (turns >= this.minTurns && this.repeats >= EXIT_CARD_MIN_REPEATS) return "norm";
+    if (this.apologyTurn === turns) return "ozur";
+    if (this.longAndLooping(turns)) return "norm";
     return null;
+  }
+
+  /** Tur sınırı geçildi ve bir döngü işareti var (yakın zamanda benzer mesaj ya da modelin öneri seviyesi). */
+  private longAndLooping(turns: number): boolean {
+    return turns >= this.minTurns && (this.repeats >= EXIT_CARD_MIN_REPEATS || this.suggestTurn === turns);
   }
 
   /** Kart kısa süre önce kapatıldı ya da yok sayıldı; bekleme süresi dolmadı. */
@@ -68,8 +103,7 @@ export class ExitCardPolicy {
 
   shouldShow(turns: number): boolean {
     if (turns < this.quietUntilTurn) return false;
-    const byNorm = turns >= this.minTurns && this.repeats >= EXIT_CARD_MIN_REPEATS;
-    return byNorm || this.highRiskTurn === turns;
+    return this.longAndLooping(turns) || this.highRiskTurn === turns || this.apologyTurn === turns;
   }
 
   /** Kart kapatıldı ya da yok sayıldı: bir süre tekrar çıkmasın. */
@@ -82,5 +116,7 @@ export class ExitCardPolicy {
     this.quietUntilTurn = 0;
     this.currentNorm = null;
     this.highRiskTurn = -1;
+    this.suggestTurn = -1;
+    this.apologyTurn = -1;
   }
 }

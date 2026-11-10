@@ -2,6 +2,7 @@ import { POLL_MS } from "../config";
 import { ResponseWatcher } from "../core/response-watcher";
 import { appendAsNewLine } from "./insert";
 import type { Adapter, AdapterHandlers } from "./types";
+import { lastOf, responseText } from "./response-text";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
 let heldComposer: HTMLElement | null = null;
@@ -29,6 +30,8 @@ const INPUT_AREA = "input-area-v2";
 
 const STOP_LABEL = /^(yanıtı durdur|yanıtı dur|stop response|stop generating|durdur|stop)/i;
 const SEND_LABEL = /^(mesaj gönder|send message|gönder|send)/i;
+/** Cevabın altındaki "Yeniden yap" düğmesi (Kasım 2026 görüntülerinde ölçüldü). */
+const REGENERATE_LABEL = /^(yeniden yap|yeniden oluştur|redo|regenerate)/i;
 
 const HOSTS = new Set(["gemini.google.com"]);
 
@@ -98,6 +101,17 @@ export function findSendButton(composer: HTMLElement): HTMLButtonElement | null 
   return null;
 }
 
+/**
+ * Eski bir isteği düzenlerken kullanıcı mesajının yerinde açılan kutu (user-query içinde
+ * rich-textarea). Asıl mesaj kutusu input-area-v2 içinde olduğu için onunla karışmaz.
+ */
+export function editBoxContaining(node: EventTarget | null): HTMLElement | null {
+  if (!(node instanceof Element)) return null;
+  const query = node.closest("user-query");
+  if (!query) return null;
+  return query.querySelector<HTMLElement>('rich-textarea [contenteditable="true"]');
+}
+
 /** Arayüzün yerleşeceği öğe: yuvarlak mesaj alanı; yoksa kapsayıcı; yoksa kutunun kendisi. */
 function anchorOf(box: HTMLElement): Element {
   return box.closest("div.text-input-field") ?? box.closest(INPUT_AREA) ?? box;
@@ -134,6 +148,11 @@ export const geminiAdapter: Adapter = {
     // Hesap dizini korunur: /u/1/app/<kimlik> → /u/1/app
     const base = /^(\/u\/\d+)?\/app/.exec(location.pathname)?.[0] ?? "/app";
     return `${location.origin}${base}`;
+  },
+
+  lastResponse() {
+    const last = lastOf("model-response");
+    return responseText(last?.querySelector(".markdown, message-content") ?? last, ".cdk-visually-hidden");
   },
 
   readHistory() {
@@ -206,6 +225,11 @@ export const geminiAdapter: Adapter = {
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Enter" || event.shiftKey || event.altKey || event.isComposing) return;
+      const edit = editBoxContaining(event.target);
+      if (edit && edit.contains(event.target as Node) && readComposerText(edit) !== "") {
+        handlers.onEdit?.();
+        return;
+      }
       const composer = composerContaining(event.target);
       if (!composer) return;
       if (isGenerating(document)) return; // üretim sürerken Enter mesaj göndermez
@@ -218,8 +242,23 @@ export const geminiAdapter: Adapter = {
     const onClick = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return;
       const clicked = event.target.closest("button");
-      const area = clicked?.closest(INPUT_AREA);
-      if (!clicked || !area) return;
+      if (!clicked || clicked.disabled) return;
+      if (clicked.closest("model-response") && REGENERATE_LABEL.test(clicked.getAttribute("aria-label") ?? "")) {
+        handlers.onRegenerate?.();
+        return;
+      }
+      // Düzenleme kutusunun altında iki düğme var: İptal ve Güncelle. Etiketleri yok; dil
+      // değişse de sıra aynı kaldığı için son düğme Güncelle sayılır.
+      const edit = editBoxContaining(clicked);
+      if (edit) {
+        const buttons = visibleButtons(clicked.closest("user-query")!).filter((b) => editBoxContaining(b) === edit);
+        if (buttons.length >= 2 && buttons[buttons.length - 1] === clicked && readComposerText(edit) !== "") {
+          handlers.onEdit?.();
+        }
+        return;
+      }
+      const area = clicked.closest(INPUT_AREA);
+      if (!area) return;
       const composer = findComposers(area)[0];
       if (!composer || findSendButton(composer) !== clicked) return;
       const text = readComposerText(composer);

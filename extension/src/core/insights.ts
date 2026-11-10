@@ -32,6 +32,10 @@ export interface WeeklyInsights {
   fresh_starts: number;
   /** "Taze başlat" ile açılan ve biten yeni sohbetler; kısa: 3 turda ya da daha kısa sürede biten */
   fresh_followups: { total: number; short: number };
+  /** Sohbet sinyalleri (K32): her biri sohbet başına en fazla bir kez sayılır */
+  signals: { ozur_dongusu: number; cikis: number; konu_kaymasi: number; belirsiz: number };
+  /** Bilerek yeni örnek istenen, tekrar sayılmayan mesajlar ("sonraki soru", "başka fikir") */
+  variation_sends: number;
   /** Bir önceki 7 gün: biten sohbet ve döngü sayısı (karşılaştırma için) */
   previous: { conversations: number; loops: number };
   enough: boolean;
@@ -99,6 +103,8 @@ export function weeklyInsights(counts: CountsV2, now: Date): WeeklyInsights {
   let similar = 0;
   let followTotal = 0;
   let followShort = 0;
+  let variation = 0;
+  const sig = { ozur_dongusu: 0, cikis: 0, konu_kaymasi: 0, belirsiz: 0 };
 
   for (const [day, rec] of Object.entries(counts.days)) {
     if (!wanted.has(day)) continue;
@@ -121,6 +127,10 @@ export function weeklyInsights(counts: CountsV2, now: Date): WeeklyInsights {
         add(slotsAll, slot, n);
         if (!slotsByTask.has(task)) slotsByTask.set(task, new Map());
         add(slotsByTask.get(task)!, slot, n);
+      } else if (event === "send" && detail === "varyasyon") {
+        variation += n;
+      } else if (event === "signal" && detail in sig) {
+        sig[detail as keyof typeof sig] += n;
       } else if (event === "card_action" && detail === "taze_baslat") {
         freshStarts += n;
       } else if (event === "fresh_followup") {
@@ -156,6 +166,8 @@ export function weeklyInsights(counts: CountsV2, now: Date): WeeklyInsights {
     top_slot: topSlot(slotsAll),
     fresh_starts: freshStarts,
     fresh_followups: { total: followTotal, short: followShort },
+    signals: sig,
+    variation_sends: variation,
     previous: previousWindow(counts, now),
     enough: total >= config.min_conversations,
     tasks,

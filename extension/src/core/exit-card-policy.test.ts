@@ -119,3 +119,44 @@ describe("ExitCardPolicy tetiklenme kaynağı", () => {
     expect(p.shouldShow(p.minTurns + 1)).toBe(false);
   });
 });
+
+describe("ExitCardPolicy: sohbet sinyalleri (K32)", () => {
+  it("üst üste iki özür kartı tur sınırını beklemeden açar", () => {
+    const p = new ExitCardPolicy();
+    p.noteApologies(1, 2);
+    expect(p.triggerSource(2)).toBeNull();
+    p.noteApologies(2, 3);
+    expect(p.triggerSource(3)).toBe("ozur");
+    expect(p.shouldShow(3)).toBe(true);
+    p.dismissed(3);
+    expect(p.shouldShow(4)).toBe(false);
+  });
+
+  it("döngüden çıkış ya da konu değişimi eski tekrarların kartı açmasını engeller", () => {
+    const p = new ExitCardPolicy();
+    p.noteRepeat();
+    expect(p.triggerSource(p.minTurns)).toBe("norm");
+    p.clearRepeats();
+    expect(p.triggerSource(p.minTurns)).toBeNull();
+  });
+});
+
+describe("ExitCardPolicy: uzun sohbette döngü işareti (K33)", () => {
+  it("tur sınırı tek başına yetmez; modelin öneri seviyesi ya da yakın benzer mesaj gerekir", () => {
+    const p = new ExitCardPolicy();
+    expect(p.triggerSource(p.minTurns)).toBeNull();
+    p.noteRisk("oneri", p.minTurns);
+    expect(p.triggerSource(p.minTurns)).toBe("norm");
+    expect(p.triggerSource(p.minTurns + 1)).toBeNull(); // öneri yalnızca o turda geçerli
+    p.setRepeats(1);
+    expect(p.triggerSource(p.minTurns + 1)).toBe("norm");
+    p.setRepeats(0);
+    expect(p.triggerSource(p.minTurns + 1)).toBeNull();
+  });
+
+  it("öneri seviyesi tur sınırından önce kart açmaz", () => {
+    const p = new ExitCardPolicy();
+    p.noteRisk("oneri", 2);
+    expect(p.triggerSource(2)).toBeNull();
+  });
+});

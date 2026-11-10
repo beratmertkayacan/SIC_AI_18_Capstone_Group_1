@@ -37,3 +37,32 @@ describe("halka açıklaması", () => {
     }
   });
 });
+
+describe("halka: sohbet sinyalleri (K32)", () => {
+  it("üst üste iki özür koyu, tek özür belirgin", () => {
+    expect(ringLevel({ prediction: null, similarCount: 0, apologyStreak: 2 })).toBe(2);
+    expect(ringLevel({ prediction: null, similarCount: 0, apologyStreak: 1 })).toBe(1);
+    expect(ringText({ prediction: null, similarCount: 0, apologyStreak: 2 })).toContain("özürle");
+  });
+
+  it("üst üste iki belirsiz istek belirgin; tek belirsiz istek sakin", () => {
+    expect(ringLevel({ prediction: null, similarCount: 0, vagueStreak: 2 })).toBe(1);
+    expect(ringLevel({ prediction: null, similarCount: 0, vagueStreak: 1 })).toBe(0);
+    expect(ringText({ prediction: null, similarCount: 0, vagueStreak: 2 })).toContain("kısa");
+  });
+});
+
+describe("kısa mesaj sinyalleri", () => {
+  it("aynı kısa mesaj üçüncü kez gelince halka bir kademe yükselir", () => {
+    expect(ringLevel({ prediction: null, similarCount: 0, shortRepeatStreak: 2 })).toBe(0);
+    const s = { prediction: null, similarCount: 0, shortRepeatStreak: 3 };
+    expect(ringLevel(s)).toBe(1);
+    expect(ringText(s)).toMatch(/Aynı kısa mesajı/);
+  });
+
+  it("kısa onarım tekrar denemesi gibi sayılır ve kendi açıklamasını söyler", () => {
+    const s = { prediction: null, similarCount: 1, shortRepair: true };
+    expect(ringLevel(s)).toBe(1);
+    expect(ringText(s)).toMatch(/olmadığını/);
+  });
+});

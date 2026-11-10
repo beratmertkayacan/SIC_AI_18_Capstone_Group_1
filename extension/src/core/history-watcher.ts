@@ -71,3 +71,9 @@ export function historySeed(texts: readonly string[], reported: number | null | 
   const hidden = turns - texts.length;
   return { turns, hidden, partial: hidden > 0 };
 }
+
+/** Bir mesaj listesinin kısa imzası (yalnızca bellekte karşılaştırma için; saklanmaz). */
+export function historySignature(texts: readonly string[]): string | null {
+  if (texts.length === 0) return null;
+  return `${texts.length}\u0000${texts[0]}\u0000${texts[texts.length - 1]}`;
+}

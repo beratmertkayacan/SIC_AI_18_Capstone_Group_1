@@ -55,6 +55,12 @@ CONVERSATION_HREF_RE = re.compile(
 )
 URL_ATTRS = {"src", "srcset", "poster", "data-src", "data-srcset"}
 DROP_ATTRS = {"nonce", "integrity"}
+# Google Etiket Yöneticisinin görünürlük öznitelikleri: adın içinde kapsayıcı kimliği ve zaman
+# damgası var, bağdaştırıcıların hiçbiri kullanmaz. Gemini sayfasında her düğmede bulunur.
+DROP_ATTR_PREFIXES = ("data-gtm-",)
+# Angular'ın stil kapsülleme öznitelikleri (`_ngcontent-ng-c1234567890`): derleme numarasıdır,
+# kişiye ya da oturuma bağlı değildir. Belirteç sayılmaz.
+ANGULAR_ATTR_RE = re.compile(r"^_ng(?:content|host)-[a-z0-9-]+$")
 KEEP_TOKEN_ATTRS = {"class", "data-testid"}  # sabit adlar; adaptörler bunlara dayanıyor
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
 
@@ -67,11 +73,24 @@ TITLE_PLACEHOLDER = "Sohbet"
 
 def is_token(s):
     """Rastgele görünen dizgi mi? `conversation-turn-12` gibi okunur adlar belirteç sayılmaz."""
+    if ANGULAR_ATTR_RE.match(s):
+        return False
     for part in re.split(r"[-_]", s):
         if len(part) >= 20 and any(c.isdigit() for c in part) and any(c.isalpha() for c in part):
             return True
     digits = sum(c.isdigit() for c in s)
     return digits >= 4 and digits / len(s) >= 0.2 and any(c.isalpha() for c in s)
+
+
+TITLE_CLASSES = {"conversation-title"}
+
+
+def is_title_holder(attrs):
+    """Sohbet başlığını bağlantı dışında taşıyan öğe mi (Gemini'de başlıklar <a> değil, <div>/<span>)."""
+    for key, value in attrs:
+        if key == "class" and value and TITLE_CLASSES & set(value.split()):
+            return True
+    return False
 
 
 class Sanitizer(HTMLParser):
@@ -111,6 +130,9 @@ class Sanitizer(HTMLParser):
         for key, value in attrs:
             if key in DROP_ATTRS:
                 self.report["güvenlik özniteliği"] += 1
+                continue
+            if key.startswith(DROP_ATTR_PREFIXES):
+                self.report["izleme özniteliği"] += 1
                 continue
             if value is None:
                 cleaned.append((key, None))
@@ -153,6 +175,8 @@ class Sanitizer(HTMLParser):
             self.in_title = True
         elif tag == "a" and (is_conv or self.conv_depth):
             self.conv_depth += 1
+        elif not self.conv_depth and tag not in VOID and is_title_holder(attrs):
+            self.conv_depth = 1  # bağlantı olmayan sohbet başlığı (Gemini üst çubuğu ve kenar listesi)
         elif self.conv_depth and tag not in VOID:
             self.conv_depth += 1
 

@@ -159,3 +159,28 @@ describe("şerit metni duruma göre değişir", () => {
     }
   });
 });
+
+describe("kısa onarım şeridi", () => {
+  const strip = new Strip();
+  afterEach(() => strip.hide());
+
+  it("kod isteğinde hata mesajı ve beklenen sonuç düğmeleri doğrudan görünür", () => {
+    const a = actions();
+    strip.show(document.body, a, { attempt: 1, exact: false, task: "kod", kind: "short_repair" });
+    expect(shadowOf().textContent).toContain("Neyin olmadığını bir cümleyle eklersen");
+    expect(shadowOf().textContent).toContain("Kısa düzeltme");
+    buttonByText("Hata mesajını ekle").click();
+    expect(a.onRepair).toHaveBeenCalledWith("Aldığım hata mesajı: ", "error");
+    expect(strip.visible).toBe(false);
+  });
+
+  it("kod dışı istekte yanlış olan kısım sorulur; 'Olduğu gibi gönder' mesajı gönderir", () => {
+    const a = actions();
+    strip.show(document.body, a, { attempt: 1, exact: false, task: "yazma", kind: "short_repair" });
+    expect(buttonByText("Hata mesajını ekle")).toBeUndefined();
+    expect(buttonByText("Neyin yanlış olduğunu yaz")).toBeTruthy();
+    expect(buttonByText("Beklediğimi yaz")).toBeTruthy();
+    buttonByText("Olduğu gibi gönder").click();
+    expect(a.onSendAnyway).toHaveBeenCalledTimes(1);
+  });
+});

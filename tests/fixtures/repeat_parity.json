@@ -6,7 +6,8 @@
   "new_content": [
    "liste"
   ],
-  "repeat": false
+  "repeat": false,
+  "variation": false
  },
  {
   "new": "Bana bir e-posta yaz, toplantıyı erteleyelim",
@@ -15,7 +16,8 @@
   "new_content": [
    "erteleyelim"
   ],
-  "repeat": false
+  "repeat": false,
+  "variation": false
  },
  {
   "new": "1. soruyu çöz",
@@ -24,7 +26,8 @@
   "new_content": [
    "1"
   ],
-  "repeat": false
+  "repeat": false,
+  "variation": false
  },
  {
   "new": "What is the capital of France?",
@@ -33,42 +36,48 @@
   "new_content": [
    "france"
   ],
-  "repeat": false
+  "repeat": false,
+  "variation": false
  },
  {
   "new": "hala çalışmıyor ya",
   "previous": "hala çalışmıyor",
   "similarity": 0.912871,
   "new_content": [],
-  "repeat": true
+  "repeat": true,
+  "variation": false
  },
  {
   "new": "Bu e-postayı daha resmi bir dille yeniden yaz lütfen",
   "previous": "Bu e-postayı daha resmi bir dille yeniden yaz",
   "similarity": 0.933157,
   "new_content": [],
-  "repeat": true
+  "repeat": true,
+  "variation": false
  },
  {
   "new": "Bu kodu düzeltir misin, çalışmıyor",
   "previous": "Bu kodu düzelt, çalışmıyor",
   "similarity": 0.81325,
   "new_content": [],
-  "repeat": true
+  "repeat": true,
+  "variation": false
  },
  {
   "new": "bu fonksiyonu açıkla lütfen tekrar",
   "previous": "bu fonksiyonu açıkla",
   "similarity": 0.766965,
   "new_content": [],
-  "repeat": false
+  "repeat": false,
+  "variation": false
  },
  {
   "new": "Translate this paragraph into English please",
   "previous": "Translate this paragraph into English",
   "similarity": 0.920775,
   "new_content": [],
-  "repeat": true
+  "repeat": true,
+  "variation": false
  },
  {
   "new": "Bu metni özetle 3 madde",
@@ -77,14 +86,16 @@
   "new_content": [
    "3"
   ],
-  "repeat": false
+  "repeat": false,
+  "variation": false
  },
  {
   "new": "İSTANBUL'DA HAFTA SONU NE YAPILIR",
   "previous": "istanbul'da hafta sonu ne yapılır",
   "similarity": 1.0,
   "new_content": [],
-  "repeat": true
+  "repeat": true,
+  "variation": false
  },
  {
   "new": "Is it working now? Fix the import error",
@@ -93,7 +104,8 @@
   "new_content": [
    "working"
   ],
-  "repeat": false
+  "repeat": false,
+  "variation": false
  },
  {
   "new": "Describe the personalities of all the ninth graders",
@@ -102,6 +114,85 @@
   "new_content": [
    "ninth"
   ],
+  "repeat": false,
+  "variation": false
+ },
+ {
+  "new": "sonraki soruyu sor",
+  "previous": "sonraki soruyu sor",
+  "similarity": 1.0,
+  "new_content": [],
+  "variation": true,
   "repeat": false
+ },
+ {
+  "new": "bir soru daha sor",
+  "previous": "bir soru daha sor",
+  "similarity": 1.0,
+  "new_content": [],
+  "variation": true,
+  "repeat": false
+ },
+ {
+  "new": "Bana fotosentez hakkında 5 soruluk farklı bir test hazırla",
+  "previous": "Bana fotosentez hakkında 5 soruluk test hazırla",
+  "similarity": 0.892679,
+  "new_content": [
+   "farklı"
+  ],
+  "variation": true,
+  "repeat": false
+ },
+ {
+  "new": "diğer iş fikirleri",
+  "previous": "Diğer iş fikirleri",
+  "similarity": 1.0,
+  "new_content": [],
+  "variation": true,
+  "repeat": false
+ },
+ {
+  "new": "give me more ideas like this",
+  "previous": "give me more ideas like this",
+  "similarity": 1.0,
+  "new_content": [],
+  "variation": true,
+  "repeat": false
+ },
+ {
+  "new": "cevabım C şıkkı",
+  "previous": "cevabım B şıkkı",
+  "similarity": 0.8,
+  "new_content": [
+   "c"
+  ],
+  "variation": false,
+  "repeat": false
+ },
+ {
+  "new": "cevabım A şıkkı",
+  "previous": "cevabım B şıkkı",
+  "similarity": 0.814092,
+  "new_content": [
+   "a"
+  ],
+  "variation": false,
+  "repeat": false
+ },
+ {
+  "new": "başka bir yol göster hala çalışmıyor",
+  "previous": "başka bir yol göster hala çalışmıyor",
+  "similarity": 1.0,
+  "new_content": [],
+  "variation": false,
+  "repeat": true
+ },
+ {
+  "new": "bana motivasyon sözü yaz",
+  "previous": "bana motivasyon sözü yaz",
+  "similarity": 1.0,
+  "new_content": [],
+  "variation": false,
+  "repeat": true
  }
 ]

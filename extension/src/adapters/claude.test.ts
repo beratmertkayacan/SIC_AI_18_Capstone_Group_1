@@ -296,3 +296,18 @@ describe("composer, readHistory ve historyTotal", () => {
     expect(claudeAdapter.submitHeld()).toBe(false);
   });
 });
+
+describe("lastResponse: son cevabın başı (yalnızca özür kuralı için)", () => {
+  it("son cevabı okur, ekran okuyucu başlığını almaz", () => {
+    load("ilk_cevap");
+    const text = claudeAdapter.lastResponse!()!;
+    expect(text).toMatch(/ters çevirmenin/);
+    expect(text).not.toMatch(/Claude responded/);
+    expect(text.length).toBeLessThanOrEqual(600);
+  });
+
+  it("boş sohbette null", () => {
+    load("bos_sohbet");
+    expect(claudeAdapter.lastResponse!()).toBeNull();
+  });
+});
