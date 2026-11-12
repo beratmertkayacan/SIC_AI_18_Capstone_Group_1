@@ -194,5 +194,21 @@
   "new_content": [],
   "variation": false,
   "repeat": true
+ },
+ {
+  "new": "Excel'de iki sütunu karşılaştırıp farklı olanları sarıya boyayan ve yanına açıklama yazan bir formül hazırlar mısın bana lütfen",
+  "previous": "Excel'de iki sütunu karşılaştırıp farklı olanları sarıya boyayan ve yanına açıklama yazan bir formül hazırlar mısın bana lütfen",
+  "similarity": 1.0,
+  "new_content": [],
+  "repeat": true,
+  "variation": true
+ },
+ {
+  "new": "başka bir slogan öner",
+  "previous": "başka bir slogan öner",
+  "similarity": 1.0,
+  "new_content": [],
+  "repeat": false,
+  "variation": true
  }
 ]

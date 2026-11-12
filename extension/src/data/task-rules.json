@@ -1,5 +1,5 @@
 {
-  "note": "Görev türü kuralları. Hem eklenti (src/core/tasks.ts) hem Python (src/kafiai/tasks.py) bu dosyayı okur. Sıra önemlidir: ilk eşleşen tür seçilir.",
+  "note": "Görev türü kuralları. Hem eklenti (src/core/tasks.ts) hem Python (src/kafiai/tasks.py) bu dosyayı okur. Sıra önemlidir: ilk eşleşen tür seçilir. Kurallar sadeleştirilmiş metnin iki biçimine uygulanır: Türkçe kuralla (I -> ı) ve İngilizce kuralla (I -> i); böylece 'API', 'CLI' gibi büyük harfli kısaltmalar da tanınır.",
   "order": ["kod", "ceviri", "ozet", "yazma", "soru"],
   "fallback": "diger",
   "head_chars": 300,
@@ -13,10 +13,10 @@
   },
   "rules": {
     "kod": {
-      "markers": ["```", "#include", "def ", "console.log", "traceback", "</", "();", "=>", "import "],
-      "words": ["python", "javascript", "java", "sql", "html", "css", "typescript", "code", "bug", "error", "exception", "regex", "api", "json", "script"],
-      "prefixes": ["kod", "fonksiyon", "debug", "compil"],
-      "phrases": ["hata veriyor"]
+      "markers": ["```", "#include", "def ", "console.log", "traceback", "</", "();", "=>", "import ", "c++", "c#"],
+      "words": ["python", "javascript", "java", "sql", "html", "css", "typescript", "code", "bug", "error", "exception", "regex", "api", "json", "script", "reactjs", "jsx", "docker", "git", "github", "npm", "php", "linux", "bash", "django", "flutter", "laravel", "kotlin", "vba", "cli", "nodejs", "sqlite", "mysql", "arduino", "wordpress"],
+      "prefixes": ["kod", "fonksiyon", "debug", "compil", "sorgu", "algoritma", "veritaban", "programla"],
+      "phrases": ["hata veriyor", "excel de", "excelde", "excel formula", "excel sheet", "in excel", "node js", "react native"]
     },
     "ceviri": {
       "markers": [],
@@ -32,15 +32,15 @@
     },
     "yazma": {
       "markers": [],
-      "words": ["write", "rewrite", "paraphrase", "essay", "story", "poem", "article", "email", "letter", "blog", "caption", "yaz", "metin"],
-      "prefixes": ["makale", "hikaye", "şiir", "dilekçe", "eposta", "yazar"],
+      "words": ["write", "rewrite", "paraphrase", "essay", "story", "poem", "article", "email", "letter", "blog", "caption", "yaz", "metin", "cv"],
+      "prefixes": ["makale", "hikaye", "şiir", "dilekçe", "eposta", "yazar", "özgeçmiş", "mektup", "senaryo", "kompozisyon", "slogan", "öykü", "paragraf", "gönderi"],
       "phrases": ["e posta"]
     },
     "soru": {
       "markers": [],
-      "words": ["explain", "why", "nedir", "neden", "nasıl", "niçin"],
-      "prefixes": ["açıkla"],
-      "phrases": ["how do", "how does", "how can", "how to", "what is", "what are", "what does", "difference between", "ne demek", "farkı"],
+      "words": ["explain", "why", "nedir", "neden", "nasıl", "niçin", "hangisi", "hangi", "kaç", "kim", "kimdir", "nelerdir", "midir", "mıdır", "kaçtır", "anlat", "anlatır"],
+      "prefixes": ["açıkla", "çöz", "aşağıdakiler", "hesapla"],
+      "phrases": ["how do", "how does", "how can", "how to", "what is", "what are", "what does", "difference between", "ne demek", "farkı", "ne zaman", "can you explain", "tell me about"],
       "ends_with_question": true
     }
   }

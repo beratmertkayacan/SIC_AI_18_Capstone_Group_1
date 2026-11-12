@@ -71,7 +71,7 @@ def detector_flags(msgs, use_variation):
                 if s >= config.EXT_SIMILARITY_THRESHOLD and not new_content(text, prev):
                     similar = True
             soft = best >= config.EXT_SOFT_SIMILARITY_THRESHOLD
-            if use_variation and (similar or soft) and is_variation(text):
+            if use_variation and (similar or soft) and is_variation(text, best):
                 similar = soft = False
                 variation = True
         flags.append((similar, soft, variation))

@@ -102,10 +102,18 @@ def has_variation_cue(text):
     return any(f" {p} " in padded for p in _VARIATION["phrases"])
 
 
-def is_variation(text):
-    """Varyasyon isteği: işaret var, güçlü onarım ifadesi yok (repeat-detector.ts, isVariation)."""
+def is_variation(text, score=0.0):
+    """Varyasyon isteği: işaret var, güçlü onarım ifadesi yok (repeat-detector.ts, isVariation).
+
+    Orta uzunlukta (16-40 kelime) bir mesajın birebir yeniden gönderimi varyasyon sayılmaz; score önceki mesajlarla en yüksek benzerliktir.
+    """
     from kafiai.text import has_strong_repair
-    return has_variation_cue(text) and not has_strong_repair(text)
+    if not has_variation_cue(text) or has_strong_repair(text):
+        return False
+    words = len(normalize_text(text).split())
+    # Çok uzun birebir tekrarlar yeniden kullanılan istem şablonlarıdır; onlar yine varyasyon sayılır.
+    return not (score >= _VARIATION["exact_similarity"]
+                and _VARIATION["max_exact_words"] < words <= _VARIATION["template_words"])
 
 
 def new_content(new_text, previous_text):
@@ -137,5 +145,5 @@ def is_repeat(new_text, previous_text, threshold=None):
     """Şerit kuralı: benzerlik eşiği geçiyor, yeni mesaj yeni bir içerik getirmiyor ve bir varyasyon isteği değil."""
     from kafiai.config import EXT_SIMILARITY_THRESHOLD
     limit = EXT_SIMILARITY_THRESHOLD if threshold is None else threshold
-    return (similarity(new_text, previous_text) >= limit and not new_content(new_text, previous_text)
-            and not is_variation(new_text))
+    score = similarity(new_text, previous_text)
+    return score >= limit and not new_content(new_text, previous_text) and not is_variation(new_text, score)

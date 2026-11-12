@@ -47,9 +47,17 @@ export function hasVariationCue(text: string): boolean {
   return rules.variation.phrases.some((p) => padded.includes(` ${p} `));
 }
 
-/** Varyasyon isteği: işaret var, güçlü onarım ifadesi yok (Python: extension_similarity.is_variation). */
-export function isVariation(text: string): boolean {
-  return hasVariationCue(text) && !hasStrongRepair(text);
+/**
+ * Varyasyon isteği: işaret var, güçlü onarım ifadesi yok (Python: extension_similarity.is_variation).
+ * Orta uzunlukta bir mesajın birebir yeniden gönderimi varyasyon sayılmaz: "farklı olanları işaretle" gibi
+ * isteklerde işaret kelimesi içeriğin parçasıdır. score: önceki mesajlarla en yüksek benzerlik.
+ */
+export function isVariation(text: string, score = 0): boolean {
+  if (!hasVariationCue(text) || hasStrongRepair(text)) return false;
+  const words = normalizeText(text).split(" ").filter((t) => t !== "").length;
+  const v = rules.variation;
+  // Çok uzun birebir tekrarlar yeniden kullanılan istem şablonlarıdır; onlar yine varyasyon sayılır.
+  return !(score >= v.exact_similarity && words > v.max_exact_words && words <= v.template_words);
 }
 
 function remembered(normalized: string): Remembered {
@@ -110,7 +118,7 @@ export class RepeatDetector {
       }
     }
     const soft = score >= SOFT_SIMILARITY_THRESHOLD;
-    if ((similar || soft) && isVariation(text)) {
+    if ((similar || soft) && isVariation(text, score)) {
       // Bilerek yapılan seri üretim: döngü sayılmaz.
       return { similar: false, soft: false, score, tooShort: false, newContent: false, variation: true };
     }
