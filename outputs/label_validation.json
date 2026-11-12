@@ -40,26 +40,26 @@
     },
     "Güçlü onarım ifadesi": {
       "geliştirme": {
-        "share_pct": 20.34,
-        "p_dsat": 0.3158,
-        "lift": 2.37
+        "share_pct": 17.83,
+        "p_dsat": 0.3523,
+        "lift": 2.64
       },
       "kontrol": {
-        "share_pct": 20.77,
-        "p_dsat": 0.3087,
-        "lift": 2.32
+        "share_pct": 17.88,
+        "p_dsat": 0.3503,
+        "lift": 2.63
       }
     },
     "Yeni etiket (v2)": {
       "geliştirme": {
-        "share_pct": 8.11,
-        "p_dsat": 0.3827,
-        "lift": 2.87
+        "share_pct": 6.8,
+        "p_dsat": 0.4411,
+        "lift": 3.31
       },
       "kontrol": {
-        "share_pct": 8.5,
-        "p_dsat": 0.3823,
-        "lift": 2.87
+        "share_pct": 7.22,
+        "p_dsat": 0.4324,
+        "lift": 3.24
       }
     }
   }

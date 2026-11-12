@@ -13,26 +13,26 @@
       "isabet_yuzde": null
     },
     "halka": {
-      "seviye1_ve_ustu_tur_yuzde": 21.19,
-      "seviye2_tur_yuzde": 8.68,
-      "seviye2_isabet_yuzde": 21.04,
+      "seviye1_ve_ustu_tur_yuzde": 18.5,
+      "seviye2_tur_yuzde": 7.31,
+      "seviye2_isabet_yuzde": 24.38,
       "cikistan_sonra_yuksek_kalan_yuzde": null,
       "cikis_mesaji": 0
     },
     "kart": {
-      "100_sohbette": 29.34,
-      "isabet_yuzde": 14.91,
+      "100_sohbette": 26.34,
+      "isabet_yuzde": 16.4,
       "kaynaga_gore": {
         "model": {
-          "sayi": 2762,
-          "isabet_yuzde": 23.82
+          "sayi": 2056,
+          "isabet_yuzde": 31.27
         },
         "norm": {
-          "sayi": 3107,
-          "isabet_yuzde": 6.98
+          "sayi": 3213,
+          "isabet_yuzde": 6.88
         }
       },
-      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 20.17,
+      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 20.48,
       "tekrarlayan_memnuniyetsizlik_sohbeti": 1294
     },
     "taze_baslat": {
@@ -45,44 +45,44 @@
     "sohbet": 20000,
     "kullanici_turu": 115052,
     "serit": {
-      "100_sohbette": 14.26,
-      "isabet_yuzde": 16.63
+      "100_sohbette": 14.65,
+      "isabet_yuzde": 17.0
     },
     "kisa_onarim_seridi": {
-      "100_sohbette": 1.03,
-      "isabet_yuzde": 46.6
+      "100_sohbette": 1.02,
+      "isabet_yuzde": 46.34
     },
     "halka": {
-      "seviye1_ve_ustu_tur_yuzde": 21.48,
-      "seviye2_tur_yuzde": 8.3,
-      "seviye2_isabet_yuzde": 26.14,
-      "cikistan_sonra_yuksek_kalan_yuzde": 18.13,
+      "seviye1_ve_ustu_tur_yuzde": 18.88,
+      "seviye2_tur_yuzde": 6.97,
+      "seviye2_isabet_yuzde": 30.89,
+      "cikistan_sonra_yuksek_kalan_yuzde": 16.08,
       "cikis_mesaji": 342
     },
     "kart": {
-      "100_sohbette": 21.64,
-      "isabet_yuzde": 24.21,
+      "100_sohbette": 17.65,
+      "isabet_yuzde": 29.32,
       "kaynaga_gore": {
         "model": {
-          "sayi": 2718,
-          "isabet_yuzde": 23.07
+          "sayi": 2003,
+          "isabet_yuzde": 30.55
         },
         "ozur": {
-          "sayi": 629,
-          "isabet_yuzde": 50.08
+          "sayi": 642,
+          "isabet_yuzde": 50.31
         },
         "norm": {
-          "sayi": 981,
-          "isabet_yuzde": 10.81
+          "sayi": 885,
+          "isabet_yuzde": 11.3
         }
       },
-      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 20.94,
+      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 21.02,
       "tekrarlayan_memnuniyetsizlik_sohbeti": 1294
     },
     "taze_baslat": {
-      "konu_kayan_sohbet_yuzde": 7.0,
+      "konu_kayan_sohbet_yuzde": 7.17,
       "taslaktaki_istek_ortalama_once": 6.35,
-      "taslaktaki_istek_ortalama_sonra": 4.21
+      "taslaktaki_istek_ortalama_sonra": 4.22
     }
   }
 }

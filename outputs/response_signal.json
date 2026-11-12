@@ -13,67 +13,67 @@
       "sonraki_dsat": 0.1084,
       "sonraki_sat": 0.015,
       "sonraki_tekrar": 0.3258,
-      "sonraki_onarim": 0.0622
+      "sonraki_onarim": 0.0496
     },
     "farkli_cevap": {
       "n": 1399,
       "sonraki_dsat": 0.089,
       "sonraki_sat": 0.0062,
       "sonraki_tekrar": 0.4377,
-      "sonraki_onarim": 0.0498
+      "sonraki_onarim": 0.04
     },
     "kismen": {
       "n": 3316,
       "sonraki_dsat": 0.1177,
       "sonraki_sat": 0.0065,
       "sonraki_tekrar": 0.3698,
-      "sonraki_onarim": 0.0616
+      "sonraki_onarim": 0.0527
     }
   },
   "isaretsiz_tekrarlarda_cevaba_gore": {
     "ayni_cevap": {
-      "n": 4966,
-      "sonraki_dsat": 0.1057,
-      "sonraki_sat": 0.0068,
-      "sonraki_tekrar": 0.2879,
-      "sonraki_onarim": 0.0216
+      "n": 5007,
+      "sonraki_dsat": 0.1058,
+      "sonraki_sat": 0.0067,
+      "sonraki_tekrar": 0.2882,
+      "sonraki_onarim": 0.0199
     },
     "farkli_cevap": {
-      "n": 1095,
-      "sonraki_dsat": 0.0779,
+      "n": 1097,
+      "sonraki_dsat": 0.0778,
       "sonraki_sat": 0.0056,
-      "sonraki_tekrar": 0.4492,
-      "sonraki_onarim": 0.0203
+      "sonraki_tekrar": 0.4498,
+      "sonraki_onarim": 0.0158
     },
     "kismen": {
-      "n": 2314,
-      "sonraki_dsat": 0.1214,
+      "n": 2322,
+      "sonraki_dsat": 0.1212,
       "sonraki_sat": 0.0055,
-      "sonraki_tekrar": 0.3429,
-      "sonraki_onarim": 0.0236
+      "sonraki_tekrar": 0.3427,
+      "sonraki_onarim": 0.0208
     }
   },
   "varyasyon_isaretlilerde_cevaba_gore": {
     "ayni_cevap": {
-      "n": 2023,
-      "sonraki_dsat": 0.0813,
-      "sonraki_sat": 0.0303,
-      "sonraki_tekrar": 0.4239,
-      "sonraki_onarim": 0.0239
+      "n": 2109,
+      "sonraki_dsat": 0.0807,
+      "sonraki_sat": 0.0292,
+      "sonraki_tekrar": 0.4211,
+      "sonraki_onarim": 0.018
     },
     "farkli_cevap": {
-      "n": 235,
-      "sonraki_dsat": 0.0939,
-      "sonraki_sat": 0.011,
-      "sonraki_tekrar": 0.3923,
-      "sonraki_onarim": 0.0331
+      "n": 252,
+      "sonraki_dsat": 0.0928,
+      "sonraki_sat": 0.0103,
+      "sonraki_tekrar": 0.3866,
+      "sonraki_onarim": 0.0309
     },
     "kismen": {
-      "n": 783,
-      "sonraki_dsat": 0.0776,
-      "sonraki_sat": 0.0099,
-      "sonraki_tekrar": 0.4505,
-      "sonraki_onarim": 0.0248
+      "n": 807,
+      "sonraki_dsat": 0.0769,
+      "sonraki_sat": 0.0096,
+      "sonraki_tekrar": 0.4455,
+      "sonraki_onarim": 0.0208
     }
   },
   "ozur": {

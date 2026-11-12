@@ -9,10 +9,10 @@
       "sonraki_turda_dsat_yuzde": 6.2
     },
     "kisa_diger": {
-      "tur": 12630,
+      "tur": 12634,
       "tur_yuzde": 3.01,
       "bu_turda_dsat_yuzde": 5.8,
-      "sonraki_turda_dsat_yuzde": 5.4
+      "sonraki_turda_dsat_yuzde": 5.5
     },
     "kisa_ayni_tekrar": {
       "tur": 3486,
@@ -21,10 +21,10 @@
       "sonraki_turda_dsat_yuzde": 4.4
     },
     "kisa_onarim": {
-      "tur": 928,
+      "tur": 924,
       "tur_yuzde": 0.22,
-      "bu_turda_dsat_yuzde": 45.8,
-      "sonraki_turda_dsat_yuzde": 25.1
+      "bu_turda_dsat_yuzde": 45.7,
+      "sonraki_turda_dsat_yuzde": 24.9
     },
     "kisa_cikis": {
       "tur": 637,
