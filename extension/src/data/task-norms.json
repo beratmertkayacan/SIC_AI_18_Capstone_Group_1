@@ -10,7 +10,7 @@
     },
     "ceviri": {
       "label": "Çeviri",
-      "median_turns": 3.0,
+      "median_turns": 3.5,
       "p75_turns": 6.0,
       "p90_turns": 10.0
     },
