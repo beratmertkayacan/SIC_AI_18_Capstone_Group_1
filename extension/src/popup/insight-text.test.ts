@@ -63,7 +63,7 @@ describe("ne işe yaradı ve önceki hafta", () => {
   it("Taze başlat satırı yalnızca kullanıldıysa çıkar", () => {
     const w = base();
     expect(freshStartLine({ ...w, fresh_starts: 0 })).toBeNull();
-    expect(freshStartLine({ ...w, fresh_starts: 3, fresh_followups: { total: 0, short: 0 } })).toBe('"Taze başlat" 3 kez kullanıldı.');
+    expect(freshStartLine({ ...w, fresh_starts: 3, fresh_followups: { total: 0, short: 0 } })).toBe('“Taze başlat” 3 kez kullanıldı.');
     expect(freshStartLine({ ...w, fresh_starts: 3, fresh_followups: { total: 2, short: 1 } })).toContain("1 tanesi 3 turda");
   });
   it("önceki 7 gün yeterli veri varsa yalnızca sayı olarak yazılır", () => {

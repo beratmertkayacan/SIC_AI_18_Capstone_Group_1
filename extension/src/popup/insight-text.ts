@@ -83,7 +83,7 @@ export function signalLines(w: WeeklyInsights): string[] {
 /** "Ne işe yaradı": Taze başlat kaç kez kullanıldı, yeni sohbetlerin kaçı kısa sürede bitti. */
 export function freshStartLine(w: WeeklyInsights): string | null {
   if (w.fresh_starts === 0) return null;
-  const base = `"Taze başlat" ${w.fresh_starts} kez kullanıldı`;
+  const base = `“Taze başlat” ${w.fresh_starts} kez kullanıldı`;
   if (w.fresh_followups.total === 0) return `${base}.`;
   return `${base}; yeni sohbetlerden ${w.fresh_followups.short} tanesi 3 turda ya da daha kısa sürede bitti.`;
 }

@@ -13,8 +13,8 @@ export interface WelcomeSection {
 }
 
 export const WELCOME_LEAD =
-  `${BRAND_NAME}, yapay zeka sohbetlerinde (şu an ${sitesList()}) aynı yerde dönmeye başladığını fark eder ve oradan çıkmanın kolay bir yolunu sunar. ` +
-  "Harcadığın süreye değil, yapay zekayı nasıl kullandığına bakar.";
+  `${BRAND_NAME}, yapay zeka sohbetlerinde aynı yerde dönmeye başladığını fark eder ve oradan çıkmanın kolay bir yolunu sunar. ` +
+  `Harcadığın süreye değil, yapay zekayı nasıl kullandığına bakar. Şu an ${sitesList()} üzerinde çalışır.`;
 
 export const WELCOME_SECTIONS: WelcomeSection[] = [
   {
@@ -34,7 +34,7 @@ export const WELCOME_SECTIONS: WelcomeSection[] = [
   {
     title: "Verin nerede durur",
     lines: [
-      "Hiçbir mesaj bilgisayarından çıkmaz. Eklentide internete istek gönderen kod yoktur.",
+      "Hiçbir mesaj cihazından çıkmaz. Eklentide internete istek gönderen kod yoktur.",
       "Mesaj metni kaydedilmez; yalnızca sekme açıkken bellekte durur ve sekme kapanınca silinir.",
       `Kalıcı olarak yalnızca ayarların ve günlük sayılar (kaç kez uyarı gösterildi gibi) tutulur. Sayılar 90 gün sonra silinir; istersen ${BRAND_NAME} penceresinden hemen silebilirsin.`,
     ],
@@ -43,7 +43,7 @@ export const WELCOME_SECTIONS: WelcomeSection[] = [
     title: "Ne göreceksin",
     lines: [
       "Çoğu zaman hiçbir şey. Aynı isteği yeniden gönderirken küçük bir şerit, ya da sohbet uzayıp aynı yerde dönerken küçük bir kart çıkar.",
-      "Hiçbiri seni engellemez. Her birinde \"Yine de gönder\" ya da \"Kapat\" gibi bir çıkış vardır.",
+      "Hiçbiri seni engellemez. Her birinde “Yine de gönder” ya da “Kapat” gibi bir çıkış vardır.",
     ],
   },
   {

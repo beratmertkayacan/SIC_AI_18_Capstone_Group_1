@@ -7,16 +7,30 @@
     <link rel="stylesheet" href="brand.css" />
     <style>
       body { font-size: 16px; line-height: 1.6; }
-      #root { max-width: 600px; margin: 0 auto; padding: 56px 24px 72px; }
-      .hero { display: flex; align-items: center; gap: 18px; margin: 0 0 14px; }
-      .hero .mark { color: var(--accent); flex: none; }
-      h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.01em; }
-      .tagline { margin: 2px 0 0; color: var(--muted); font-size: 16px; font-weight: 500; }
-      .lead { margin: 18px 0 22px; font-size: 17px; }
-      section { padding: 16px 18px; margin: 0 0 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
-      h2 { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
-      p { margin: 0 0 6px; }
-      button.primary { margin-top: 18px; padding: 10px 26px; font-size: 15px; }
+      #root { max-width: 680px; margin: 0 auto; padding: clamp(40px, 9vh, 88px) 24px 80px; }
+      .hero { display: flex; align-items: center; gap: 20px; margin: 0 0 18px; }
+      .hero .mark { flex: none; border-radius: 16px; box-shadow: var(--shadow); }
+      h1 { margin: 0; font-size: clamp(28px, 4.2vw, 36px); line-height: 1.15; font-weight: 600; letter-spacing: -.015em; text-wrap: balance; }
+      .tagline { margin: 6px 0 0; color: var(--accent-ink); font-size: 16px; font-weight: 500; }
+      .lead { margin: 22px 0 40px; font-size: 18px; line-height: 1.6; max-width: 60ch; text-wrap: pretty; }
+      section {
+        display: grid; grid-template-columns: 12rem 1fr; column-gap: 32px;
+        padding: 20px 0 18px; border-top: 1px solid var(--line);
+      }
+      section:last-of-type { border-bottom: 1px solid var(--line); }
+      h2 { grid-column: 1; grid-row: 1 / span 4; margin: 0; font-size: 17px; line-height: 1.45; letter-spacing: -.005em; font-weight: 600; color: var(--fg); text-wrap: balance; }
+      section p { grid-column: 2; margin: 0 0 8px; color: var(--fg); text-wrap: pretty; }
+      section p:last-child { margin-bottom: 0; }
+      button.primary { margin-top: 32px; padding: 11px 30px; font-size: 15px; }
+      @media (max-width: 620px) {
+        .hero { gap: 16px; }
+        .hero .mark { width: 52px; height: 52px; border-radius: 13px; }
+        .lead { font-size: 17px; margin-bottom: 28px; }
+        section { grid-template-columns: 1fr; padding: 16px 0 14px; }
+        h2 { grid-row: auto; margin-bottom: 4px; }
+        section p { grid-column: 1; }
+        button.primary { width: 100%; }
+      }
     </style>
   </head>
   <body>

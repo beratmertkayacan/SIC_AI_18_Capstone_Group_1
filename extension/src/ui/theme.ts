@@ -42,28 +42,29 @@ export function detectTheme(anchor: Element | null): Theme {
 export const CARD_CSS = `
 :host { all: initial; }
 .card {
-  --bg: #fbf7f1; --fg: #2b2015; --muted: #7a6650; --line: rgba(68, 50, 27, .16); --soft: #f3eadc;
+  --bg: #fbf7f1; --fg: #2b2015; --muted: #6e5a44; --line: rgba(68, 50, 27, .16); --soft: #f3eadc;
   --accent: #8b6b46; --primary: #44321b; --primary-fg: #f7efe3; --ring: rgba(139, 107, 70, .45);
   --shadow: 0 1px 2px rgba(68, 50, 27, .08), 0 14px 36px -10px rgba(68, 50, 27, .32);
   position: fixed; z-index: 2147483000; box-sizing: border-box;
   font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--fg); background: var(--bg);
   border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
-  padding: 12px 16px 14px 18px; overflow: hidden;
-  animation: kafiai-in .16s ease-out;
+  caret-color: var(--accent);
+  padding: 12px 16px 14px; overflow: hidden;
+  animation: kafiai-in .22s cubic-bezier(.2, .8, .2, 1);
 }
 .card[data-theme="dark"] {
   --bg: #2a1f14; --fg: #f7efe3; --muted: #c9b79c; --line: rgba(247, 239, 227, .14); --soft: #35281a;
   --accent: #c9a875; --primary: #c9a875; --primary-fg: #2a1f14; --ring: rgba(201, 168, 117, .5);
   --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 18px 44px -10px rgba(0, 0, 0, .75);
 }
-.card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--accent); }
-@keyframes kafiai-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+@keyframes kafiai-in { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .card { animation: none; } button { transition: none; } button:active { transform: none; } }
+.card ::selection { background: rgba(201, 168, 117, .38); color: var(--fg); }
 .head { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; }
 .mark { width: 16px; height: 16px; color: var(--accent); flex: none; display: block; }
 .brand { font-size: 12.5px; font-weight: 600; letter-spacing: .02em; color: var(--fg); }
-.chip { font-size: 11.5px; color: var(--muted); background: var(--soft); border-radius: 999px; padding: 1px 8px; }
+.chip { font-size: 11.5px; font-weight: 500; color: var(--muted); background: var(--soft); border-radius: 999px; padding: 1px 8px; }
 p { margin: 0 0 8px; }
 .title { font-weight: 600; font-size: 14.5px; margin-bottom: 2px; }
 .body { color: var(--fg); }
@@ -73,12 +74,13 @@ p { margin: 0 0 8px; }
 button {
   font: inherit; font-size: 13.5px; cursor: pointer; border-radius: 999px; padding: 6px 14px;
   border: 1px solid transparent; background: var(--primary); color: var(--primary-fg);
-  transition: filter .12s, background .12s, border-color .12s;
+  transition: filter .12s ease-out, background .12s ease-out, border-color .12s ease-out, transform .1s ease-out;
 }
-button:hover { filter: brightness(1.06); }
-button:disabled { opacity: .6; cursor: default; }
+button:hover { filter: brightness(1.08); }
+button:active { transform: translateY(1px); }
+button:disabled { opacity: .6; cursor: default; transform: none; }
 button.secondary { background: transparent; color: var(--fg); border-color: var(--line); }
-button.secondary:hover { background: var(--soft); filter: none; }
+button.secondary:hover { background: var(--soft); border-color: var(--accent); filter: none; }
 button.link { background: transparent; color: var(--muted); padding: 6px 6px; }
 button.link:hover { color: var(--fg); filter: none; }
 button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
