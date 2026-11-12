@@ -11,19 +11,19 @@ describe("ExitCardPolicy", () => {
 
   it("tekrar denemesi var ama sohbet kısaysa göstermez", () => {
     const p = new ExitCardPolicy();
-    p.noteRepeat();
+    p.setRepeats(1);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS - 1)).toBe(false);
   });
 
   it("tur sınırına ulaşıp tekrar denemesi olduysa gösterir", () => {
     const p = new ExitCardPolicy();
-    p.noteRepeat();
+    p.setRepeats(1);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(true);
   });
 
   it("kapatılınca bekleme süresi boyunca göstermez, sonra yine gösterir", () => {
     const p = new ExitCardPolicy();
-    p.noteRepeat();
+    p.setRepeats(1);
     p.dismissed(EXIT_CARD_MIN_TURNS);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS + 1)).toBe(false);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS + EXIT_CARD_COOLDOWN_TURNS - 1)).toBe(false);
@@ -32,11 +32,11 @@ describe("ExitCardPolicy", () => {
 
   it("reset() her şeyi sıfırlar", () => {
     const p = new ExitCardPolicy();
-    p.noteRepeat();
+    p.setRepeats(1);
     p.dismissed(EXIT_CARD_MIN_TURNS);
     p.reset();
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(false); // tekrar denemesi de silindi
-    p.noteRepeat();
+    p.setRepeats(1);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(true);
   });
 });
@@ -47,7 +47,7 @@ describe("ExitCardPolicy görev normları", () => {
     p.setTask("ceviri");
     const norm = taskNorm("ceviri")!;
     expect(p.minTurns).toBe(Math.floor(norm.p90_turns) + 1);
-    p.noteRepeat();
+    p.setRepeats(1);
     expect(p.shouldShow(p.minTurns - 1)).toBe(false);
     expect(p.shouldShow(p.minTurns)).toBe(true);
   });
@@ -109,7 +109,7 @@ describe("ExitCardPolicy tetiklenme kaynağı", () => {
   it("model yolu norm yolundan önce gelir; bekleme süresi kaynağı değiştirmez", () => {
     const p = new ExitCardPolicy();
     expect(p.triggerSource(3)).toBeNull();
-    p.noteRepeat();
+    p.setRepeats(1);
     expect(p.triggerSource(p.minTurns)).toBe("norm");
     p.noteRisk("yuksek", p.minTurns);
     expect(p.triggerSource(p.minTurns)).toBe("model");
@@ -134,7 +134,7 @@ describe("ExitCardPolicy: sohbet sinyalleri (K32)", () => {
 
   it("döngüden çıkış ya da konu değişimi eski tekrarların kartı açmasını engeller", () => {
     const p = new ExitCardPolicy();
-    p.noteRepeat();
+    p.setRepeats(1);
     expect(p.triggerSource(p.minTurns)).toBe("norm");
     p.clearRepeats();
     expect(p.triggerSource(p.minTurns)).toBeNull();

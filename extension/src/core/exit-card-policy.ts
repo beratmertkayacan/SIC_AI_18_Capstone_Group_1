@@ -43,11 +43,6 @@ export class ExitCardPolicy {
     return this.currentNorm ? Math.floor(this.currentNorm.p90_turns) + 1 : EXIT_CARD_MIN_TURNS;
   }
 
-  /** Kullanıcı benzer bir mesaj gönderdi. */
-  noteRepeat(): void {
-    this.repeats += 1;
-  }
-
   /** Son birkaç mesajdan kaçı öncekine çok benziyor (src/core/signals.ts, çıkışta sıfırlanır). */
   setRepeats(count: number): void {
     this.repeats = count;
