@@ -2,7 +2,7 @@ import { MIN_NORMALIZED_CHARS, RECENT_MESSAGES, SIMILARITY_THRESHOLD, SOFT_SIMIL
 import rules from "../data/repeat-rules.json";
 import { ngramVector, cosine } from "./similarity";
 import { hasStrongRepair } from "./strong-repair";
-import { normalizeText } from "./text";
+import { foldTurkish, normalizeText, withFolded } from "./text";
 
 export interface RepeatCheck {
   /** Bu mesaj, yakın zamanda gönderilen birinin neredeyse aynısı mı? (şerit çıkar) */
@@ -20,6 +20,11 @@ export interface RepeatCheck {
    * onarım ifadesi yok. Şerit çıkmaz, çıkış kartı için tekrar sayılmaz.
    */
   variation: boolean;
+  /**
+   * Gönderim bekletilip şerit gösterilir mi? Benzer olmanın üstüne birebir tekrar ya da güçlü onarım
+   * ifadesi gerekir. Birebir olmayan yeniden yazım yalnızca halka ve kart için sayılır (repeat-rules.json, hold_note).
+   */
+  hold: boolean;
 }
 
 interface Remembered {
@@ -28,23 +33,26 @@ interface Remembered {
   stems: Set<string>;
 }
 
-const FILLER = new Set<string>(rules.filler);
+const FILLER = new Set<string>(withFolded(rules.filler));
 const hasDigit = (t: string) => /\p{N}/u.test(t);
 const STEM = rules.stem_chars;
 const CHOICE = new Set<string>(rules.choice_letters);
-const VARIATION_WORDS = new Set<string>(rules.variation.words);
+const VARIATION_WORDS = new Set<string>(withFolded(rules.variation.words));
+const VARIATION_PREFIXES = withFolded(rules.variation.prefixes);
+const VARIATION_PHRASES = withFolded(rules.variation.phrases);
 
 /**
  * Varyasyon işareti: kullanıcı yeni bir örnek istiyor ("başka", "farklı", "sonraki", "bir tane daha",
  * "more", "next"). Python: extension_similarity.has_variation_cue.
  */
 export function hasVariationCue(text: string): boolean {
-  const normalized = normalizeText(text);
+  // Türkçe karaktersiz yazım da sayılır ("baska fikir").
+  const normalized = foldTurkish(normalizeText(text));
   const tokens = normalized.split(" ").filter((t) => t !== "");
   if (tokens.some((t) => VARIATION_WORDS.has(t))) return true;
-  if (tokens.some((t) => rules.variation.prefixes.some((p) => t.startsWith(p)))) return true;
+  if (tokens.some((t) => VARIATION_PREFIXES.some((p) => t.startsWith(p)))) return true;
   const padded = ` ${normalized} `;
-  return rules.variation.phrases.some((p) => padded.includes(` ${p} `));
+  return VARIATION_PHRASES.some((p) => padded.includes(` ${p} `));
 }
 
 /**
@@ -103,26 +111,31 @@ export class RepeatDetector {
   check(text: string): RepeatCheck {
     const normalized = normalizeText(text);
     if (Array.from(normalized).length < MIN_NORMALIZED_CHARS) {
-      return { similar: false, soft: false, score: 0, tooShort: true, newContent: false, variation: false };
+      return { similar: false, soft: false, score: 0, tooShort: true, newContent: false, variation: false, hold: false };
     }
     const vec = ngramVector(normalized);
     let score = 0;
     let similar = false;
+    let exact = false;
     let aboveThreshold = false;
     for (const previous of this.recent) {
       const s = cosine(vec, previous.vec);
       score = Math.max(score, s);
       if (s >= SIMILARITY_THRESHOLD) {
         aboveThreshold = true;
-        if (newContent(normalized, previous).length === 0) similar = true;
+        if (newContent(normalized, previous).length === 0) {
+          similar = true;
+          if (s >= rules.hold_exact_similarity) exact = true;
+        }
       }
     }
     const soft = score >= SOFT_SIMILARITY_THRESHOLD;
     if ((similar || soft) && isVariation(text, score)) {
       // Bilerek yapılan seri üretim: döngü sayılmaz.
-      return { similar: false, soft: false, score, tooShort: false, newContent: false, variation: true };
+      return { similar: false, soft: false, score, tooShort: false, newContent: false, variation: true, hold: false };
     }
-    return { similar, soft, score, tooShort: false, newContent: aboveThreshold && !similar, variation: false };
+    const hold = similar && (exact || hasStrongRepair(text));
+    return { similar, soft, score, tooShort: false, newContent: aboveThreshold && !similar, variation: false, hold };
   }
 
   /** Mesaj gönderildikten sonra çağrılır. Kısa mesajlar saklanmaz. */

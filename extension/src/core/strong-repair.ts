@@ -1,5 +1,5 @@
 import rules from "../data/repair-rules.json";
-import { normalizeText } from "./text";
+import { foldTurkish, normalizeText, withFolded } from "./text";
 
 /**
  * Güçlü onarım ifadesi: kullanıcının bir önceki cevabın işe yaramadığını söylediği mesaj
@@ -8,27 +8,33 @@ import { normalizeText } from "./text";
  * iki tarafın aynı cevabı verdiğini kontrol eder.
  */
 
-const words = new Set<string>(rules.words);
+// Listeler Türkçe karaktersiz yazımı da kapsar ("yanlis", "olmadi").
+const words = new Set<string>(withFolded(rules.words));
 /** Yalnızca kısa mesajlarda sayılan kelime ve ifadeler ("still", "is not", "yine"): uzun metinde ayırt etmiyorlar. */
-const limitedWords = new Set<string>(rules.limited_words.words);
+const limitedWords = new Set<string>(withFolded(rules.limited_words.words));
+const limitedPhrases = withFolded(rules.limited_words.phrases);
+const prefixes = withFolded(rules.prefixes);
+const phrases = withFolded(rules.phrases);
+const startsWith = withFolded(rules.starts_with);
 
 function matchNormalized(normalized: string): boolean {
   const tokens = normalized.split(" ").filter((w) => w !== "");
   if (tokens.some((w) => words.has(w))) return true;
-  if (tokens.some((w) => rules.prefixes.some((p) => w.startsWith(p)))) return true;
+  if (tokens.some((w) => prefixes.some((p) => w.startsWith(p)))) return true;
   const padded = ` ${normalized} `;
-  if (rules.phrases.some((p) => padded.includes(` ${p} `))) return true;
+  if (phrases.some((p) => padded.includes(` ${p} `))) return true;
   if (tokens.length < rules.limited_words.max_words) {
     if (tokens.some((w) => limitedWords.has(w))) return true;
-    if (rules.limited_words.phrases.some((p) => padded.includes(` ${p} `))) return true;
+    if (limitedPhrases.some((p) => padded.includes(` ${p} `))) return true;
   }
   const head = tokens[0];
-  return head !== undefined && rules.starts_with.includes(head);
+  return head !== undefined && startsWith.includes(head);
 }
 
 export function hasStrongRepair(text: string): boolean {
   const raw = text ?? "";
   if (rules.markers.some((m) => raw.includes(m))) return true;
   // Türkçe kural "I"yı "ı" yapar ("HAYIR" -> "hayır"); İngilizce "I said" için ikinci deneme.
-  return matchNormalized(normalizeText(raw)) || matchNormalized(normalizeText(raw.replace(/I/g, "i")));
+  const tr = normalizeText(raw);
+  return matchNormalized(tr) || matchNormalized(normalizeText(raw.replace(/I/g, "i"))) || matchNormalized(foldTurkish(tr));
 }

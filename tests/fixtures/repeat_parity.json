@@ -7,7 +7,8 @@
    "liste"
   ],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "Bana bir e-posta yaz, toplantıyı erteleyelim",
@@ -17,7 +18,8 @@
    "erteleyelim"
   ],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "1. soruyu çöz",
@@ -27,7 +29,8 @@
    "1"
   ],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "What is the capital of France?",
@@ -37,7 +40,8 @@
    "france"
   ],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "hala çalışmıyor ya",
@@ -45,7 +49,8 @@
   "similarity": 0.912871,
   "new_content": [],
   "repeat": true,
-  "variation": false
+  "variation": false,
+  "hold": true
  },
  {
   "new": "Bu e-postayı daha resmi bir dille yeniden yaz lütfen",
@@ -53,7 +58,8 @@
   "similarity": 0.933157,
   "new_content": [],
   "repeat": true,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "Bu kodu düzeltir misin, çalışmıyor",
@@ -61,7 +67,8 @@
   "similarity": 0.81325,
   "new_content": [],
   "repeat": true,
-  "variation": false
+  "variation": false,
+  "hold": true
  },
  {
   "new": "bu fonksiyonu açıkla lütfen tekrar",
@@ -69,7 +76,8 @@
   "similarity": 0.766965,
   "new_content": [],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "Translate this paragraph into English please",
@@ -77,7 +85,8 @@
   "similarity": 0.920775,
   "new_content": [],
   "repeat": true,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "Bu metni özetle 3 madde",
@@ -87,7 +96,8 @@
    "3"
   ],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "İSTANBUL'DA HAFTA SONU NE YAPILIR",
@@ -95,7 +105,8 @@
   "similarity": 1.0,
   "new_content": [],
   "repeat": true,
-  "variation": false
+  "variation": false,
+  "hold": true
  },
  {
   "new": "Is it working now? Fix the import error",
@@ -105,7 +116,8 @@
    "working"
   ],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "Describe the personalities of all the ninth graders",
@@ -115,7 +127,8 @@
    "ninth"
   ],
   "repeat": false,
-  "variation": false
+  "variation": false,
+  "hold": false
  },
  {
   "new": "sonraki soruyu sor",
@@ -123,7 +136,8 @@
   "similarity": 1.0,
   "new_content": [],
   "variation": true,
-  "repeat": false
+  "repeat": false,
+  "hold": false
  },
  {
   "new": "bir soru daha sor",
@@ -131,7 +145,8 @@
   "similarity": 1.0,
   "new_content": [],
   "variation": true,
-  "repeat": false
+  "repeat": false,
+  "hold": false
  },
  {
   "new": "Bana fotosentez hakkında 5 soruluk farklı bir test hazırla",
@@ -141,7 +156,8 @@
    "farklı"
   ],
   "variation": true,
-  "repeat": false
+  "repeat": false,
+  "hold": false
  },
  {
   "new": "diğer iş fikirleri",
@@ -149,7 +165,8 @@
   "similarity": 1.0,
   "new_content": [],
   "variation": true,
-  "repeat": false
+  "repeat": false,
+  "hold": false
  },
  {
   "new": "give me more ideas like this",
@@ -157,7 +174,8 @@
   "similarity": 1.0,
   "new_content": [],
   "variation": true,
-  "repeat": false
+  "repeat": false,
+  "hold": false
  },
  {
   "new": "cevabım C şıkkı",
@@ -167,7 +185,8 @@
    "c"
   ],
   "variation": false,
-  "repeat": false
+  "repeat": false,
+  "hold": false
  },
  {
   "new": "cevabım A şıkkı",
@@ -177,7 +196,8 @@
    "a"
   ],
   "variation": false,
-  "repeat": false
+  "repeat": false,
+  "hold": false
  },
  {
   "new": "başka bir yol göster hala çalışmıyor",
@@ -185,7 +205,8 @@
   "similarity": 1.0,
   "new_content": [],
   "variation": false,
-  "repeat": true
+  "repeat": true,
+  "hold": true
  },
  {
   "new": "bana motivasyon sözü yaz",
@@ -193,7 +214,8 @@
   "similarity": 1.0,
   "new_content": [],
   "variation": false,
-  "repeat": true
+  "repeat": true,
+  "hold": true
  },
  {
   "new": "Excel'de iki sütunu karşılaştırıp farklı olanları sarıya boyayan ve yanına açıklama yazan bir formül hazırlar mısın bana lütfen",
@@ -201,7 +223,8 @@
   "similarity": 1.0,
   "new_content": [],
   "repeat": true,
-  "variation": true
+  "variation": true,
+  "hold": true
  },
  {
   "new": "başka bir slogan öner",
@@ -209,6 +232,43 @@
   "similarity": 1.0,
   "new_content": [],
   "repeat": false,
-  "variation": true
+  "variation": true,
+  "hold": false
+ },
+ {
+  "new": "baska bir fikir ver",
+  "previous": "baska bir fikir ver",
+  "similarity": 1.0,
+  "new_content": [],
+  "repeat": false,
+  "variation": true,
+  "hold": false
+ },
+ {
+  "new": "yanlis olmadi yine baska yaz",
+  "previous": "yanlis olmadi yine baska yaz",
+  "similarity": 1.0,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": true
+ },
+ {
+  "new": "Bu e-postayı daha resmi bir dille yeniden yaz lütfen",
+  "previous": "Bu e-postayı daha resmi bir dille yeniden yaz",
+  "similarity": 0.933157,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "hala hata veriyor, şu kodu düzelt lütfen",
+  "previous": "hala hata veriyor şu kodu düzelt",
+  "similarity": 0.919272,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": true
  }
 ]

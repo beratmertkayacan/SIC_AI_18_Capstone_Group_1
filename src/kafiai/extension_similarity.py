@@ -41,6 +41,23 @@ def normalize_text(text):
     return _SPACES.sub(" ", "".join(kept)).strip()
 
 
+_FOLD = str.maketrans("çğıöşüâîû", "cgiosuaiu")
+
+
+def fold_turkish(normalized):
+    """Türkçe karakterleri düz harfe indirir ("yanlış" -> "yanlis"); `text.ts` foldTurkish ile aynı.
+
+    Birçok kullanıcı Türkçe klavye olmadan yazıyor. Kural listeleri bu yazımı da tanısın diye
+    eşleştirmede ikinci biçim olarak kullanılır.
+    """
+    return normalized.translate(_FOLD)
+
+
+def with_folded(items):
+    """Kural listesine her ifadenin Türkçe karaktersiz hâlini de ekler (sıra korunur, tekrar yok)."""
+    return list(dict.fromkeys(list(items) + [fold_turkish(i) for i in items]))
+
+
 def _fnv1a(chunk):
     """32 bitlik FNV-1a; JavaScript'teki Math.imul ile aynı sonucu verir."""
     value = 0x811C9DC5
@@ -82,24 +99,26 @@ def is_comparable(text):
 _REPEAT_RULES = json.loads(
     (Path(__file__).resolve().parents[2] / "extension" / "src" / "data" / "repeat-rules.json").read_text(encoding="utf-8")
 )
-_FILLER = set(_REPEAT_RULES["filler"])
+_FILLER = set(with_folded(_REPEAT_RULES["filler"]))
 
 
 _CHOICE = set(_REPEAT_RULES["choice_letters"])
 _VARIATION = _REPEAT_RULES["variation"]
-_VARIATION_WORDS = set(_VARIATION["words"])
+_VARIATION_WORDS = set(with_folded(_VARIATION["words"]))
+_VARIATION_PREFIXES = with_folded(_VARIATION["prefixes"])
+_VARIATION_PHRASES = with_folded(_VARIATION["phrases"])
 
 
 def has_variation_cue(text):
     """Varyasyon işareti: yeni bir örnek isteği ("başka", "sonraki", "bir tane daha", "more", "next")."""
-    normalized = normalize_text(text)
+    normalized = fold_turkish(normalize_text(text))  # "baska fikir" de sayılır
     tokens = normalized.split()
     if any(t in _VARIATION_WORDS for t in tokens):
         return True
-    if any(t.startswith(p) for t in tokens for p in _VARIATION["prefixes"]):
+    if any(t.startswith(p) for t in tokens for p in _VARIATION_PREFIXES):
         return True
     padded = f" {normalized} "
-    return any(f" {p} " in padded for p in _VARIATION["phrases"])
+    return any(f" {p} " in padded for p in _VARIATION_PHRASES)
 
 
 def is_variation(text, score=0.0):
@@ -147,3 +166,15 @@ def is_repeat(new_text, previous_text, threshold=None):
     limit = EXT_SIMILARITY_THRESHOLD if threshold is None else threshold
     score = similarity(new_text, previous_text)
     return score >= limit and not new_content(new_text, previous_text) and not is_variation(new_text, score)
+
+
+def holds_send(new_text, previous_text):
+    """Gönderimi bekleten şerit: tekrar kuralı geçer ve ya birebir tekrardır ya da güçlü onarım ifadesi taşır.
+
+    Birebir olmayan yeniden yazımlar halka ve çıkış kartı için benzer sayılır ama gönderim bekletilmez
+    (repeat-rules.json, hold_note; eklentide RepeatDetector.check().hold).
+    """
+    from kafiai.text import has_strong_repair
+    if not is_repeat(new_text, previous_text):
+        return False
+    return similarity(new_text, previous_text) >= _REPEAT_RULES["hold_exact_similarity"] or has_strong_repair(new_text)

@@ -70,6 +70,12 @@ def test_strong_repair_and_loop_label_v2():
     assert not has_strong_repair("they do the same thing every morning")
     # ikinci genişletme: hata adları her uzunlukta, "is not" gibi ifadeler yalnızca kısa mesajda
     assert has_strong_repair("TypeError: x is undefined")
+    # Türkçe klavye olmadan yazılan mesajlar da tanınır
+    assert has_strong_repair("olmadi yine yanlis")
+    assert has_strong_repair("hala calismiyor")
+    assert not has_strong_repair("bunu ingilizceye cevir")
+    assert has_strong_repair("ama cevap 3200 diyor")
+    assert has_strong_repair("pull komutundan sonra düzelmedi")
     assert has_strong_repair("are you sure about that?")
     assert has_strong_repair("this is not what the table shows")
     assert not has_strong_repair("the hero is not afraid and " + "lorem ipsum dolor sit amet " * 12)
