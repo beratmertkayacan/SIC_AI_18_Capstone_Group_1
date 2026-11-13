@@ -5,11 +5,11 @@
       "n": 83616,
       "positives": 5221,
       "base_rate": 0.0624,
-      "flagged": 6780,
-      "precision": 0.0827,
-      "recall": 0.1075,
-      "f1": 0.0935,
-      "lift": 1.3252
+      "flagged": 7348,
+      "precision": 0.0885,
+      "recall": 0.1245,
+      "f1": 0.1034,
+      "lift": 1.4167
     },
     "message_any_repair_v1": {
       "n": 83616,
@@ -25,11 +25,11 @@
       "n": 11433,
       "positives": 917,
       "base_rate": 0.0802,
-      "flagged": 1029,
-      "precision": 0.1788,
-      "recall": 0.2007,
-      "f1": 0.1891,
-      "lift": 2.2294
+      "flagged": 1193,
+      "precision": 0.1752,
+      "recall": 0.2279,
+      "f1": 0.1981,
+      "lift": 2.1842
     },
     "note": "Görev odaklı diyaloglar (otel, restoran, ulaşım); alan farklı, tamamlayıcı kanıt."
   },
@@ -77,27 +77,27 @@
         ]
       },
       "any_strong_repair": {
-        "n": 305,
-        "rate": 0.2623,
+        "n": 378,
+        "rate": 0.2751,
         "ci": [
-          0.2098,
-          0.3115
+          0.2328,
+          0.3201
         ]
       },
       "no_strong_repair": {
-        "n": 1460,
-        "rate": 0.2966,
+        "n": 1387,
+        "rate": 0.2949,
         "ci": [
-          0.2719,
-          0.3199
+          0.2703,
+          0.3187
         ]
       },
       "loop_outcome_dongu": {
-        "n": 41,
-        "rate": 0.3171,
+        "n": 53,
+        "rate": 0.3208,
         "ci": [
-          0.1945,
-          0.4634
+          0.2075,
+          0.4528
         ]
       }
     },
@@ -106,15 +106,15 @@
         "n": 4105,
         "rate": 0.2256,
         "ci": [
-          0.2119,
-          0.2385
+          0.2117,
+          0.2378
         ]
       },
       "2": {
         "n": 1069,
         "rate": 0.2638,
         "ci": [
-          0.2367,
+          0.2385,
           0.2891
         ]
       },
@@ -123,14 +123,14 @@
         "rate": 0.3164,
         "ci": [
           0.2773,
-          0.3535
+          0.3516
         ]
       },
       "5+": {
         "n": 184,
         "rate": 0.375,
         "ci": [
-          0.3043,
+          0.3098,
           0.4457
         ]
       }
@@ -148,14 +148,14 @@
         "n": 2788,
         "rate": 0.2783,
         "ci": [
-          0.2618,
-          0.2941
+          0.2622,
+          0.2938
         ]
       }
     },
     "turn_model_auc_for_wrong": {
       "n": 1765,
-      "auc": 0.48
+      "auc": 0.4811
     },
     "note": "Kullanıcılar çoktan seçmeli sorular çözüyor; görev bizim kullanım alanımızdan dar. İlişki nedensel değil: zor sorular hem uzun sohbete hem yanlış cevaba yol açabilir."
   }

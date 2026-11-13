@@ -9,22 +9,22 @@
       "sonraki_turda_dsat_yuzde": 6.2
     },
     "kisa_diger": {
-      "tur": 12634,
-      "tur_yuzde": 3.01,
-      "bu_turda_dsat_yuzde": 5.8,
-      "sonraki_turda_dsat_yuzde": 5.5
+      "tur": 12589,
+      "tur_yuzde": 3.0,
+      "bu_turda_dsat_yuzde": 5.6,
+      "sonraki_turda_dsat_yuzde": 5.4
     },
     "kisa_ayni_tekrar": {
-      "tur": 3486,
+      "tur": 3482,
       "tur_yuzde": 0.83,
-      "bu_turda_dsat_yuzde": 4.9,
+      "bu_turda_dsat_yuzde": 4.8,
       "sonraki_turda_dsat_yuzde": 4.4
     },
     "kisa_onarim": {
-      "tur": 924,
-      "tur_yuzde": 0.22,
-      "bu_turda_dsat_yuzde": 45.7,
-      "sonraki_turda_dsat_yuzde": 24.9
+      "tur": 978,
+      "tur_yuzde": 0.23,
+      "bu_turda_dsat_yuzde": 46.5,
+      "sonraki_turda_dsat_yuzde": 25.4
     },
     "kisa_cikis": {
       "tur": 637,
@@ -33,10 +33,10 @@
       "sonraki_turda_dsat_yuzde": 2.8
     },
     "kisa_belirsiz": {
-      "tur": 357,
-      "tur_yuzde": 0.09,
-      "bu_turda_dsat_yuzde": 7.6,
-      "sonraki_turda_dsat_yuzde": 5.7
+      "tur": 352,
+      "tur_yuzde": 0.08,
+      "bu_turda_dsat_yuzde": 6.8,
+      "sonraki_turda_dsat_yuzde": 4.8
     }
   }
 }

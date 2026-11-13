@@ -12,7 +12,7 @@
   "n_labelable": 56718,
   "n_users": 56718,
   "k_turns": 2,
-  "positive_rate_pct": 7.01,
+  "positive_rate_pct": 11.52,
   "positive_rate_v1_pct": 14.63,
   "positive_by_reason_v1_pct": {
     "repeat_rule": 13.87,
