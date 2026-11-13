@@ -8,7 +8,8 @@ memnuniyetsiz olduğu turlarla (DSAT) karşılaştırılır.
 İki politika karşılaştırılır:
     once   main dalındaki davranış (varyasyon kuralı ve sohbet sinyalleri yok)
     sonra  varyasyon isteği, son mesajlara bakan halka, döngüden çıkış, özür döngüsü,
-           belirsiz istek ve konu kayması (K31, K32); uzun sohbet kartı için döngü işareti (K33)
+           belirsiz istek ve konu kayması (K31, K32); uzun sohbet kartı için iki döngü işareti
+           birlikte: yakın zamanda benzer mesaj ve modelin öneri seviyesi
 
 Ölçütler (her biri hem "once" hem "sonra" için):
     şerit       100 sohbette kaç kez; isabet = şerit çıkan mesajda kullanıcı memnuniyetsiz mi
@@ -128,7 +129,7 @@ def replay(msgs, answers, model, reasons, policy, predictions=None):
                 card = "model"
             elif after and signals.apology_streak >= config.EXT_APOLOGY_CARD_STREAK:
                 card = "ozur"
-            elif n >= min_turns and (repeats >= config.EXT_EXIT_CARD_MIN_REPEATS or (after and suggest)):
+            elif n >= min_turns and repeats >= config.EXT_EXIT_CARD_MIN_REPEATS and (suggest or not after):
                 card = "norm"
         if card:
             quiet_until = n + config.EXT_EXIT_CARD_COOLDOWN_TURNS

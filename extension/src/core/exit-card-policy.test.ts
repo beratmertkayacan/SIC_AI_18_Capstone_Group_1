@@ -11,19 +11,19 @@ describe("ExitCardPolicy", () => {
 
   it("tekrar denemesi var ama sohbet kısaysa göstermez", () => {
     const p = new ExitCardPolicy();
-    p.setRepeats(1);
+    p.setRepeats(2);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS - 1)).toBe(false);
   });
 
   it("tur sınırına ulaşıp tekrar denemesi olduysa gösterir", () => {
     const p = new ExitCardPolicy();
-    p.setRepeats(1);
+    p.setRepeats(2);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(true);
   });
 
   it("kapatılınca bekleme süresi boyunca göstermez, sonra yine gösterir", () => {
     const p = new ExitCardPolicy();
-    p.setRepeats(1);
+    p.setRepeats(2);
     p.dismissed(EXIT_CARD_MIN_TURNS);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS + 1)).toBe(false);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS + EXIT_CARD_COOLDOWN_TURNS - 1)).toBe(false);
@@ -32,11 +32,11 @@ describe("ExitCardPolicy", () => {
 
   it("reset() her şeyi sıfırlar", () => {
     const p = new ExitCardPolicy();
-    p.setRepeats(1);
+    p.setRepeats(2);
     p.dismissed(EXIT_CARD_MIN_TURNS);
     p.reset();
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(false); // tekrar denemesi de silindi
-    p.setRepeats(1);
+    p.setRepeats(2);
     expect(p.shouldShow(EXIT_CARD_MIN_TURNS)).toBe(true);
   });
 });
@@ -47,7 +47,7 @@ describe("ExitCardPolicy görev normları", () => {
     p.setTask("ceviri");
     const norm = taskNorm("ceviri")!;
     expect(p.minTurns).toBe(Math.floor(norm.p90_turns) + 1);
-    p.setRepeats(1);
+    p.setRepeats(2);
     expect(p.shouldShow(p.minTurns - 1)).toBe(false);
     expect(p.shouldShow(p.minTurns)).toBe(true);
   });
@@ -109,12 +109,13 @@ describe("ExitCardPolicy tetiklenme kaynağı", () => {
   it("model yolu norm yolundan önce gelir; bekleme süresi kaynağı değiştirmez", () => {
     const p = new ExitCardPolicy();
     expect(p.triggerSource(3)).toBeNull();
-    p.setRepeats(1);
+    p.setRepeats(2);
     expect(p.triggerSource(p.minTurns)).toBe("norm");
     p.noteRisk("yuksek", p.minTurns);
     expect(p.triggerSource(p.minTurns)).toBe("model");
     p.dismissed(p.minTurns);
     expect(p.inCooldown(p.minTurns + 1)).toBe(true);
+    p.noteRisk("oneri", p.minTurns + 1);
     expect(p.triggerSource(p.minTurns + 1)).toBe("norm");
     expect(p.shouldShow(p.minTurns + 1)).toBe(false);
   });
@@ -134,7 +135,7 @@ describe("ExitCardPolicy: sohbet sinyalleri (K32)", () => {
 
   it("döngüden çıkış ya da konu değişimi eski tekrarların kartı açmasını engeller", () => {
     const p = new ExitCardPolicy();
-    p.setRepeats(1);
+    p.setRepeats(2);
     expect(p.triggerSource(p.minTurns)).toBe("norm");
     p.clearRepeats();
     expect(p.triggerSource(p.minTurns)).toBeNull();
@@ -142,20 +143,29 @@ describe("ExitCardPolicy: sohbet sinyalleri (K32)", () => {
 });
 
 describe("ExitCardPolicy: uzun sohbette döngü işareti (K33)", () => {
-  it("tur sınırı tek başına yetmez; modelin öneri seviyesi ya da yakın benzer mesaj gerekir", () => {
+  it("model çalışıyorsa tur sınırından sonra iki işaret birlikte gerekir: benzer mesaj ve öneri seviyesi", () => {
     const p = new ExitCardPolicy();
     expect(p.triggerSource(p.minTurns)).toBeNull();
     p.noteRisk("oneri", p.minTurns);
+    expect(p.triggerSource(p.minTurns)).toBeNull(); // yalnızca öneri yetmez
+    p.setRepeats(1);
     expect(p.triggerSource(p.minTurns)).toBe("norm");
     expect(p.triggerSource(p.minTurns + 1)).toBeNull(); // öneri yalnızca o turda geçerli
+    p.noteRisk("dusuk", p.minTurns + 1);
+    expect(p.triggerSource(p.minTurns + 1)).toBeNull(); // yalnızca benzer mesaj yetmez
+  });
+
+  it("model çalışmıyorsa iki benzer mesaj gerekir", () => {
+    const p = new ExitCardPolicy();
     p.setRepeats(1);
-    expect(p.triggerSource(p.minTurns + 1)).toBe("norm");
-    p.setRepeats(0);
-    expect(p.triggerSource(p.minTurns + 1)).toBeNull();
+    expect(p.triggerSource(p.minTurns)).toBeNull();
+    p.setRepeats(2);
+    expect(p.triggerSource(p.minTurns)).toBe("norm");
   });
 
   it("öneri seviyesi tur sınırından önce kart açmaz", () => {
     const p = new ExitCardPolicy();
+    p.setRepeats(2);
     p.noteRisk("oneri", 2);
     expect(p.triggerSource(2)).toBeNull();
   });

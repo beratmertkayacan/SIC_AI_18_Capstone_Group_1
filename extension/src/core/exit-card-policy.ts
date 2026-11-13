@@ -1,4 +1,10 @@
-import { APOLOGY_CARD_STREAK, EXIT_CARD_COOLDOWN_TURNS, EXIT_CARD_MIN_REPEATS, EXIT_CARD_MIN_TURNS } from "../config";
+import {
+  APOLOGY_CARD_STREAK,
+  EXIT_CARD_COOLDOWN_TURNS,
+  EXIT_CARD_MIN_REPEATS,
+  EXIT_CARD_MIN_REPEATS_NO_MODEL,
+  EXIT_CARD_MIN_TURNS,
+} from "../config";
 import { taskNorm, type TaskNorm, type TaskType } from "./tasks";
 import type { RiskLevel } from "./turn-model";
 
@@ -10,11 +16,12 @@ import type { RiskLevel } from "./turn-model";
  * %90'ı kaç turda bitiyorsa, kart bir sonraki turda açılabilir. Görev türü bilinmiyorsa
  * EXIT_CARD_MIN_TURNS kullanılır.
  *
- * Tur sınırı geçildiğinde kart için bir döngü işareti de gerekir: son dört mesajdan biri öncekine
- * çok benziyor (src/core/signals.ts) ya da model o turda öneri seviyesinde. Çevrimdışı
- * değerlendirmede (scripts/evaluate_replay.py, K33) eski koşul ("sohbette bir kez yumuşak tekrar")
- * uzun sohbetlerde memnuniyetsizliği rastgeleden iyi ayırmıyordu (%6,3, taban %6,6); yeni koşul
- * yaklaşık %11.
+ * Tur sınırı geçildiğinde kart için iki döngü işareti birlikte gerekir: son dört mesajdan biri
+ * öncekine çok benziyor (src/core/signals.ts) ve model o turda en az öneri seviyesinde. Çevrimdışı
+ * değerlendirmede (scripts/evaluate_replay.py) işaretlerden yalnızca biri yeterliyken bu yolun
+ * isabeti %9 idi (taban %5); ikisi birlikte arandığında %26. Model bu sohbette çalışmıyorsa
+ * (geçmişin başı okunamadı ya da platformda model kapalı) onun yerine en az
+ * EXIT_CARD_MIN_REPEATS_NO_MODEL benzer mesaj aranır.
  *
  * İkinci yol tur modeli: kullanıcının son mesajından sonra model yüksek risk tahmin ettiyse
  * (src/core/turn-model.ts), kart tur sınırını beklemeden o turun sonunda açılabilir. Üçüncü yol
@@ -27,6 +34,8 @@ export class ExitCardPolicy {
   private highRiskTurn = -1;
   private suggestTurn = -1;
   private apologyTurn = -1;
+  /** Tur modeli bu sohbette en az bir tahmin yaptı mı? */
+  private modelSeen = false;
 
   /** Sohbetin ilk mesajından tahmin edilen görev türü. Yalnızca ilk kez çağrıldığında etkili olur. */
   setTask(task: TaskType): void {
@@ -65,6 +74,7 @@ export class ExitCardPolicy {
 
   /** Tur modelinin bu turdaki tahmini. Yalnızca "yuksek" seviye kartı açabilir. */
   noteRisk(level: RiskLevel, turns: number): void {
+    this.modelSeen = true;
     if (level === "yuksek") this.highRiskTurn = turns;
     if (level === "yuksek" || level === "oneri") this.suggestTurn = turns;
   }
@@ -86,9 +96,10 @@ export class ExitCardPolicy {
     return null;
   }
 
-  /** Tur sınırı geçildi ve bir döngü işareti var (yakın zamanda benzer mesaj ya da modelin öneri seviyesi). */
+  /** Tur sınırı geçildi, yakın zamanda benzer mesaj var ve model de en az öneri seviyesinde. */
   private longAndLooping(turns: number): boolean {
-    return turns >= this.minTurns && (this.repeats >= EXIT_CARD_MIN_REPEATS || this.suggestTurn === turns);
+    if (turns < this.minTurns || this.repeats < EXIT_CARD_MIN_REPEATS) return false;
+    return this.modelSeen ? this.suggestTurn === turns : this.repeats >= EXIT_CARD_MIN_REPEATS_NO_MODEL;
   }
 
   /** Kart kısa süre önce kapatıldı ya da yok sayıldı; bekleme süresi dolmadı. */
@@ -113,5 +124,6 @@ export class ExitCardPolicy {
     this.highRiskTurn = -1;
     this.suggestTurn = -1;
     this.apologyTurn = -1;
+    this.modelSeen = false;
   }
 }
