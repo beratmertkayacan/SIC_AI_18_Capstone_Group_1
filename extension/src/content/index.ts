@@ -82,6 +82,8 @@ function main(): boolean {
   /** Bu sohbette halkanın ulaştığı en yüksek seviye (sayaç tekrarını önlemek için) */
   let ringPeak = 0;
   let ringExplained = false;
+  /** Konsola yazılan son halka seviyesi; elle doğrulamada seviye değişimini tek satırda görmek için */
+  let ringLogged = 0;
 
   // Ayarlar yüklenene kadar (null) eklenti hiçbir şey yapmaz.
   let settings: Settings | null = null;
@@ -235,6 +237,15 @@ function main(): boolean {
       shortRepair: signals.shortRepair,
     };
     const level = ringLevel(ringSignals);
+    if (level !== ringLogged) {
+      // Yalnızca sayılar yazılır; mesaj metni günlüğe girmez.
+      console.log(
+        `[KafiAI] halka: seviye ${ringLogged} → ${level} (benzer ${ringSignals.similarCount}, özür ${ringSignals.apologyStreak}, ` +
+          `belirsiz ${ringSignals.vagueStreak}, kısa tekrar ${ringSignals.shortRepeatStreak}, ` +
+          `kısa onarım ${ringSignals.shortRepair ? "evet" : "hayır"}, model ${ringSignals.prediction?.level ?? "yok"})`,
+      );
+      ringLogged = level;
+    }
     ring.update(composer.anchor, level, ringText(ringSignals), () => {
       if (ringExplained) return;
       ringExplained = true;
@@ -399,7 +410,8 @@ function main(): boolean {
       // Kısa onarım ("olmadı", "yanlış"): tekrar değil ama neyin olmadığını söylemiyor.
       // İlk mesajda anlamı yok; önce bir cevap gelmiş olmalı.
       const shortRepair = !check.similar && session.turns > 0 && isShortRepair(text);
-      if (!check.similar && !shortRepair) {
+      // Birebir olmayan yeniden yazımda gönderim bekletilmez; halka ve kart yine de sayar.
+      if (!check.hold && !shortRepair) {
         skipNextCheck = false;
         return false;
       }
@@ -507,7 +519,9 @@ function main(): boolean {
         : check.tooShort
           ? `kısa, karşılaştırılmadı${signals.shortRepeatStreak > 1 ? ` (aynı kısa mesaj üst üste ${signals.shortRepeatStreak}. kez)` : ""}`
           : check.similar
-            ? "BENZER"
+            ? check.hold
+              ? "BENZER"
+              : "benzer yeniden yazım (bekletilmedi, halka ve kart için sayıldı)"
             : check.variation
               ? "varyasyon isteği"
               : "farklı";
@@ -561,6 +575,7 @@ function main(): boolean {
     ring.hide();
     ringPeak = 0;
     ringExplained = false;
+    ringLogged = 0;
     policy.reset();
     userTexts = [];
     hiddenTurns = 0;

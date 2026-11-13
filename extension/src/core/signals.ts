@@ -3,7 +3,7 @@ import rules from "../data/signal-rules.json";
 import { cosine, ngramVector } from "./similarity";
 import { hasStrongRepair } from "./strong-repair";
 import { taskType, type TaskType } from "./tasks";
-import { normalizeText } from "./text";
+import { foldTurkish, normalizeText, withFolded } from "./text";
 
 /**
  * Sohbet sinyalleri (karar K32). Tekrar dedektörünün ötesinde, bir sohbetin gidişini anlatan dört
@@ -19,18 +19,23 @@ import { normalizeText } from "./text";
  * Kurallar src/data/signal-rules.json dosyasında; Python ikizi src/kafiai/signals.py.
  */
 
-const EXIT_WORDS = new Set<string>(rules.exit.words);
-const VAGUE_CORE = new Set<string>(rules.vague.core);
-const VAGUE_ALLOWED = new Set<string>([...rules.vague.allowed, ...rules.vague.core]);
+// Çıkış ve belirsiz istek listeleri Türkçe karaktersiz yazımı da kapsar ("tesekkurler", "kisalt").
+const EXIT_WORDS = new Set<string>([
+  ...withFolded(rules.exit.words.filter((w) => !rules.exit.fold_exclude.includes(w))),
+  ...rules.exit.fold_exclude,
+]);
+const EXIT_PHRASES = withFolded(rules.exit.phrases);
+const VAGUE_CORE = new Set<string>(withFolded(rules.vague.core));
+const VAGUE_ALLOWED = new Set<string>(withFolded([...rules.vague.allowed, ...rules.vague.core]));
 
 const tokensOf = (normalized: string) => normalized.split(" ").filter((t) => t !== "");
 
-/** Türkçe kuralla ve İngilizce "I" için ikinci kez sadeleştirilmiş iki biçim. */
+/** Türkçe kuralla, İngilizce "I" için ikinci kez ve Türkçe karaktersiz olarak sadeleştirilmiş biçimler. */
 function forms(text: string): string[] {
   const raw = text ?? "";
   const tr = normalizeText(raw);
   const en = normalizeText(raw.replace(/I/g, "i"));
-  return tr === en ? [tr] : [tr, en];
+  return [...new Set([tr, en, foldTurkish(tr)])];
 }
 
 /** Cevabın başında özür ya da "haklısınız" var mı? */
@@ -51,7 +56,7 @@ export function isExitMessage(text: string): boolean {
     if (tokens.length === 0 || tokens.length > rules.exit.max_words) return false;
     if (tokens.some((t) => EXIT_WORDS.has(t))) return true;
     const padded = ` ${n} `;
-    return rules.exit.phrases.some((p) => padded.includes(` ${p} `));
+    return EXIT_PHRASES.some((p) => padded.includes(` ${p} `));
   });
 }
 

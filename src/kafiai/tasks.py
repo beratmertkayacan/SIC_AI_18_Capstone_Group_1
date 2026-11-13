@@ -25,16 +25,18 @@ TASK_TYPES = _RULES["order"] + [_RULES["fallback"]]
 TASK_LABELS = _RULES["labels"]
 
 
-def _matches(rule, raw_lower, normalized, words):
+def _matches(rule, raw_lower, forms):
     if any(marker in raw_lower for marker in rule.get("markers", [])):
         return True
-    if any(word in words for word in rule.get("words", [])):
-        return True
-    if any(w.startswith(prefix) for w in words for prefix in rule.get("prefixes", [])):
-        return True
-    padded = f" {normalized} "
-    if any(f" {phrase} " in padded for phrase in rule.get("phrases", [])):
-        return True
+    for normalized in forms:
+        words = set(normalized.split())
+        if any(word in words for word in rule.get("words", [])):
+            return True
+        if any(w.startswith(prefix) for w in words for prefix in rule.get("prefixes", [])):
+            return True
+        padded = f" {normalized} "
+        if any(f" {phrase} " in padded for phrase in rule.get("phrases", [])):
+            return True
     return bool(rule.get("ends_with_question")) and raw_lower.rstrip().endswith("?")
 
 
@@ -42,9 +44,9 @@ def task_type(first_message):
     """İlk mesajın baş kısmına bakarak görev türünü döner."""
     head = (first_message or "")[:_RULES["head_chars"]]
     raw_lower = head.lower()
-    normalized = normalize_text(head)
-    words = set(normalized.split())
+    # Türkçe kural "I"yı "ı" yapar ("API" -> "apı"); İngilizce kısaltmalar için ikinci biçim.
+    forms = list(dict.fromkeys([normalize_text(head), normalize_text(head.replace("I", "i"))]))
     for name in _RULES["order"]:
-        if _matches(_RULES["rules"][name], raw_lower, normalized, words):
+        if _matches(_RULES["rules"][name], raw_lower, forms):
             return name
     return _RULES["fallback"]

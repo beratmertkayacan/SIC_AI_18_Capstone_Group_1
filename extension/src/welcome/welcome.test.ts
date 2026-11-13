@@ -30,7 +30,7 @@ describe("karşılama ekranı", () => {
     expect(text).toContain("Gönder'e bastığın anda");
     expect(text).toContain("Cevabın metnini okumaz");
     expect(text).toContain("Klavyede bastığın tuşlara");
-    expect(text).toContain("Hiçbir mesaj bilgisayarından çıkmaz");
+    expect(text).toContain("Hiçbir mesaj cihazından çıkmaz");
     expect(text).toContain("Mesaj metni kaydedilmez");
     expect(text).toContain("90 gün");
   });

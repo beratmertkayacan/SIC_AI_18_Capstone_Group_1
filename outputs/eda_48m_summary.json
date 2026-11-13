@@ -169,22 +169,22 @@
       "users": 4608,
       "median_turns": 6.0,
       "label_v1_pct": 11.02,
-      "label_v2_pct": 4.6,
+      "label_v2_pct": 6.58,
       "task_share_pct": {
-        "kod": 7.9,
+        "kod": 10.0,
         "ceviri": 1.2,
         "ozet": 0.6,
         "yazma": 6.7,
-        "soru": 13.5,
-        "diger": 70.3
+        "soru": 13.4,
+        "diger": 68.1
       },
       "label_v2_by_task_pct": {
-        "kod": 17.4,
-        "ceviri": 6.5,
-        "ozet": 6.4,
-        "yazma": 6.6,
-        "soru": 3.8,
-        "diger": 3.1
+        "kod": 22.2,
+        "ceviri": 5.4,
+        "ozet": 4.3,
+        "yazma": 7.7,
+        "soru": 6.8,
+        "diger": 4.2
       }
     },
     "48m": {
@@ -192,33 +192,33 @@
       "users": 12352,
       "median_turns": 6.0,
       "label_v1_pct": 10.24,
-      "label_v2_pct": 6.66,
+      "label_v2_pct": 9.02,
       "task_share_pct": {
-        "kod": 10.6,
+        "kod": 13.1,
         "ceviri": 1.0,
         "ozet": 0.5,
-        "yazma": 5.6,
-        "soru": 13.0,
-        "diger": 69.3
+        "yazma": 5.7,
+        "soru": 12.6,
+        "diger": 67.1
       },
       "label_v2_by_task_pct": {
-        "kod": 19.8,
-        "ceviri": 6.6,
-        "ozet": 8.3,
-        "yazma": 8.6,
-        "soru": 6.0,
-        "diger": 4.6
+        "kod": 26.7,
+        "ceviri": 5.2,
+        "ozet": 8.4,
+        "yazma": 8.7,
+        "soru": 8.0,
+        "diger": 5.8
       }
     }
   },
   "repair_by_turn": {
     "48m_strong_repair_all": {
-      "2": 3.85,
-      "3": 4.33,
-      "4-5": 4.63,
-      "6-10": 4.99,
-      "11-20": 6.28,
-      "21-40": 7.51
+      "2": 5.24,
+      "3": 6.03,
+      "4-5": 6.49,
+      "6-10": 6.87,
+      "11-20": 8.38,
+      "21-40": 9.81
     },
     "wildfeedback_dsat_all": {
       "2": 4.57,
@@ -230,37 +230,37 @@
     },
     "within_conversation": {
       "4.8M, en az 10 turlu": [
-        4.4,
-        5.04,
-        4.84,
-        5.13,
-        5.28,
-        5.21,
-        5.14,
-        5.03,
-        5.45
+        5.88,
+        6.7,
+        6.58,
+        7.39,
+        7.26,
+        7.05,
+        7.51,
+        6.95,
+        7.72
       ],
       "4.8M, en az 10 turlu (sohbet sayısı)": 5870,
       "4.8M, en az 20 turlu": [
-        5.06,
-        6.33,
-        5.94,
-        5.94,
-        6.13,
-        5.84,
-        6.13,
-        6.82,
-        6.52,
-        5.55,
         6.91,
-        6.04,
-        6.43,
-        6.52,
-        7.3,
+        8.96,
         7.69,
-        7.98,
-        7.21,
-        7.4
+        8.57,
+        8.28,
+        8.86,
+        9.44,
+        8.96,
+        9.54,
+        8.47,
+        8.96,
+        8.18,
+        8.37,
+        8.96,
+        9.44,
+        9.74,
+        10.03,
+        8.96,
+        9.15
       ],
       "4.8M, en az 20 turlu (sohbet sayısı)": 1027,
       "WildFeedback DSAT, en az 10 turlu": [

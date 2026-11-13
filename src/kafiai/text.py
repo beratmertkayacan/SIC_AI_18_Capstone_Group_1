@@ -13,7 +13,7 @@ import numpy as np
 from sklearn.feature_extraction.text import HashingVectorizer
 
 from kafiai.config import MAX_CHARS
-from kafiai.extension_similarity import normalize_text
+from kafiai.extension_similarity import fold_turkish, normalize_text, with_folded
 
 # Karakter n-gram tabanlı vektörleştirici. Eğitim gerektirmez (fit yok), bu yüzden
 # aynı sonuç tarayıcıda JavaScript ile de üretilebilir.
@@ -71,16 +71,31 @@ REPAIR_RULES_FILE = Path(__file__).resolve().parents[2] / "extension" / "src" / 
 REPAIR_RULES = json.loads(REPAIR_RULES_FILE.read_text(encoding="utf-8"))
 
 
+# Listeler Türkçe karaktersiz yazımı da kapsar ("yanlis", "olmadi"); strong-repair.ts ile aynı.
+_RW = set(with_folded(REPAIR_RULES["words"]))
+_RLW = set(with_folded(REPAIR_RULES["limited_words"]["words"]))
+_RLP = with_folded(REPAIR_RULES["limited_words"]["phrases"])
+_RPRE = with_folded(REPAIR_RULES["prefixes"])
+_RPH = with_folded(REPAIR_RULES["phrases"])
+_RSW = with_folded(REPAIR_RULES["starts_with"])
+
+
 def _repair_match(normalized):
     words = normalized.split()
-    if any(w in REPAIR_RULES["words"] for w in words):
+    if any(w in _RW for w in words):
         return True
-    if any(w.startswith(p) for w in words for p in REPAIR_RULES["prefixes"]):
+    # "still", "again", "yine": yalnızca kısa mesajlarda sayılır; uzun metinde ayırt etmiyorlar.
+    if len(words) < REPAIR_RULES["limited_words"]["max_words"]:
+        if any(w in _RLW for w in words):
+            return True
+        if any(f" {p} " in f" {normalized} " for p in _RLP):
+            return True
+    if any(w.startswith(p) for w in words for p in _RPRE):
         return True
     padded = f" {normalized} "
-    if any(f" {p} " in padded for p in REPAIR_RULES["phrases"]):
+    if any(f" {p} " in padded for p in _RPH):
         return True
-    return bool(words) and words[0] in REPAIR_RULES["starts_with"]
+    return bool(words) and words[0] in _RSW
 
 
 def has_strong_repair(text):
@@ -89,7 +104,8 @@ def has_strong_repair(text):
     if any(marker in raw for marker in REPAIR_RULES["markers"]):
         return True
     # Türkçe kural "I"yı "ı" yapar ("HAYIR" -> "hayır"); İngilizce "I said" için ikinci deneme.
-    return _repair_match(normalize_text(raw)) or _repair_match(normalize_text(raw.replace("I", "i")))
+    tr = normalize_text(raw)
+    return _repair_match(tr) or _repair_match(normalize_text(raw.replace("I", "i"))) or _repair_match(fold_turkish(tr))
 
 
 # Talep türü: kullanıcı işi doğrudan yaptırmak mı, yoksa anlamak mı istiyor?

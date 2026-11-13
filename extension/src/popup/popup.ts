@@ -105,7 +105,7 @@ export function mountPopup(
       sec.append(el("h2", undefined, "Bu sohbet"));
       for (const line of conversationLines(snap)) sec.append(el("p", undefined, line));
       if (snap.card_available) {
-        const go = el("button", "primary", "İstersen yeni sohbete geç");
+        const go = el("button", "primary", "Yeni sohbete geç");
         go.addEventListener("click", async () => {
           const ok = await tab.openCard();
           if (ok) window.close();
@@ -263,7 +263,7 @@ export function mountPopup(
     help.append(helpLink);
     sections.push(help);
     sections.push(
-      el("p", "privacy", "Hiçbir mesaj cihazından çıkmaz ve saklanmaz. Burada yalnızca üç ayar ve günlük sayılar tutulur."),
+      el("p", "privacy", "Hiçbir mesaj cihazından çıkmaz ve saklanmaz. Yalnızca ayarların ve günlük sayılar tutulur; sayılar 90 gün sonra silinir."),
     );
     root.replaceChildren(...sections);
   };

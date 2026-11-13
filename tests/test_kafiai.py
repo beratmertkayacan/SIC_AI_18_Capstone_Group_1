@@ -61,6 +61,24 @@ def test_strong_repair_and_loop_label_v2():
     assert has_strong_repair("still not working, same error")
     assert has_strong_repair("olmadı, hala aynı hata")
     assert not has_strong_repair("please make it shorter")
+    # "still", "again", "yine" yalnızca kısa mesajlarda sayılır (repair-rules.json, limited_words)
+    assert has_strong_repair("it still crashes")
+    assert has_strong_repair("yine olmuyor")
+    long_text = "the river is still and the story begins again " + "lorem ipsum dolor sit amet " * 12
+    assert not has_strong_repair(long_text)
+    assert has_strong_repair(long_text + " but this is wrong")
+    assert not has_strong_repair("they do the same thing every morning")
+    # ikinci genişletme: hata adları her uzunlukta, "is not" gibi ifadeler yalnızca kısa mesajda
+    assert has_strong_repair("TypeError: x is undefined")
+    # Türkçe klavye olmadan yazılan mesajlar da tanınır
+    assert has_strong_repair("olmadi yine yanlis")
+    assert has_strong_repair("hala calismiyor")
+    assert not has_strong_repair("bunu ingilizceye cevir")
+    assert has_strong_repair("ama cevap 3200 diyor")
+    assert has_strong_repair("pull komutundan sonra düzelmedi")
+    assert has_strong_repair("are you sure about that?")
+    assert has_strong_repair("this is not what the table shows")
+    assert not has_strong_repair("the hero is not afraid and " + "lorem ipsum dolor sit amet " * 12)
     stuck = ["fix my code", "here is the code", "it still gives an error", "same error again"]
     batch = ["list satellites starting with AA", "list satellites starting with AB",
              "list satellites starting with AC", "list satellites starting with AD"]

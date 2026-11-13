@@ -141,27 +141,91 @@
       "first_card_turn_median": 9.0
     }
   ],
-  "strip_precision_preliminary": null,
+  "strip_precision_preliminary": {
+    "n_labelled": 80,
+    "bin_precision": {
+      "0.5": 0.25,
+      "0.55": 0.0,
+      "0.6": 0.125,
+      "0.65": 0.25,
+      "0.7": 0.5,
+      "0.75": 0.5,
+      "0.8": 0.75,
+      "0.85": 0.75,
+      "0.9": 0.625,
+      "0.95": 1.0
+    },
+    "by_threshold": [
+      {
+        "threshold": 0.4,
+        "estimated_precision": 0.468
+      },
+      {
+        "threshold": 0.45,
+        "estimated_precision": 0.468
+      },
+      {
+        "threshold": 0.5,
+        "estimated_precision": 0.468
+      },
+      {
+        "threshold": 0.55,
+        "estimated_precision": 0.502
+      },
+      {
+        "threshold": 0.6,
+        "estimated_precision": 0.588
+      },
+      {
+        "threshold": 0.65,
+        "estimated_precision": 0.668
+      },
+      {
+        "threshold": 0.7,
+        "estimated_precision": 0.736
+      },
+      {
+        "threshold": 0.75,
+        "estimated_precision": 0.779
+      },
+      {
+        "threshold": 0.8,
+        "estimated_precision": 0.831
+      },
+      {
+        "threshold": 0.85,
+        "estimated_precision": 0.85
+      },
+      {
+        "threshold": 0.9,
+        "estimated_precision": 0.883
+      },
+      {
+        "threshold": 0.95,
+        "estimated_precision": 1.0
+      }
+    ]
+  },
   "task_norms": {
     "kod": {
       "label": "Kod yazma ve hata ayıklama",
-      "conversations": 1397,
+      "conversations": 1775,
       "median_turns": 3.0,
       "p75_turns": 5.0,
       "p90_turns": 8.0,
-      "share_pct": 7.4
+      "share_pct": 9.4
     },
     "ceviri": {
       "label": "Çeviri",
-      "conversations": 191,
-      "median_turns": 3.0,
+      "conversations": 188,
+      "median_turns": 3.5,
       "p75_turns": 6.0,
       "p90_turns": 10.0,
-      "share_pct": 1.01
+      "share_pct": 1.0
     },
     "ozet": {
       "label": "Özetleme",
-      "conversations": 140,
+      "conversations": 139,
       "median_turns": 3.0,
       "p75_turns": 4.0,
       "p90_turns": 8.0,
@@ -169,27 +233,27 @@
     },
     "yazma": {
       "label": "Metin yazma",
-      "conversations": 1466,
+      "conversations": 1487,
       "median_turns": 3.0,
       "p75_turns": 5.0,
       "p90_turns": 8.0,
-      "share_pct": 7.77
+      "share_pct": 7.88
     },
     "soru": {
       "label": "Soru ve açıklama",
-      "conversations": 2476,
+      "conversations": 2450,
       "median_turns": 3.0,
       "p75_turns": 5.0,
       "p90_turns": 9.0,
-      "share_pct": 13.12
+      "share_pct": 12.98
     },
     "diger": {
       "label": "Diğer",
-      "conversations": 13206,
+      "conversations": 12837,
       "median_turns": 3.0,
       "p75_turns": 5.0,
       "p90_turns": 8.0,
-      "share_pct": 69.96
+      "share_pct": 68.01
     }
   }
 }

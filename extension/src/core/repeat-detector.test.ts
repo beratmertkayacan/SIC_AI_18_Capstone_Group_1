@@ -42,6 +42,15 @@ describe("RepeatDetector", () => {
     expect(r.soft).toBe(true);
   });
 
+  it("birebir olmayan yeniden yazımda gönderimi bekletmez, birebir tekrarda ve onarımda bekletir", () => {
+    const d = new RepeatDetector();
+    d.remember("Bu e-postayı daha resmi bir dille yeniden yaz");
+    expect(d.check("Bu e-postayı daha resmi bir dille yeniden yaz lütfen").hold).toBe(false);
+    expect(d.check("Bu e-postayı daha resmi bir dille yeniden yaz").hold).toBe(true);
+    d.remember("hala hata veriyor şu kodu düzelt");
+    expect(d.check("hala hata veriyor, şu kodu düzelt lütfen").hold).toBe(true);
+  });
+
   it("farklı kelimelerle tekrarı durdurmaz, yalnızca yumuşak tekrar sayar", () => {
     const d = new RepeatDetector();
     d.remember("Bu e-postayı daha resmi bir dille yeniden yaz");
@@ -98,6 +107,7 @@ describe("şerit kuralı: yeni içerik getiren mesaj tekrar sayılmaz", () => {
       d.remember(row.previous);
       const r = d.check(row.new);
       expect([row.new, r.similar]).toEqual([row.new, row.repeat]);
+      expect([row.new, r.hold]).toEqual([row.new, row.hold]);
       expect([row.new, isVariation(row.new)]).toEqual([row.new, row.variation]);
       expect(newContent(normalizeText(row.new), rememberForTest(normalizeText(row.previous)))).toEqual(row.new_content);
     }

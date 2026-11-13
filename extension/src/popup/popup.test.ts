@@ -226,7 +226,7 @@ describe("popup", () => {
     window.close = () => void (closed = true);
     await open(tab);
     expect(root.textContent).toContain("Kod yazma ve hata ayıklama · 7 mesaj");
-    button("İstersen yeni sohbete geç").click();
+    button("Yeni sohbete geç").click();
     await flush();
     expect(calls.open).toBe(1);
     expect(closed).toBe(true);
@@ -237,7 +237,7 @@ describe("popup", () => {
     const { tab } = fakeTab(snap({ personal: true, card_available: false }));
     await open(tab);
     expect(root.textContent).toContain("Bu sohbette öneri göstermiyorum.");
-    expect(button("İstersen yeni sohbete geç")).toBeUndefined();
+    expect(button("Yeni sohbete geç")).toBeUndefined();
     expect(root.textContent).not.toContain("Kod yazma");
   });
 
@@ -248,7 +248,7 @@ describe("popup", () => {
 
   it("kart açılamazsa bunu söyler", async () => {
     await open(fakeTab(snap(), false).tab);
-    button("İstersen yeni sohbete geç").click();
+    button("Yeni sohbete geç").click();
     await flush();
     await flush();
     expect(root.textContent).toContain("Şu an açılamadı");

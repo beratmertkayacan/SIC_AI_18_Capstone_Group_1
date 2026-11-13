@@ -14,7 +14,9 @@
     "max_words": 12,
     "words": ["teşekkürler", "teşekkür", "sağol", "sağolun", "eyvallah", "süper", "harika", "mükemmel", "oldu", "çalıştı",
               "thanks", "thank", "thx", "perfect", "great", "awesome", "excellent", "worked"],
-    "phrases": ["teşekkür ederim", "sağ ol", "işe yaradı", "thank you", "it works", "that works", "works now", "it worked"]
+    "phrases": ["teşekkür ederim", "sağ ol", "işe yaradı", "thank you", "it works", "that works", "works now", "it worked"],
+    "fold_note": "Listeler Türkçe karaktersiz yazımı da kapsar ('tesekkurler', 'calisti'). fold_exclude'daki kelimelerin düz hâli eklenmez: 'süper' düzleşince İngilizce 'super' olur ve 'super bowl' gibi mesajları çıkış sanar.",
+    "fold_exclude": ["süper"]
   },
   "vague": {
     "note": "Kısa ve açıklamasız düzeltme isteği ('daha iyi yap', 'kısalt', 'better'). Neyin değişmesi gerektiğini söylemediği için model çoğu zaman tahmin ediyor. Seri üretim kelimeleri (başka, sonraki, devam) burada yok; onlar varyasyon isteği (repeat-rules.json).",

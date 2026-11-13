@@ -44,6 +44,8 @@ export const HISTORY_TIMEOUT_MS = 8_000; // bu sürede hiç mesaj görülmezse v
  */
 export const EXIT_CARD_MIN_TURNS = 9; // görev türü bilinmiyorsa en az bu kadar kullanıcı mesajı
 export const EXIT_CARD_MIN_REPEATS = 1; // bu sohbette en az bu kadar benzer mesaj denemesi
+/** Tur modeli çalışmıyorsa (geçmişin başı okunamadı) uzun sohbet kartı için gereken benzer mesaj sayısı. */
+export const EXIT_CARD_MIN_REPEATS_NO_MODEL = 2;
 /**
  * Cevaplar üst üste bu kadar kez özürle başlarsa çıkış kartı açılabilir (K32). WildFeedback'te iki
  * özürden sonra kullanıcının memnuniyetsizlik oranı %43,8 (tüm turlarda %5,9).

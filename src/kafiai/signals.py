@@ -10,22 +10,24 @@ import json
 from pathlib import Path
 
 from kafiai.config import EXT_MIN_NORMALIZED_CHARS
-from kafiai.extension_similarity import cosine, ngram_vector, normalize_text
+from kafiai.extension_similarity import cosine, fold_turkish, ngram_vector, normalize_text, with_folded
 from kafiai.tasks import task_type
 
 RULES = json.loads(
     (Path(__file__).resolve().parents[2] / "extension" / "src" / "data" / "signal-rules.json").read_text(encoding="utf-8")
 )
-_EXIT_WORDS = set(RULES["exit"]["words"])
-_VAGUE_CORE = set(RULES["vague"]["core"])
-_VAGUE_ALLOWED = set(RULES["vague"]["allowed"]) | _VAGUE_CORE
+# Çıkış ve belirsiz istek listeleri Türkçe karaktersiz yazımı da kapsar ("tesekkurler", "kisalt").
+_EXIT_WORDS = set(with_folded([w for w in RULES["exit"]["words"] if w not in RULES["exit"]["fold_exclude"]])) | set(RULES["exit"]["fold_exclude"])
+_EXIT_PHRASES = with_folded(RULES["exit"]["phrases"])
+_VAGUE_CORE = set(with_folded(RULES["vague"]["core"]))
+_VAGUE_ALLOWED = set(with_folded(RULES["vague"]["allowed"])) | _VAGUE_CORE
 
 
 def _forms(text):
     raw = text or ""
     tr = normalize_text(raw)
     en = normalize_text(raw.replace("I", "i"))
-    return [tr] if tr == en else [tr, en]
+    return list(dict.fromkeys([tr, en, fold_turkish(tr)]))
 
 
 def _strong_repair(text):
@@ -49,7 +51,7 @@ def is_exit_message(text):
             continue
         if any(t in _EXIT_WORDS for t in tokens):
             return True
-        if any(f" {p} " in f" {n} " for p in RULES["exit"]["phrases"]):
+        if any(f" {p} " in f" {n} " for p in _EXIT_PHRASES):
             return True
     return False
 

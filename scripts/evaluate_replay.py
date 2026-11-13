@@ -8,7 +8,9 @@ memnuniyetsiz olduğu turlarla (DSAT) karşılaştırılır.
 İki politika karşılaştırılır:
     once   main dalındaki davranış (varyasyon kuralı ve sohbet sinyalleri yok)
     sonra  varyasyon isteği, son mesajlara bakan halka, döngüden çıkış, özür döngüsü,
-           belirsiz istek ve konu kayması (K31, K32); uzun sohbet kartı için döngü işareti (K33)
+           belirsiz istek ve konu kayması (K31, K32); uzun sohbet kartı için iki döngü işareti
+           birlikte: yakın zamanda benzer mesaj ve modelin öneri seviyesi; gönderimi bekleten şerit
+           yalnızca birebir tekrarda ya da onarım ifadesinde
 
 Ölçütler (her biri hem "once" hem "sonra" için):
     şerit       100 sohbette kaç kez; isabet = şerit çıkan mesajda kullanıcı memnuniyetsiz mi
@@ -41,8 +43,9 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from kafiai import config  # noqa: E402
 from kafiai.extension_similarity import is_comparable, is_variation, new_content, similarity  # noqa: E402
-from kafiai.signals import ConversationSignals  # noqa: E402
+from kafiai.signals import RULES as SIGNAL_RULES, ConversationSignals  # noqa: E402
 from kafiai.tasks import task_type  # noqa: E402
+from kafiai.text import has_strong_repair  # noqa: E402
 from kafiai.turn_features import turn_features  # noqa: E402
 from kafiai.turn_model import load_model, load_reasons, predict  # noqa: E402
 
@@ -50,6 +53,7 @@ DATA = ROOT / "data" / "processed" / "wildfeedback_conversations.parquet"
 OUT = ROOT / "outputs" / "replay_eval.json"
 NORMS = json.loads((ROOT / "extension" / "src" / "data" / "task-norms.json").read_text(encoding="utf-8"))["norms"]
 MAX_CHARS = 4000
+HOLD_EXACT = json.loads((ROOT / "extension" / "src" / "data" / "repeat-rules.json").read_text(encoding="utf-8"))["hold_exact_similarity"]
 
 
 def min_turns_for(task):
@@ -58,10 +62,14 @@ def min_turns_for(task):
 
 
 def detector_flags(msgs, use_variation):
-    """Her mesaj için (benzer, yumuşak tekrar, varyasyon) kararları; tekrar dedektörüyle aynı kural."""
+    """Her mesaj için (benzer, yumuşak tekrar, varyasyon, gönderim bekletilir) kararları; tekrar dedektörüyle aynı kural.
+
+    "Bekletilir": benzer ve ya birebir tekrar (hold_exact_similarity) ya da güçlü onarım ifadesi. Eski
+    politikada (use_variation=False) şerit her benzer mesajda çıkıyordu.
+    """
     flags = []
     for t, text in enumerate(msgs):
-        similar = soft = variation = False
+        similar = soft = variation = exact = False
         if t > 0 and is_comparable(text) and len(text) <= MAX_CHARS:
             recent = [m for m in msgs[max(0, t - config.EXT_RECENT_MESSAGES):t] if is_comparable(m) and len(m) <= MAX_CHARS]
             best = 0.0
@@ -70,18 +78,21 @@ def detector_flags(msgs, use_variation):
                 best = max(best, s)
                 if s >= config.EXT_SIMILARITY_THRESHOLD and not new_content(text, prev):
                     similar = True
+                    exact = exact or s >= HOLD_EXACT
             soft = best >= config.EXT_SOFT_SIMILARITY_THRESHOLD
-            if use_variation and (similar or soft) and is_variation(text):
+            if use_variation and (similar or soft) and is_variation(text, best):
                 similar = soft = False
                 variation = True
-        flags.append((similar, soft, variation))
+        hold = similar and (not use_variation or exact or has_strong_repair(text))
+        flags.append((similar, soft, variation, hold))
     return flags
 
 
-def ring_level(prediction, similar_signal, apology, vague):
+def ring_level(prediction, similar_signal, apology, vague, short_repeat=0):
     if (prediction and prediction["level"] == "yuksek") or similar_signal >= 2 or apology >= 2:
         return 2
-    if (prediction and prediction["level"] == "oneri") or similar_signal == 1 or apology == 1 or vague >= 2:
+    if ((prediction and prediction["level"] == "oneri") or similar_signal == 1 or apology == 1 or vague >= 2
+            or short_repeat >= SIGNAL_RULES["short"]["repeat_streak"]):
         return 1
     return 0
 
@@ -100,7 +111,7 @@ def replay(msgs, answers, model, reasons, policy, predictions=None):
     turns = []
     for t, text in enumerate(msgs):
         n = t + 1
-        similar, soft, variation = flags[t]
+        similar, soft, variation, hold = flags[t]
         if soft and not after:
             repeats += 1  # eski kural: sohbet boyu yumuşak tekrar
         if similar:
@@ -118,7 +129,7 @@ def replay(msgs, answers, model, reasons, policy, predictions=None):
         if after:
             signals.note_answer(answers[t] if t < len(answers) else "")
             level = ring_level(None if signals.exited else prediction, signals.recent_similar,
-                               signals.apology_streak, signals.vague_streak)
+                               signals.apology_streak, signals.vague_streak, signals.short_repeat_streak)
         else:
             level = ring_level(prediction, similar_total, 0, 0)
         card = None
@@ -127,11 +138,11 @@ def replay(msgs, answers, model, reasons, policy, predictions=None):
                 card = "model"
             elif after and signals.apology_streak >= config.EXT_APOLOGY_CARD_STREAK:
                 card = "ozur"
-            elif n >= min_turns and (repeats >= config.EXT_EXIT_CARD_MIN_REPEATS or (after and suggest)):
+            elif n >= min_turns and repeats >= config.EXT_EXIT_CARD_MIN_REPEATS and (suggest or not after):
                 card = "norm"
         if card:
             quiet_until = n + config.EXT_EXIT_CARD_COOLDOWN_TURNS
-        turns.append({"strip": similar, "variation": variation, "ring": level, "card": card,
+        turns.append({"strip": hold, "short_strip": after and signals.last_short_repair, "variation": variation, "ring": level, "card": card,
                       "exit": after and signals.exited, "segments": signals.segments, "segment_start": signals.segment_start})
     return turns
 
@@ -148,6 +159,7 @@ class Tally:
     def __init__(self):
         self.n = self.user_turns = 0
         self.strips = self.strip_hits = 0
+        self.short_strips = self.short_strip_hits = 0
         self.ring1 = self.ring2 = self.ring2_hits = 0
         self.exits = self.exit_high = 0
         self.cards = self.card_hits = 0
@@ -164,6 +176,9 @@ class Tally:
             if d["strip"]:
                 self.strips += 1
                 self.strip_hits += t in ds
+            if d.get("short_strip"):
+                self.short_strips += 1
+                self.short_strip_hits += t in ds
             if d["ring"] >= 1:
                 self.ring1 += 1
             if d["ring"] == 2:
@@ -197,6 +212,8 @@ class Tally:
             "sohbet": n,
             "kullanici_turu": self.user_turns,
             "serit": {"100_sohbette": round(100 * self.strips / n, 2), "isabet_yuzde": pct(self.strip_hits, self.strips)},
+            "kisa_onarim_seridi": {"100_sohbette": round(100 * self.short_strips / n, 2),
+                                   "isabet_yuzde": pct(self.short_strip_hits, self.short_strips)},
             "halka": {"seviye1_ve_ustu_tur_yuzde": pct(self.ring1, self.user_turns),
                       "seviye2_tur_yuzde": pct(self.ring2, self.user_turns),
                       "seviye2_isabet_yuzde": pct(self.ring2_hits, self.ring2),

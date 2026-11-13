@@ -8,27 +8,31 @@
       "100_sohbette": 18.84,
       "isabet_yuzde": 15.02
     },
+    "kisa_onarim_seridi": {
+      "100_sohbette": 0.0,
+      "isabet_yuzde": null
+    },
     "halka": {
-      "seviye1_ve_ustu_tur_yuzde": 21.19,
-      "seviye2_tur_yuzde": 8.68,
-      "seviye2_isabet_yuzde": 21.04,
+      "seviye1_ve_ustu_tur_yuzde": 22.47,
+      "seviye2_tur_yuzde": 9.75,
+      "seviye2_isabet_yuzde": 25.09,
       "cikistan_sonra_yuksek_kalan_yuzde": null,
       "cikis_mesaji": 0
     },
     "kart": {
-      "100_sohbette": 29.34,
-      "isabet_yuzde": 14.91,
+      "100_sohbette": 30.64,
+      "isabet_yuzde": 18.21,
       "kaynaga_gore": {
         "model": {
-          "sayi": 2762,
-          "isabet_yuzde": 23.82
+          "sayi": 3142,
+          "isabet_yuzde": 29.98
         },
         "norm": {
-          "sayi": 3107,
-          "isabet_yuzde": 6.98
+          "sayi": 2986,
+          "isabet_yuzde": 5.83
         }
       },
-      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 20.17,
+      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 29.44,
       "tekrarlayan_memnuniyetsizlik_sohbeti": 1294
     },
     "taze_baslat": {
@@ -41,38 +45,42 @@
     "sohbet": 20000,
     "kullanici_turu": 115052,
     "serit": {
-      "100_sohbette": 14.26,
-      "isabet_yuzde": 16.63
+      "100_sohbette": 10.13,
+      "isabet_yuzde": 21.51
+    },
+    "kisa_onarim_seridi": {
+      "100_sohbette": 1.09,
+      "isabet_yuzde": 48.62
     },
     "halka": {
-      "seviye1_ve_ustu_tur_yuzde": 21.15,
-      "seviye2_tur_yuzde": 8.26,
-      "seviye2_isabet_yuzde": 26.13,
-      "cikistan_sonra_yuksek_kalan_yuzde": 18.13,
-      "cikis_mesaji": 342
+      "seviye1_ve_ustu_tur_yuzde": 22.55,
+      "seviye2_tur_yuzde": 9.31,
+      "seviye2_isabet_yuzde": 29.21,
+      "cikistan_sonra_yuksek_kalan_yuzde": 19.35,
+      "cikis_mesaji": 336
     },
     "kart": {
-      "100_sohbette": 21.6,
-      "isabet_yuzde": 24.17,
+      "100_sohbette": 18.89,
+      "isabet_yuzde": 31.29,
       "kaynaga_gore": {
         "model": {
-          "sayi": 2717,
-          "isabet_yuzde": 23.0
+          "sayi": 3186,
+          "isabet_yuzde": 28.84
         },
         "ozur": {
-          "sayi": 630,
-          "isabet_yuzde": 50.16
+          "sayi": 538,
+          "isabet_yuzde": 46.65
         },
         "norm": {
-          "sayi": 973,
-          "isabet_yuzde": 10.59
+          "sayi": 53,
+          "isabet_yuzde": 22.64
         }
       },
-      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 20.87,
+      "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 28.67,
       "tekrarlayan_memnuniyetsizlik_sohbeti": 1294
     },
     "taze_baslat": {
-      "konu_kayan_sohbet_yuzde": 7.0,
+      "konu_kayan_sohbet_yuzde": 7.04,
       "taslaktaki_istek_ortalama_once": 6.35,
       "taslaktaki_istek_ortalama_sonra": 4.21
     }

@@ -1,0 +1,42 @@
+{
+  "kaynak": "WildFeedback (sat_dsat_annotation), ilk mesaj hariç tüm kullanıcı turları",
+  "kisa_esik_karakter": 12,
+  "gruplar": {
+    "uzun": {
+      "tur": 401780,
+      "tur_yuzde": 95.7,
+      "bu_turda_dsat_yuzde": 5.8,
+      "sonraki_turda_dsat_yuzde": 6.2
+    },
+    "kisa_diger": {
+      "tur": 12589,
+      "tur_yuzde": 3.0,
+      "bu_turda_dsat_yuzde": 5.6,
+      "sonraki_turda_dsat_yuzde": 5.4
+    },
+    "kisa_ayni_tekrar": {
+      "tur": 3482,
+      "tur_yuzde": 0.83,
+      "bu_turda_dsat_yuzde": 4.8,
+      "sonraki_turda_dsat_yuzde": 4.4
+    },
+    "kisa_onarim": {
+      "tur": 978,
+      "tur_yuzde": 0.23,
+      "bu_turda_dsat_yuzde": 46.5,
+      "sonraki_turda_dsat_yuzde": 25.4
+    },
+    "kisa_cikis": {
+      "tur": 637,
+      "tur_yuzde": 0.15,
+      "bu_turda_dsat_yuzde": 0.0,
+      "sonraki_turda_dsat_yuzde": 2.8
+    },
+    "kisa_belirsiz": {
+      "tur": 352,
+      "tur_yuzde": 0.08,
+      "bu_turda_dsat_yuzde": 6.8,
+      "sonraki_turda_dsat_yuzde": 4.8
+    }
+  }
+}
