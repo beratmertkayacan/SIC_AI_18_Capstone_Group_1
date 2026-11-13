@@ -153,3 +153,54 @@ cd extension && npm test && npm run build
 ```
 
 Sayılar: `outputs/turn_dataset_*.json`, `outputs/turn_model_metrics.json`.
+
+---
+
+## Güncelleme (Kasım 2026): kuralların veriyle inceltilmesi
+
+Elle doğrulama aşamasından önce karar zincirinin kuralları WildFeedback'teki gerçek memnuniyetsizlik işaretleriyle parça parça yeniden ölçüldü. Etiket onarım kuralına dayandığı için veri tabloları yeniden kuruldu ve model yeniden eğitildi. **Bu bölümün üstündeki tablolar ilk eğitimin sayılarıdır;** güncel sayılar `outputs/turn_model_metrics.json`, `outputs/replay_eval.json` ve README'dedir. Bölümler proje sonunda tek seferde güncellenecek.
+
+Yöntem: her kural değişikliği verinin rastgele bir yarısında seçildi, öbür yarısında doğrulandı. Kart kuralı ve eşik, rapor örnekleminden (20.000 sohbet, tohum 42) ayrık 20.000 sohbette seçildi.
+
+| Değişiklik | Dayanak | Dosya |
+|---|---|---|
+| "still", "again", "hala", "yine" yalnızca 60 kelimeden kısa mesajlarda onarım sayılır | Kısa mesajda 5 ile 11 kat, 60 kelimenin üstünde 0,9 kat | `repair-rules.json` → `limited_words` |
+| "same thing" listeden çıktı | 1,45 kat; 2 kat ölçütünün altında | `repair-rules.json` |
+| Yeni onarım ifadeleri: hata adları ("typeerror", "traceback", "invalid", "undefined"), "not defined", "fix it", "has no" her uzunlukta; "is not", "does not", "didn't", "are you sure", "nothing", "cannot", "expected", "redo" yalnızca kısa mesajda | Kuralın yakalamadığı mesajlarda iki yarıda da en az 3 kat | `repair-rules.json` |
+| Görev türü kuralı büyük harfli kısaltmaları tanır ("API", "CLI"); Türkçe soru ve kod kalıpları | Türkçe ilk mesajlarda "diğer" payı %55,0'dan %45,8'e | `task-rules.json`, `tasks.ts`, `tasks.py` |
+| 16 ile 40 kelime arası bir mesajın birebir yeniden gönderimi varyasyon sayılmaz | Bu grupta memnuniyetsizlik %27,0; kısa varyasyon isteklerinde %4,5, 40 kelime üstünde %9,3 | `repeat-rules.json` → `variation` |
+| Uzun sohbet kartı için iki işaret birlikte: yakın benzer mesaj ve modelin öneri seviyesi | Tek işaretle bu yolun isabeti %9, ikisiyle %26 | `exit-card-policy.ts` |
+| Yüksek güven eşiğine 0,30 alt sınırı | Aşağıdaki denge tablosu | `train_turn_model.py` → `HIGH_MIN_PROBABILITY` |
+
+Denenip alınmayan: model kartı için "en az 3. tur ya da iki onarım ifadesi" şartı. Yakalamayı %40,8'den %25,8'e düşürdü, isabeti artırmadı (%24,4 → %23,9).
+
+Eşik seçimi (seçim örneklemi; kart 100 sohbette / isabet / tekrarlayan memnuniyetsizliği yakalama):
+
+| Yüksek güven eşiği | Kart | İsabet | Yakalama |
+|---|---|---|---|
+| 0,21 (yalnızca kesinlik hedefi) | 25,8 | %26,5 | %39,8 |
+| **0,30 (seçilen)** | **19,0** | **%31,0** | **%29,7** |
+| 0,35 | 17,0 | %32,5 | %25,2 |
+| 0,40 | 15,0 | %34,3 | %21,1 |
+| 0,50 | 12,5 | %38,4 | %16,8 |
+
+Önce ve sonra (rapor örneklemi ve test kullanıcıları):
+
+| Ölçüt | Önce | Sonra |
+|---|---|---|
+| Onarım kuralının yakaladığı memnuniyetsiz mesaj payı (WildFeedback, 420 bin mesaj) | %28,9 | %42 |
+| Kuralın işaretlediği mesajlarda memnuniyetsizlik | %25,3 | %28,9 |
+| Etiketin memnuniyetsizlik katı (kontrol yarısı) | 2,87 | 3,05 |
+| 4.8M'de döngü oranı (etiket genişledi) | %6,7 | %9,0 |
+| Test PR-AUC / rastgele | 0,251 / 0,066 | 0,321 / 0,098 |
+| Test ROC-AUC | 0,775 | 0,782 |
+| Yüksek güven: kesinlik / yakalama (vekil etiket) | %37,6 / %21,2 | %44,6 / %23,0 |
+| Modelin gerçek memnuniyetsizliği ayırması (WildFeedback, PR-AUC / ROC-AUC) | 0,218 / 0,612 | 0,250 / 0,638 |
+| Yeniden oynatma: çıkış kartı, 100 sohbette / isabet | 21,6 / %24,2 | 18,9 / %31,3 |
+| Yeniden oynatma: tekrarlayan memnuniyetsizlikte yakalama | %20,9 | %28,7 |
+| Yeniden oynatma: koyu halka, tur payı / isabet | %8,3 / %26,1 | %9,3 / %29,2 |
+| Yeniden oynatma: benzer mesaj şeridi, 100 sohbette / isabet | 14,3 / %16,6 | 14,7 / %17,0 |
+| EmoWOZ (insan etiketi, farklı alan): onarım kuralı kesinlik / yakalama | %8,3 / %10,8 | %8,9 / %12,5 |
+| Platform sınaması: yüksek güven kesinliği, ChatGPT / Gemini / Claude | %46,0 / %47,3 / %46,6 | %50,6 / %50,0 / %45,8 |
+
+**Okurken.** Vekil etikete göre ölçülen sayılar (PR-AUC, döngü oranı) etiket de değiştiği için doğrudan karşılaştırılamaz; rastgeleye göre kat 3,8'den 3,3'e indi, çünkü etiket artık daha sık. Karşılaştırılabilir olanlar gerçek memnuniyetsizliğe karşı ölçülen satırlardır: daha az kart, daha yüksek isabet, daha yüksek yakalama. Kartların yaklaşık üçte ikisi hâlâ memnuniyetsizlik görülmeyen bir tura denk geliyor; bu yüzden hiçbir uyarı engellemez. Platform sınamasında beş platformun hepsinde model açık kalıyor. Türkçe onarım kelimeleri WildFeedback'te neredeyse hiç geçmediği için İngilizce karşılıklarına benzetilerek sınırlandı, yeni Türkçe ifade eklenmedi; elle doğrulamada ölçülmeli.
