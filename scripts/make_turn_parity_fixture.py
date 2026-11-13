@@ -45,6 +45,8 @@ REPAIR_SAMPLES = [
     "same problem", "still", "Still wrong!!", "anlamadın beni", "yanlışsın", "please try again", "thanks, great",
     "no worries", "but why", "But it fails", "error", "KeyError: 'x'", "some_error_handler", "hâlâ aynı", "yine mi",
     "you forgot the title", "aynı hata çıkıyor", "öyle değil", "teşekkürler",
+    "Are you sure?", "That is not right", "TypeError: undefined", "nothing changed", "the sky is not green " * 20,
+    "it still fails " + "word " * 70, "fix it", "I DONT KNOW",
 ]
 
 

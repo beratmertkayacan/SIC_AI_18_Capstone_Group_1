@@ -77,8 +77,11 @@ def _repair_match(normalized):
         return True
     # "still", "again", "yine": yalnızca kısa mesajlarda sayılır; uzun metinde ayırt etmiyorlar.
     limited = REPAIR_RULES["limited_words"]
-    if len(words) < limited["max_words"] and any(w in limited["words"] for w in words):
-        return True
+    if len(words) < limited["max_words"]:
+        if any(w in limited["words"] for w in words):
+            return True
+        if any(f" {p} " in f" {normalized} " for p in limited["phrases"]):
+            return True
     if any(w.startswith(p) for w in words for p in REPAIR_RULES["prefixes"]):
         return True
     padded = f" {normalized} "

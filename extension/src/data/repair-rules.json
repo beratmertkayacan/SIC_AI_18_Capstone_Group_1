@@ -1,5 +1,5 @@
 {
-  "note": "Güçlü onarım ifadeleri: kullanıcının bir önceki cevabın işe yaramadığını söylediği mesajlar. Hem eklenti (src/core/strong-repair.ts) hem Python (src/kafiai/text.py) bu dosyayı okur. Kurallar sadeleştirilmiş metne (küçük harf, noktalama yok) iki kez uygulanır: Türkçe kuralla (I -> ı) ve İngilizce kuralla (I -> i), çünkü 'I said' ile 'HAYIR' aynı harfi farklı okuyor. 'markers' ham metne bakar. Liste WildFeedback'te memnuniyetsizliği en az 2 kat artıran ifadelerden seçildi (docs/08, Bölüm 5.1). 'limited_words': 'still', 'again', 'hala', 'yine' gibi kelimeler yalnızca max_words kelimeden kısa mesajlarda sayılır. WildFeedback'te bu kelimeler kısa mesajda memnuniyetsizliği 5 ile 11 kat artırırken 60 kelimeyi aşan (çoğu yapıştırılmış metin içeren) mesajlarda 0,9 kat, yani hiç ayırt etmiyor. 'same thing' ifadesi 1,45 katla 2 kat ölçütünün altında kaldığı için listeden çıkarıldı. Türkçe kelimeler aynı sınıra benzetmeyle alındı; WildFeedback'te Türkçe mesaj yok denecek kadar az olduğu için ayrıca ölçülemedi.",
+  "note": "Güçlü onarım ifadeleri: kullanıcının bir önceki cevabın işe yaramadığını söylediği mesajlar. Hem eklenti (src/core/strong-repair.ts) hem Python (src/kafiai/text.py) bu dosyayı okur. Kurallar sadeleştirilmiş metne (küçük harf, noktalama yok) iki kez uygulanır: Türkçe kuralla (I -> ı) ve İngilizce kuralla (I -> i), çünkü 'I said' ile 'HAYIR' aynı harfi farklı okuyor. 'markers' ham metne bakar. Liste WildFeedback'te memnuniyetsizliği en az 2 kat artıran ifadelerden seçildi (docs/08, Bölüm 5.1). 'limited_words': 'still', 'again', 'hala', 'yine' gibi kelimeler yalnızca max_words kelimeden kısa mesajlarda sayılır. WildFeedback'te bu kelimeler kısa mesajda memnuniyetsizliği 5 ile 11 kat artırırken 60 kelimeyi aşan (çoğu yapıştırılmış metin içeren) mesajlarda 0,9 kat, yani hiç ayırt etmiyor. 'same thing' ifadesi 1,45 katla 2 kat ölçütünün altında kaldığı için listeden çıkarıldı. Türkçe kelimeler aynı sınıra benzetmeyle alındı; WildFeedback'te Türkçe mesaj yok denecek kadar az olduğu için ayrıca ölçülemedi. İkinci genişletme (Kasım 2026): kuralın yakalamadığı mesajlarda memnuniyetsizliği verinin iki yarısında da en az 3 kat artıran ifadeler eklendi (hata adları, 'is not', 'does not', 'are you sure', 'nothing' vb.); uzun mesajda ayırt etmeyenler limited_words altında yalnızca kısa mesajda sayılır. Yakalanan memnuniyetsiz mesaj payı %28,1'den %42,1'e çıktı, işaretlenen mesajlarda memnuniyetsizlik %30,2'den %28,9'a indi (kontrol yarısı). Türkçe karşılıkları ölçülemediği için eklenmedi.",
   "markers": [
     "!!"
   ],
@@ -7,7 +7,18 @@
     "error",
     "wrong",
     "incorrect",
-    "hata"
+    "hata",
+    "invalid",
+    "typeerror",
+    "syntaxerror",
+    "nameerror",
+    "valueerror",
+    "keyerror",
+    "attributeerror",
+    "traceback",
+    "undefined",
+    "doesnt",
+    "isnt"
   ],
   "limited_words": {
     "max_words": 60,
@@ -16,7 +27,24 @@
       "again",
       "hala",
       "hâlâ",
-      "yine"
+      "yine",
+      "dont",
+      "cannot",
+      "nothing",
+      "expected",
+      "redo",
+      "didnt"
+    ],
+    "phrases": [
+      "does not",
+      "is not",
+      "didn t",
+      "not the",
+      "there is no",
+      "are you sure",
+      "it s not",
+      "its not",
+      "why did you"
     ]
   },
   "prefixes": [
@@ -54,7 +82,10 @@
     "not what i",
     "ben ne dedim",
     "öyle değil",
-    "aynı hata"
+    "aynı hata",
+    "not defined",
+    "fix it",
+    "has no"
   ],
   "starts_with": [
     "no",

@@ -9,16 +9,19 @@ import { normalizeText } from "./text";
  */
 
 const words = new Set<string>(rules.words);
-/** Yalnızca kısa mesajlarda sayılan kelimeler ("still", "again", "yine"): uzun metinde ayırt etmiyorlar. */
+/** Yalnızca kısa mesajlarda sayılan kelime ve ifadeler ("still", "is not", "yine"): uzun metinde ayırt etmiyorlar. */
 const limitedWords = new Set<string>(rules.limited_words.words);
 
 function matchNormalized(normalized: string): boolean {
   const tokens = normalized.split(" ").filter((w) => w !== "");
   if (tokens.some((w) => words.has(w))) return true;
-  if (tokens.length < rules.limited_words.max_words && tokens.some((w) => limitedWords.has(w))) return true;
   if (tokens.some((w) => rules.prefixes.some((p) => w.startsWith(p)))) return true;
   const padded = ` ${normalized} `;
   if (rules.phrases.some((p) => padded.includes(` ${p} `))) return true;
+  if (tokens.length < rules.limited_words.max_words) {
+    if (tokens.some((w) => limitedWords.has(w))) return true;
+    if (rules.limited_words.phrases.some((p) => padded.includes(` ${p} `))) return true;
+  }
   const head = tokens[0];
   return head !== undefined && rules.starts_with.includes(head);
 }

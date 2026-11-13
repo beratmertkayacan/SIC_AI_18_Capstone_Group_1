@@ -68,6 +68,11 @@ def test_strong_repair_and_loop_label_v2():
     assert not has_strong_repair(long_text)
     assert has_strong_repair(long_text + " but this is wrong")
     assert not has_strong_repair("they do the same thing every morning")
+    # ikinci genişletme: hata adları her uzunlukta, "is not" gibi ifadeler yalnızca kısa mesajda
+    assert has_strong_repair("TypeError: x is undefined")
+    assert has_strong_repair("are you sure about that?")
+    assert has_strong_repair("this is not what the table shows")
+    assert not has_strong_repair("the hero is not afraid and " + "lorem ipsum dolor sit amet " * 12)
     stuck = ["fix my code", "here is the code", "it still gives an error", "same error again"]
     batch = ["list satellites starting with AA", "list satellites starting with AB",
              "list satellites starting with AC", "list satellites starting with AD"]
