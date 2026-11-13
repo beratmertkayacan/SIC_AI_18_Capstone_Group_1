@@ -56,6 +56,12 @@ FIG, OUT = ROOT / "figures", ROOT / "outputs"
 MODEL_FILE = ROOT / "extension" / "src" / "data" / "turn-model.json"
 REASONS_FILE = ROOT / "extension" / "src" / "data" / "model-reasons.json"
 HIGH_PRECISION = 0.40  # yüksek güven eşiği: model "döngü" dediğinde en az 10'da 4 haklı olsun
+# Yüksek güven eşiğinin alt sınırı. Kesinlik hedefi vekil etikete göre; eklentinin gerçek sohbetlerde
+# yeniden oynatılmasında (scripts/evaluate_replay.py, WildFeedback memnuniyetsizlik işaretleri, seçim
+# için ayrı 20.000 sohbet) eşik 0,21 iken kart 100 sohbette 25,8 kez çıkıp %26,5 isabet ediyordu;
+# 0,30'da 19,0 kez ve %31,0. Tekrarlayan memnuniyetsizliği yakalama %39,8'den %29,7'ye iniyor
+# (0,40'ta %21,1). 0,30 hem isabeti hem yakalamayı önceki sürümün üstünde tutan nokta.
+HIGH_MIN_PROBABILITY = 0.30
 EVIDENCE = "n_strong_repairs"  # yüksek güven için kanıt: en az bir güçlü onarım ifadesi
 TEAL, ORANGE, GREY, GOLD = "#1F5F6B", "#C4562A", "#9AA5A8", "#D9A441"
 plt.rcParams.update({"figure.dpi": 130, "axes.spines.top": False, "axes.spines.right": False,
@@ -100,6 +106,7 @@ def thresholds(y, prob):
     f1_cut = float(cut[int(np.argmax(f1[:-1]))])
     ok = np.where(precision[:-1] >= HIGH_PRECISION)[0]
     high_cut = float(cut[ok[0]]) if len(ok) else float(cut[-1])
+    high_cut = max(high_cut, HIGH_MIN_PROBABILITY)
     return f1_cut, high_cut
 
 

@@ -29,11 +29,11 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.06954198670407531,
+      "probability": 0.10652527733268077,
       "level": "dusuk",
       "reasons": [
         "task_kod",
-        "last_sim"
+        "last_short"
       ]
     },
     {
@@ -65,7 +65,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.34135943834552923,
+      "probability": 0.43081987802734456,
       "level": "yuksek",
       "reasons": [
         "n_strong_repairs",
@@ -102,7 +102,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.5265035040793294,
+      "probability": 0.5963181811474263,
       "level": "yuksek",
       "reasons": [
         "n_strong_repairs",
@@ -140,7 +140,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.7580169500857629,
+      "probability": 0.7866178732075167,
       "level": "yuksek",
       "reasons": [
         "n_strong_repairs",
@@ -176,7 +176,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.11890320830048107,
+      "probability": 0.15050034823635242,
       "level": "dusuk",
       "reasons": [
         "n_strong_repairs",
@@ -213,7 +213,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.24368483073749034,
+      "probability": 0.27688950301906357,
       "level": "oneri",
       "reasons": [
         "n_strong_repairs",
@@ -251,7 +251,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.45211256828990753,
+      "probability": 0.46818462612773265,
       "level": "yuksek",
       "reasons": [
         "n_strong_repairs",
@@ -287,7 +287,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.034077602517339496,
+      "probability": 0.04791630427811106,
       "level": "dusuk",
       "reasons": [
         "n_exact",
@@ -324,7 +324,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.03503320448654577,
+      "probability": 0.04739241135698059,
       "level": "dusuk",
       "reasons": [
         "n_exact",
@@ -360,7 +360,7 @@
         "task_soru": 1,
         "task_diger": 0
       },
-      "probability": 0.034969129662832256,
+      "probability": 0.050440022690643224,
       "level": "dusuk",
       "reasons": [
         "last_sim",
@@ -396,7 +396,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.09364481100708703,
+      "probability": 0.1336011186115839,
       "level": "dusuk",
       "reasons": [
         "n_strong_repairs",
@@ -433,7 +433,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.20808683240448914,
+      "probability": 0.26046914134064314,
       "level": "oneri",
       "reasons": [
         "n_strong_repairs",
@@ -469,7 +469,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.03300759532077293,
+      "probability": 0.05453990226052917,
       "level": "dusuk",
       "reasons": [
         "first_words_log",
@@ -506,7 +506,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.02492889391773616,
+      "probability": 0.04124581744973561,
       "level": "dusuk",
       "reasons": [
         "first_words_log",
@@ -544,10 +544,11 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.02881285175726912,
+      "probability": 0.04614055693297413,
       "level": "dusuk",
       "reasons": [
-        "first_words_log"
+        "first_words_log",
+        "first_lines"
       ]
     },
     {
@@ -582,7 +583,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.03267755277509689,
+      "probability": 0.05020103298138652,
       "level": "dusuk",
       "reasons": [
         "first_words_log",
@@ -618,7 +619,7 @@
         "task_soru": 0,
         "task_diger": 1
       },
-      "probability": 0.022176945627683416,
+      "probability": 0.033664222216806955,
       "level": "dusuk",
       "reasons": [
         "last_sim",
@@ -655,10 +656,11 @@
         "task_soru": 0,
         "task_diger": 1
       },
-      "probability": 0.01365740864860391,
+      "probability": 0.02094073059178165,
       "level": "dusuk",
       "reasons": [
-        "turn"
+        "turn",
+        "first_lines"
       ]
     },
     {
@@ -690,7 +692,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.022002204019796637,
+      "probability": 0.0393572973529599,
       "level": "dusuk",
       "reasons": [
         "last_sim",
@@ -727,7 +729,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.02262781858200526,
+      "probability": 0.03964918632874409,
       "level": "dusuk",
       "reasons": [
         "last_sim",
@@ -765,10 +767,11 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.019236781737795278,
+      "probability": 0.033831557941583636,
       "level": "dusuk",
       "reasons": [
-        "last_sim"
+        "last_sim",
+        "first_lines"
       ]
     },
     {
@@ -803,10 +806,11 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.019118992954761455,
+      "probability": 0.03319039788179008,
       "level": "dusuk",
       "reasons": [
-        "last_sim"
+        "last_sim",
+        "first_lines"
       ]
     },
     {
@@ -842,10 +846,10 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.018357136323111357,
+      "probability": 0.031423809416096446,
       "level": "dusuk",
       "reasons": [
-        "genel"
+        "first_lines"
       ]
     },
     {
@@ -882,10 +886,11 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.02192994331269143,
+      "probability": 0.03642310341891538,
       "level": "dusuk",
       "reasons": [
-        "last_sim"
+        "last_sim",
+        "first_lines"
       ]
     },
     {
@@ -923,10 +928,11 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.02023007528174373,
+      "probability": 0.034064267880162424,
       "level": "dusuk",
       "reasons": [
-        "last_sim"
+        "last_sim",
+        "first_lines"
       ]
     },
     {
@@ -958,7 +964,7 @@
         "task_soru": 1,
         "task_diger": 0
       },
-      "probability": 0.03198811713745571,
+      "probability": 0.04341903247781476,
       "level": "dusuk",
       "reasons": [
         "last_sim",
@@ -995,7 +1001,7 @@
         "task_soru": 1,
         "task_diger": 0
       },
-      "probability": 0.03534716030265119,
+      "probability": 0.04772017699026961,
       "level": "dusuk",
       "reasons": [
         "last_sim",
@@ -1031,7 +1037,7 @@
         "task_soru": 0,
         "task_diger": 1
       },
-      "probability": 0.018773879556206057,
+      "probability": 0.02885882329966756,
       "level": "dusuk",
       "reasons": [
         "last_sim",
@@ -1068,7 +1074,7 @@
         "task_soru": 0,
         "task_diger": 1
       },
-      "probability": 0.08908346632222525,
+      "probability": 0.11728954597312417,
       "level": "dusuk",
       "reasons": [
         "n_strong_repairs",
@@ -1106,7 +1112,7 @@
         "task_soru": 0,
         "task_diger": 1
       },
-      "probability": 0.18153888203910173,
+      "probability": 0.21498560058253105,
       "level": "oneri",
       "reasons": [
         "n_strong_repairs",
@@ -1142,7 +1148,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.17804314805540156,
+      "probability": 0.2358695764317137,
       "level": "oneri",
       "reasons": [
         "n_strong_repairs",
@@ -1179,7 +1185,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.3469354183810081,
+      "probability": 0.4045389165395932,
       "level": "yuksek",
       "reasons": [
         "n_strong_repairs",
@@ -1217,7 +1223,7 @@
         "task_soru": 0,
         "task_diger": 0
       },
-      "probability": 0.599965220703392,
+      "probability": 0.6291909903462557,
       "level": "yuksek",
       "reasons": [
         "n_strong_repairs",
@@ -1304,7 +1310,7 @@
     },
     {
       "text": "KeyError: 'x'",
-      "strong_repair": false
+      "strong_repair": true
     },
     {
       "text": "some_error_handler",
@@ -1333,6 +1339,38 @@
     {
       "text": "teşekkürler",
       "strong_repair": false
+    },
+    {
+      "text": "Are you sure?",
+      "strong_repair": true
+    },
+    {
+      "text": "That is not right",
+      "strong_repair": true
+    },
+    {
+      "text": "TypeError: undefined",
+      "strong_repair": true
+    },
+    {
+      "text": "nothing changed",
+      "strong_repair": true
+    },
+    {
+      "text": "the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green the sky is not green ",
+      "strong_repair": false
+    },
+    {
+      "text": "it still fails word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word ",
+      "strong_repair": false
+    },
+    {
+      "text": "fix it",
+      "strong_repair": true
+    },
+    {
+      "text": "I DONT KNOW",
+      "strong_repair": true
     }
   ]
 }
