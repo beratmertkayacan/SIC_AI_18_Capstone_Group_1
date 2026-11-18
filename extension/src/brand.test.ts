@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import manifest from "../public/manifest.json";
 import { BRAND_NAME, BRAND_TAGLINE, LOGO_PATHS, logoMark, sitesList, SUPPORTED_SITES } from "./brand";
 import platforms from "./data/platforms.json";
-import { WELCOME_LEAD, WELCOME_SECTIONS } from "./welcome/welcome";
+import { WELCOME_TEXTS } from "./welcome/welcome";
 
 describe("marka", () => {
   it("manifestteki ad ve açıklama markayla aynı", () => {
@@ -14,7 +14,7 @@ describe("marka", () => {
 
   it("desteklenen siteler platform kaydından gelir ve metinlerde aynen geçer", () => {
     expect(SUPPORTED_SITES).toEqual(Object.values(platforms.platforms).map((p) => p.label));
-    const text = [WELCOME_LEAD, ...WELCOME_SECTIONS.flatMap((s) => s.lines)].join(" ");
+    const text = WELCOME_TEXTS.join(" ");
     for (const site of SUPPORTED_SITES) expect(text).toContain(site);
     expect(sitesList()).toBe(SUPPORTED_SITES.length === 2 ? `${SUPPORTED_SITES[0]} ve ${SUPPORTED_SITES[1]}` : sitesList());
   });
@@ -29,7 +29,7 @@ describe("marka", () => {
 
   it("şapka yalnızca marka adında; slogan ve diğer metinler şapkasız", () => {
     expect(/[âîû]/i.test(BRAND_TAGLINE)).toBe(false);
-    const text = [WELCOME_LEAD, ...WELCOME_SECTIONS.flatMap((s) => s.lines)].join(" ").split(BRAND_NAME).join("");
+    const text = WELCOME_TEXTS.join(" ").split(BRAND_NAME).join("");
     expect(/[âîûÂÎÛ]/.test(text)).toBe(false);
   });
 });

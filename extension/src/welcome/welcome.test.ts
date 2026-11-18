@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mountWelcome, WELCOME_LEAD, WELCOME_SECTIONS } from "./welcome";
+import { mountWelcome, PRIVACY, WELCOME_LEAD, WELCOME_TEXTS, WELCOME_TITLE } from "./welcome";
 
 let root: HTMLElement;
 beforeEach(() => {
@@ -9,30 +9,35 @@ beforeEach(() => {
 });
 
 describe("karşılama ekranı", () => {
-  it("başlık, giriş, beş bölüm ve düğmeyi gösterir", () => {
+  it("Figma'daki sırayla başlık, giriş, dört bölüm ve düğmeyi gösterir", () => {
     mountWelcome(root, () => {});
-    expect(root.querySelector("h1")?.textContent).toBe("Kâfi AI'ya hoş geldin");
+    expect(root.querySelector("h1")?.textContent).toBe(WELCOME_TITLE);
     expect(root.querySelector(".tagline")?.textContent).toBe("Fark et. Durakla. Yeniden başla.");
     expect(root.querySelector(".lead")?.textContent).toBe(WELCOME_LEAD);
-    expect(Array.from(root.querySelectorAll("h2")).map((h) => h.textContent)).toEqual([
-      "Neye bakar",
-      "Neye bakmaz",
-      "Verin nerede durur",
-      "Ne göreceksin",
-      "İstediğin zaman kapatabilirsin",
-    ]);
+    expect(Array.from(root.querySelectorAll("h2")).map((h) => h.textContent)).toEqual(["Ne Göreceksin", "Gizliliğin", "Başlamadan Önce"]);
+    expect(Array.from(root.querySelectorAll(".feature-kicker")).map((h) => h.textContent)).toEqual(["Fark et.", "Durakla.", "Yeniden başla."]);
+    expect(Array.from(root.querySelectorAll(".privacy-row dt")).map((h) => h.textContent)).toEqual(PRIVACY.map((p) => p.title));
+    expect(root.querySelectorAll(".steps li").length).toBe(3);
     expect(root.querySelector("button")?.textContent).toBe("Anladım");
   });
 
-  it("neye baktığını, neye bakmadığını ve verinin cihazdan çıkmadığını söyler", () => {
+  it("cevabı nasıl okuduğunu doğru söyler: yalnızca başı ve sonu, kaydetmeden", () => {
     mountWelcome(root, () => {});
     const text = root.textContent ?? "";
     expect(text).toContain("Gönder'e bastığın anda");
-    expect(text).toContain("cevabın başına ve sonuna yalnızca bellekte");
-    expect(text).toContain("Klavyede bastığın tuşlara");
+    expect(text).toContain("Cevabın tamamını okumaz; yalnızca başına ve sonuna bakar");
+    expect(text).toContain("Yazdığın tuşları kaydetmez");
+    expect(text).not.toContain("Cevabın metnini okumaz");
     expect(text).toContain("Hiçbir mesaj cihazından çıkmaz");
     expect(text).toContain("Mesaj metni kaydedilmez");
     expect(text).toContain("90 gün");
+  });
+
+  it("çizimler ekran okuyucudan gizlidir", () => {
+    mountWelcome(root, () => {});
+    const arts = Array.from(root.querySelectorAll(".art"));
+    expect(arts.length).toBe(3);
+    for (const a of arts) expect(a.getAttribute("aria-hidden")).toBe("true");
   });
 
   it("Anladım düğmesi close'u çağırır", () => {
@@ -48,11 +53,10 @@ describe("karşılama ekranı", () => {
     for (const bad of ["bağımlı", "risk", "tehlike", "seri", "rozet", "puan"]) expect(text).not.toContain(bad);
   });
 
-  it("HTML eklenmez: etiket gibi görünen metin düz metin kalır", () => {
+  it("HTML eklenmez: yalnızca eklentinin kendi logosu, betik ya da bağlantı yok", () => {
     mountWelcome(root, () => {});
     expect(root.querySelectorAll("script, a").length).toBe(0);
-    const imgs = Array.from(root.querySelectorAll("img"));
-    expect(imgs.map((i) => i.getAttribute("src"))).toEqual(["icons/logo256.png"]); // yalnızca eklentinin kendi logosu
-    expect(WELCOME_SECTIONS.every((s) => s.lines.every((l) => !/[<>]/.test(l)))).toBe(true);
+    expect(Array.from(root.querySelectorAll("img")).map((i) => i.getAttribute("src"))).toEqual(["icons/logo256.png"]);
+    expect(WELCOME_TEXTS.every((l) => !/[<>]/.test(l))).toBe(true);
   });
 });
