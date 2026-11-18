@@ -27,5 +27,8 @@ const tab: TabBridge = {
 
 const root = document.getElementById("root");
 if (root) {
-  mountPopup(root, new SettingsStore(chromeStorage), new CounterStore(chromeStorage, { flushDelayMs: 0 }), undefined, undefined, tab);
+  mountPopup(root, new SettingsStore(chromeStorage), new CounterStore(chromeStorage, { flushDelayMs: 0 }), undefined, undefined, tab, (path) => {
+    void chrome.tabs.create({ url: chrome.runtime.getURL(path) });
+    window.close();
+  });
 }
