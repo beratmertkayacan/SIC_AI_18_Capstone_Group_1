@@ -252,7 +252,7 @@
     },
     {
       "id": "duz_harf_kod_dongusu",
-      "anlatim": "Türkçe karakter kullanmadan yazan kullanıcı kodunun çalışmadığını söylüyor",
+      "anlatim": "Türkçe karakter kullanmadan yazan kullanıcı kodunun çalışmadığını söylüyor; kısa onarım şeridi art arda iki turda çıkmaz, üçüncü turda kartın sırası gelir",
       "user": [
         "SQL ile en cok satan 5 urunu getiren sorgu yaz",
         "kod calismiyor",
@@ -266,8 +266,9 @@
         "Özür dilerim ..."
       ],
       "beklenen": {
-        "kisa_serit": 2,
-        "halka_en_az": 2
+        "kisa_serit": 1,
+        "halka_en_az": 2,
+        "kart": true
       }
     },
     {
