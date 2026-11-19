@@ -165,14 +165,15 @@ export class ExitCard {
 /**
  * Kartın ana cümlesi. Görev türü biliniyorsa WildChat'teki normu söyler
  * (o türdeki çok turlu sohbetlerin %75'i kaç turda bitiyor); bilinmiyorsa yalnızca tur sayısını.
+ * Kullanıcıya "tur" yerine "mesaj" denir: bir tur, kullanıcının bir mesajı ve ona gelen cevaptır.
  */
 export function exitCardMessage(turns: number, norm: TaskNorm | null): string {
   const tail =
     "Uzun sohbetlerde yapay zeka modelleri yolunu kaybedebiliyor; " +
     "isteklerini tek mesajda toplayıp yeni bir sohbet açmak genelde daha hızlı olur.";
-  if (norm === null || norm.label === "Diğer") return `Bu sohbet ${turns}. turunda. ${tail}`;
+  if (norm === null || norm.label === "Diğer") return `Bu sohbet ${turns}. mesajında. ${tail}`;
   const p75 = Math.round(norm.p75_turns);
-  return `${norm.label} sohbetlerinin çoğu ${p75} turda ya da daha kısa sürede bitiyor; bu sohbet ${turns}. turunda. ${tail}`;
+  return `${norm.label} sohbetlerinin çoğu ${p75} mesajda ya da daha kısa sürede bitiyor; bu sohbet ${turns}. mesajında. ${tail}`;
 }
 
 /**

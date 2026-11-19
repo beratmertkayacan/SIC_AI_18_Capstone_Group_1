@@ -13,7 +13,7 @@ export interface WelcomeSection {
   lines: string[];
 }
 
-export const WELCOME_TITLE = `${BRAND_NAME}'ya hoş geldin`;
+export const WELCOME_TITLE = `${BRAND_NAME}'a hoş geldin`;
 
 export const WELCOME_LEAD =
   `${BRAND_NAME}, yapay zeka sohbetlerinde aynı yerde dönmeye başladığını fark eder ve oradan çıkmanın kolay bir yolunu sunar. ` +
@@ -91,9 +91,9 @@ function cardArt(): HTMLElement {
   const card = el("div", "mini-card");
   const row = el("div", "mini-chips");
   row.append(el("span", "chip dark", "Taze başlat"), el("span", "chip", "Kapat"));
-  // Kod sohbetlerinin %75'i 5 turda ya da daha kısa sürede bitiyor (task-norms.json); kart bu cümleyi kurar.
+  // Kod sohbetlerinin %75'i 5 mesajda ya da daha kısa sürede bitiyor (task-norms.json); kart bu cümleyi kurar.
   card.append(
-    el("p", "mini-title", "Kod sohbetlerinin çoğu 5 turda bitiyor; bu sohbet 9. turunda."),
+    el("p", "mini-title", "Kod sohbetlerinin çoğu 5 mesajda bitiyor; bu sohbet 9. mesajında."),
     el("p", "mini-body", "İsteklerini tek mesajda toplayıp yeni bir sohbet açmak genelde daha hızlı olur."),
     row,
   );
@@ -146,7 +146,7 @@ export function mountWelcome(root: HTMLElement, close: () => void): void {
   const tText = el("div", "teaser-text");
   tText.append(
     el("p", "teaser-title", "Her hafta kısa bir özet"),
-    el("p", "teaser-body", `Bir hafta sonra, yapay zekayı nasıl kullandığının özeti hazır olur. Araç çubuğundaki ${BRAND_NAME} simgesinden açabilirsin.`),
+    el("p", "teaser-body", `Haftalık özetin araç çubuğundaki ${BRAND_NAME} simgesinden açılır; birkaç sohbetten sonra dolmaya başlar.`),
   );
   const preview = el("span", "teaser-preview");
   preview.setAttribute("aria-hidden", "true");
