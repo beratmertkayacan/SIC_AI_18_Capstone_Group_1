@@ -151,8 +151,70 @@ describe("haftalık özet sayfası", () => {
     expect(document.getElementById(tipId)?.getAttribute("role")).toBe("tooltip");
     btn.focus();
     expect(btn.getAttribute("aria-expanded")).toBe("true");
-    btn.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    btn.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(btn.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("bilgi kutusu fareyle basınca açık kalır; üzerinde durulurken Esc ile kapanır", async () => {
+    await conv(day(17), "kod", "1-3", "normal", "chatgpt", 6);
+    await open();
+    const btn = root.querySelector<HTMLButtonElement>(".info-btn")!;
+    // Tarayıcıdaki sıra: pointerdown, odak, tıklama. Odak kutuyu açıp tıklama kapatmamalı.
+    btn.dispatchEvent(new Event("pointerdown"));
+    btn.focus();
+    btn.click();
+    expect(btn.getAttribute("aria-expanded")).toBe("true");
+    btn.blur();
+    const wrap = btn.parentElement!;
+    wrap.dispatchEvent(new Event("mouseenter"));
+    expect(btn.getAttribute("aria-expanded")).toBe("true");
+    document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(btn.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("fare üzerindeyken tıklamak kutuyu kapatmaz, sabitler; fare çekilince açık kalır", async () => {
+    await conv(day(17), "kod", "1-3", "normal", "chatgpt", 6);
+    await open();
+    const btn = root.querySelector<HTMLButtonElement>(".info-btn")!;
+    const wrap = btn.parentElement!;
+    wrap.dispatchEvent(new Event("mouseenter"));
+    btn.dispatchEvent(new Event("pointerdown"));
+    btn.focus();
+    btn.click();
+    expect(btn.getAttribute("aria-expanded")).toBe("true");
+    btn.blur();
+    btn.focus();
+    btn.click(); // klavyeyle Enter: sabitler
+    wrap.dispatchEvent(new Event("mouseleave"));
+    expect(btn.getAttribute("aria-expanded")).toBe("true");
+    btn.click(); // ikinci basış kapatır
+    expect(btn.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("hafta düğmeleri sayfayı yeniden çizse de odak kaybolmaz; yeni hafta canlı bölgede okunur", async () => {
+    await open();
+    const prev = () => root.querySelector<HTMLButtonElement>(".icon-btn.prev")!;
+    prev().click();
+    await flush();
+    await flush();
+    expect(document.activeElement).toBe(prev());
+    const live = document.querySelector('[aria-live="polite"]')!;
+    expect(root.contains(live)).toBe(false);
+    expect(live.textContent).toBe("9–15 Kasım 2026");
+  });
+
+  it("en eski haftada geçen haftayla karşılaştırma yapılmaz", async () => {
+    for (let i = 0; i < 6; i++) await conv(new Date(2026, 8, 1, 12), "kod", "1-3", "dongu"); // en eski hafta: 31 Ağustos
+    await open();
+    for (let i = 0; i < WEEKS_BACK; i++) {
+      root.querySelector<HTMLButtonElement>(".icon-btn.prev")!.click();
+      await flush();
+      await flush();
+    }
+    expect(root.querySelector<HTMLButtonElement>(".icon-btn.prev")!.disabled).toBe(true);
+    expect(document.activeElement).toBe(root.querySelector(".icon-btn.next"));
+    expect(text()).toContain("Takılıp kaldığın sohbetler");
+    expect(text()).not.toContain("Geçen hafta");
   });
 
   it("silme satır içinde onay ister; onaylanınca her şey silinir", async () => {

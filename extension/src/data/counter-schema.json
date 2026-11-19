@@ -222,7 +222,7 @@
         "pencere",
         "ayrinti"
       ],
-      "note": "Haftalık içgörü. pencere: araç çubuğu penceresi içgörüyle açıldı (görev 'na'); ayrinti: bir görev satırı açıldı."
+      "note": "Haftalık içgörü. pencere: araç çubuğu penceresi içgörüyle açıldı (görev 'na'); ayrinti: haftalık özet sayfası dolu haliyle açıldı (görev 'na', sayfa açık kaldığı sürece bir kez). 19 Kasım 2026 öncesinde ayrinti, araç çubuğu penceresinde bir görev satırının açılması demekti ve görevi taşıyordu; eski ve yeni sayılar görev boyutuyla ayrılır."
     },
     "loop_end": {
       "dims": [

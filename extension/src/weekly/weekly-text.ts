@@ -92,11 +92,11 @@ export function weekLabel(start: string, end: string): string {
 
 export const loopShare = (r: Pick<WeekReport, "loops" | "conversations">) => percent(r.loops, r.conversations);
 
-/** Genel Görünüm'ün altındaki cümle. */
-export function headline(r: WeekReport): string {
+/** Genel Görünüm'ün altındaki cümle. comparable false ise (en eski hafta) geçen haftaya değinmez. */
+export function headline(r: WeekReport, comparable = true): string {
   if (r.loops === 0) return "Bu hafta hiçbir sohbette aynı isteği tekrar tekrar yazman gerekmedi.";
   const now = `Bu hafta sohbetlerinin %${numberIn(loopShare(r))} takılıp kaldın`;
-  if (r.previous.conversations < config.min_conversations) return `${now}.`;
+  if (!comparable || r.previous.conversations < config.min_conversations) return `${now}.`;
   return `${now}; geçen hafta bu oran %${numberWas(percent(r.previous.loops, r.previous.conversations))}.`;
 }
 

@@ -134,12 +134,12 @@
 
       .page-foot { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
       .foot-note { margin: 0; color: var(--muted); font-size: 12.5px; }
-      .foot-actions { display: flex; gap: 8px; }
+      .foot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
       .foot-actions > button { background: var(--card); }
       .foot-notice { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; text-align: right; }
       .confirm { padding: 12px 14px; border: 1px solid var(--danger); border-radius: 12px; background: var(--card); }
       .confirm p { margin: 0 0 10px; font-weight: 500; }
-      .confirm-actions { display: flex; gap: 8px; }
+      .confirm-actions { display: flex; gap: 8px; flex-wrap: wrap; }
       button.danger-solid { background: var(--danger); border-color: var(--danger); color: var(--card); }
       button.danger-solid:hover { filter: brightness(1.08); background: var(--danger); }
 
@@ -159,6 +159,8 @@
         .week-hint { flex-basis: 100%; margin-left: 0; }
         .state.few { flex-direction: column; align-items: flex-start; }
         .page-top .privacy-chip { font-size: 11px; padding: 4px 10px 4px 8px; }
+        .page-foot, .foot-actions { flex-direction: column; align-items: stretch; }
+        .foot-notice { text-align: left; }
       }
     </style>
   </head>

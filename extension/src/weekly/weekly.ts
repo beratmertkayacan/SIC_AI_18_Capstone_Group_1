@@ -1,7 +1,7 @@
 import { BRAND_NAME } from "../brand";
 import schema from "../data/counter-schema.json";
 import config from "../data/insights-config.json";
-import { REPAIRS } from "../core/repairs";
+import { CONTINUE_REPAIRS, REPAIRS, shortRepairs } from "../core/repairs";
 import { CounterStore } from "../core/counters";
 import { SettingsStore } from "../core/settings";
 import { percent, shiftWeek, weekReport, weekStart, type WeekReport } from "../core/week-report";
@@ -111,14 +111,10 @@ const REPAIR_SUBS: Record<string, string> = {
   continue_what: "Neyle devam edileceğini yazdın",
   continue_how: "Nasıl devam edileceğini yazdın",
 };
-const REPAIR_LABELS: Record<string, string> = {
-  ...Object.fromEntries(REPAIRS.map((x) => [x.id, x.label])),
-  error: "Hata mesajını ekle",
-  expected: "Beklediğimi yaz",
-  wrong_part: "Neyin yanlış olduğunu yaz",
-  continue_what: "Neyle devam etsin",
-  continue_how: "Nasıl devam etsin",
-};
+/** Düğme adları şeritteki gerçek düğmelerden alınır; bir ad değişirse burası da kendiliğinden değişir. */
+const REPAIR_LABELS: Record<string, string> = Object.fromEntries(
+  [...REPAIRS, ...shortRepairs("kod"), ...shortRepairs(null), ...CONTINUE_REPAIRS].map((x) => [x.id, x.label]),
+);
 const ALWAYS_SHOWN = ["format", "info", "shorter", "longer"];
 
 function actionsBlock(r: WeekReport): HTMLElement {
@@ -191,7 +187,7 @@ function timeBlock(r: WeekReport): HTMLElement {
   const foot = el("div", "heat-foot");
   const legend = el("span", "heat-legend");
   legend.setAttribute("aria-hidden", "true");
-  legend.append(el("span", undefined, "Yok"), el("span", "cell l0"), el("span", "cell l2"), el("span", "cell l3"), el("span", undefined, "Çok"));
+  legend.append(el("span", undefined, "Yok"), el("span", "cell l0"), el("span", "cell l1"), el("span", "cell l2"), el("span", "cell l3"), el("span", undefined, "Çok"));
   foot.append(el("p", "block-line", slotLine(r, SLOTS)), legend);
   return block("Ne Zaman", "Benzer mesajlarının gün ve saate dağılımı",
     "Öncekine çok benzeyen her gönderilmiş mesaj sayılır; şerit çıksın ya da çıkmasın. Gün ve saat, mesajı gönderdiğin ana göre.",
@@ -246,7 +242,8 @@ function trendBlock(r: WeekReport): HTMLElement {
   const chart = el("ol", "cols");
   r.days.forEach((d, i) => {
     const li = el("li", "col");
-    li.setAttribute("aria-label", `${DAY_LONG[i]}: ${d.conversations} sohbet, ${d.loops} takılıp kalınan`);
+    // Ekran okuyucu her sütunu tek cümle olarak okur; görsel parçalar ondan gizlenir.
+    li.append(el("span", "sr-only", `${DAY_LONG[i]}: ${d.conversations} sohbet, ${d.loops} takılıp kalınan`));
     const plot = el("div", "col-plot");
     plot.setAttribute("aria-hidden", "true");
     const all = el("span", "col-all");
@@ -256,7 +253,9 @@ function trendBlock(r: WeekReport): HTMLElement {
     all.append(loops);
     if (d.conversations > 0) all.append(el("span", "col-num", String(d.conversations)));
     plot.append(all);
-    li.append(plot, el("span", "col-day", DAY_SHORT[i]!));
+    const day = el("span", "col-day", DAY_SHORT[i]!);
+    day.setAttribute("aria-hidden", "true");
+    li.append(plot, day);
     chart.append(li);
   });
   const legend = el("div", "legend");
@@ -277,21 +276,22 @@ function tipBlock(r: WeekReport): HTMLElement | null {
   return box;
 }
 
-function overview(r: WeekReport): HTMLElement {
+/** comparable: bir önceki hafta saklama süresinin içinde mi (en eski haftada değil). */
+function overview(r: WeekReport, comparable: boolean): HTMLElement {
   const grid = el("div", "stats");
   const followTotal = Object.values(r.fresh_followups).reduce((a, b) => a + b, 0);
   grid.append(
     stat("Yapay zeka sohbetlerin", String(r.conversations), null,
       "ChatGPT, Gemini ve benzeri araçlarda bu hafta biten sohbetler",
-      `Geçen hafta ${r.previous.conversations} sohbet`,
+      comparable ? `Geçen hafta ${r.previous.conversations} sohbet` : null,
       "Bir sohbet, başka bir sohbete geçtiğinde ya da sekmeyi kapattığında biter ve o günün sayısına yazılır. Hala açık olan sohbet henüz sayılmaz."),
     stat("Takılıp kaldığın sohbetler", `%${loopShare(r)}`, null,
       `Cevap işe yaramadı deyip aynı şeyi tekrar istediğin sohbetler (${r.conversations} sohbetin ${r.loops > 0 ? numberOf(r.loops) : "hiçbiri"})`,
-      previousLoopLine(r),
+      comparable ? previousLoopLine(r) : null,
       "İkinci mesajından sonra en az iki kez “olmadı”, “yanlış” gibi bir düzeltme yazdığın ya da bir düzeltmeyle birlikte aynı mesajı yeniden gönderdiğin sohbetler bu sayıya girer."),
     stat("Benzer mesaj uyarısı", String(r.strips.benzer), "kez",
-      `Mesajın öncekine çok benzediğinde ${BRAND_NAME}'nın gönderimi durdurduğu anlar`,
-      `Geçen hafta ${r.previous.strips_benzer} kez`,
+      `Mesajın öncekine çok benzediğinde ${BRAND_NAME}'ın gönderimi durdurduğu anlar`,
+      comparable ? `Geçen hafta ${r.previous.strips_benzer} kez` : null,
       "Gönder'e bastığında mesajın son 5 mesajınla karşılaştırılır. Neredeyse aynıysa, gönderilmeden önce küçük bir uyarı çıkar. “1. soruyu çöz”, “2. soruyu çöz” gibi bilerek yaptığın seri istekler sayılmaz."),
     stat("Taze başlat", String(r.fresh_starts), "kez",
       "Sohbette istediklerini tek mesajda toplayıp yeni sohbet açan düğme",
@@ -302,7 +302,7 @@ function overview(r: WeekReport): HTMLElement {
   sec.setAttribute("aria-labelledby", "ov-title");
   const h = el("h2", "section-title", "Genel Görünüm");
   h.id = "ov-title";
-  sec.append(h, grid, el("p", "headline", headline(r)));
+  sec.append(h, grid, el("p", "headline", headline(r, comparable)));
   return sec;
 }
 
@@ -365,6 +365,12 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
   let confirming = false;
   let notice = "";
   let seen = false;
+  let focusAfter: string | null = null;
+  let lastLabel = "";
+  // Hafta değişince okunacak canlı bölge sayfanın dışında durur; her çizimde yeniden kurulmadığı için ekran okuyucu değişikliği kaçırmaz.
+  const announcer = el("p", "sr-only");
+  announcer.setAttribute("aria-live", "polite");
+  (root.parentElement ?? document.body).append(announcer);
 
   const render = async () => {
     const [settings, counts] = await Promise.all([deps.settings.load(), deps.counters.load()]);
@@ -382,15 +388,25 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     const prev = el("button", "icon-btn prev");
     prev.type = "button";
     prev.setAttribute("aria-label", "Önceki hafta");
+    prev.dataset.focus = "prev";
     prev.disabled = back >= WEEKS_BACK;
-    prev.addEventListener("click", () => { back += 1; void render(); });
+    prev.addEventListener("click", () => {
+      back += 1;
+      // En eski haftaya varınca düğme kapanır; odak öbür düğmeye geçer.
+      focusAfter = back >= WEEKS_BACK ? "next" : "prev";
+      void render();
+    });
     const next = el("button", "icon-btn next");
     next.type = "button";
     next.setAttribute("aria-label", "Sonraki hafta");
+    next.dataset.focus = "next";
     next.disabled = back === 0;
-    next.addEventListener("click", () => { back -= 1; void render(); });
+    next.addEventListener("click", () => {
+      back -= 1;
+      focusAfter = back === 0 ? "prev" : "next";
+      void render();
+    });
     const label = el("span", "week-label", weekLabel(r.start, r.end));
-    label.setAttribute("aria-live", "polite");
     nav.append(prev, label, next, el("span", "week-hint", `Son ${WEEKS_BACK + 1} haftaya kadar geriye bakabilirsin.`));
     title.append(h1, nav);
 
@@ -402,7 +418,7 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     else {
       const grid = el("div", "blocks");
       grid.append(tasksBlock(r), actionsBlock(r), timeBlock(r), freshBlock(r), lengthBlock(r), platformBlock(r), trendBlock(r));
-      main.append(overview(r), grid);
+      main.append(overview(r, back < WEEKS_BACK), grid);
       const tip = tipBlock(r);
       if (tip) main.append(tip);
       if (!seen) {
@@ -424,24 +440,28 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
         await deps.settings.clearAll();
         confirming = false;
         notice = "Silindi. Eklenti varsayılan ayara döndü.";
+        focusAfter = "delete";
         await render();
       });
       const no = el("button", undefined, "Vazgeç");
-      no.addEventListener("click", async () => { confirming = false; await render(); });
+      no.dataset.focus = "cancel";
+      no.addEventListener("click", async () => { confirming = false; focusAfter = "delete"; await render(); });
       const btns = el("div", "confirm-actions");
       btns.append(yes, no);
       box.append(el("p", undefined, "Ayarların ve sayaçların silinecek. Emin misin?"), btns);
       actions.append(box);
-      queueMicrotask(() => no.focus());
     } else {
       const exp = el("button", undefined, "Sayaçlarımı kopyala");
+      exp.dataset.focus = "copy";
       exp.addEventListener("click", async () => {
         const ok = await copy(await deps.counters.exportJson());
         notice = ok ? "Sayaçlar panoya kopyalandı." : "Kopyalanamadı.";
+        focusAfter = "copy";
         await render();
       });
       const del = el("button", undefined, "Tüm verilerimi sil");
-      del.addEventListener("click", async () => { confirming = true; notice = ""; await render(); });
+      del.dataset.focus = "delete";
+      del.addEventListener("click", async () => { confirming = true; notice = ""; focusAfter = "cancel"; await render(); });
       actions.append(exp, del);
     }
     foot.append(actions);
@@ -452,6 +472,14 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     }
 
     root.replaceChildren(top, main, foot);
+    // Sayfa her düğmede yeniden çizilir; odak basılan düğmeye (ya da onun yerini alana) geri verilir.
+    if (focusAfter) {
+      root.querySelector<HTMLElement>(`[data-focus="${focusAfter}"]`)?.focus();
+      focusAfter = null;
+    }
+    const shown = weekLabel(r.start, r.end);
+    if (lastLabel && shown !== lastLabel) announcer.textContent = shown;
+    lastLabel = shown;
   };
 
   void render();
