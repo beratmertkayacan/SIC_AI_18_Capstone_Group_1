@@ -22,20 +22,18 @@ export const NO_TAB: TabBridge = { snapshot: async () => null, openCard: async (
 /** Eklentinin kendi sayfasını yeni sekmede açar (haftalık özet, karşılama ekranı). */
 export type OpenPage = (path: string) => void;
 
-const SETTING_NAMES: [keyof Settings, string][] = [
-  ["enabled", `${BRAND_NAME} açık`],
-  ["suggestionsEnabled", "Uyarılar ve öneriler"],
-  ["ringEnabled", "Halka"],
-  ["exitCardEnabled", "Yeni sohbet önerisi"],
+/** Ayarlar satırının alt yazısında açık olanların kısa adları (cümle içinde, küçük harfle). */
+const SUMMARY_NAMES: [keyof Settings, string][] = [
+  ["suggestionsEnabled", "öneriler"],
+  ["ringEnabled", "halka"],
+  ["exitCardEnabled", "yeni sohbet önerisi"],
 ];
 
-/** Ayarlar satırının alt yazısı: açık olanların adları. */
+/** Ayarlar satırının alt yazısı: "Açık: öneriler, halka, yeni sohbet önerisi". */
 export function settingsSummary(s: Settings): string {
-  if (!s.enabled) return "Eklenti, öneriler, halka ve yeni sohbet önerisi";
-  const on = SETTING_NAMES.filter(([k]) => s[k] === true && (k === "enabled" || s.suggestionsEnabled || k === "suggestionsEnabled"))
-    .map(([, n]) => n);
-  if (on.length === 1) return `${on[0]}; uyarılar ve öneriler kapalı`;
-  return `${on.slice(0, -1).join(", ")} ve ${on[on.length - 1]}`;
+  if (!s.enabled) return `${BRAND_NAME} kapalı`;
+  if (!s.suggestionsEnabled) return "Açık; uyarılar ve öneriler kapalı";
+  return `Açık: ${SUMMARY_NAMES.filter(([k]) => s[k] === true).map(([, n]) => n).join(", ")}`;
 }
 
 /** "Bu Sohbet" ilerleme çubuğu: genelde biten tur sayısı ve şu anki tur. */
@@ -90,8 +88,10 @@ export function mountPopup(
   let insightSeen = false;
   let focusAfter: string | null = null;
 
-  const update = async (patch: Partial<Settings>) => {
+  /** Ayar değişince sayfa yeniden çizilir; odak basılan anahtara geri verilir. */
+  const update = async (patch: Partial<Settings>, focus: string | null = null) => {
     notice = "";
+    focusAfter = focus;
     await store.update(patch);
     await render();
   };
@@ -167,6 +167,7 @@ export function mountPopup(
   const footer = (settings: Settings): HTMLElement[] => {
     const row = el("button", "nav-row");
     row.type = "button";
+    row.dataset.focus = "settings";
     const text = el("span", "nav-text");
     text.append(el("span", "nav-title", "Ayarlar"), el("span", "nav-sub", settingsSummary(settings)));
     row.append(text, el("span", "chev"));
@@ -189,8 +190,8 @@ export function mountPopup(
     const parts: HTMLElement[] = [header(), el("hr")];
     if (!settings.enabled) {
       const off = el("section", "card lifted");
-      const on = el("button", "primary wide", `${BRAND_NAME}'yı aç`);
-      on.addEventListener("click", () => update({ enabled: true }));
+      const on = el("button", "primary wide", `${BRAND_NAME}'ı aç`);
+      on.addEventListener("click", () => update({ enabled: true }, "settings"));
       off.append(el("h2", "sec-title", `${BRAND_NAME} şu an kapalı.`), el("p", "line muted", "Kapalıyken hiçbir şey yapmaz."), on);
       parts.push(off);
     } else {
@@ -221,19 +222,26 @@ export function mountPopup(
       view = "main";
       confirming = false;
       notice = "";
+      focusAfter = "settings";
       await render();
     });
     head.append(h1, back);
     const list = el("div", "settings");
     const sub = !settings.enabled || !settings.suggestionsEnabled;
-    list.append(
-      switchRow(`${BRAND_NAME} açık`, "Kapalıyken hiçbir şey yapmaz.", settings.enabled, false, (v) => update({ enabled: v })),
+    type Toggle = "enabled" | "suggestionsEnabled" | "ringEnabled" | "exitCardEnabled";
+    const toggle = (key: Toggle) => (v: boolean) => update({ [key]: v } as Partial<Settings>, key);
+    const rows = [
+      switchRow(`${BRAND_NAME} açık`, "Kapalıyken hiçbir şey yapmaz.", settings.enabled, false, toggle("enabled")),
       switchRow("Uyarılar ve öneriler", "Kapalıyken hiçbir şey gösterilmez ve mesajlar bekletilmez; yalnızca günlük sayılar tutulur.",
-        settings.suggestionsEnabled, !settings.enabled, (v) => update({ suggestionsEnabled: v })),
-      switchRow("Halka", "Mesaj kutusunun kenarında sohbetin gidişini sakin bir tonla gösterir.", settings.ringEnabled, sub,
-        (v) => update({ ringEnabled: v })),
-      switchRow("Yeni sohbet önerisi", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, sub, (v) => update({ exitCardEnabled: v })),
-    );
+        settings.suggestionsEnabled, !settings.enabled, toggle("suggestionsEnabled")),
+      switchRow("Halka", "Mesaj kutusunun kenarında sohbetin gidişini sakin bir tonla gösterir.", settings.ringEnabled, sub, toggle("ringEnabled")),
+      switchRow("Yeni sohbet önerisi", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, sub, toggle("exitCardEnabled")),
+    ];
+    (["enabled", "suggestionsEnabled", "ringEnabled", "exitCardEnabled"] as const).forEach((key, i) => {
+      const input = rows[i]!.querySelector("input");
+      if (input) input.dataset.focus = key;
+    });
+    list.append(...rows);
     const data = el("section", "data");
     data.append(
       el("h2", "sec-title", "Verilerin"),
@@ -248,12 +256,14 @@ export function mountPopup(
         await store.clearAll();
         confirming = false;
         notice = "Silindi. Eklenti varsayılan ayara döndü.";
+        focusAfter = "delete";
         await render();
       });
       const no = el("button", undefined, "Vazgeç");
       no.dataset.focus = "cancel";
       no.addEventListener("click", async () => {
         confirming = false;
+        focusAfter = "delete";
         await render();
       });
       const actions = el("div", "actions");
@@ -262,13 +272,16 @@ export function mountPopup(
       data.append(box);
     } else {
       const exp = el("button", undefined, "Sayaçlarımı kopyala");
+      exp.dataset.focus = "copy";
       exp.addEventListener("click", async () => {
         // Yalnızca günlük sayılar kopyalanır (sürüm numaralı; mesaj metni ya da sohbet bilgisi yok).
         const ok = await copy(await counters.exportJson());
         notice = ok ? "Sayaçlar panoya kopyalandı." : "Kopyalanamadı.";
+        focusAfter = "copy";
         await render();
       });
       const del = el("button", undefined, "Tüm verilerimi sil");
+      del.dataset.focus = "delete";
       del.addEventListener("click", async () => {
         confirming = true;
         notice = "";

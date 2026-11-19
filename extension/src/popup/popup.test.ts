@@ -75,7 +75,7 @@ describe("popup", () => {
     expect(root.querySelector(".brand-name")?.textContent).toBe("Kâfi AI");
     expect(root.querySelector(".privacy-chip")?.textContent).toBe("Veriler cihazında kalır");
     expect(root.querySelector("#week-title")?.textContent).toBe("Bu Hafta");
-    expect(settingsButton().textContent).toContain("Kâfi AI açık, Uyarılar ve öneriler, Halka ve Yeni sohbet önerisi");
+    expect(settingsButton().textContent).toContain("Açık: öneriler, halka, yeni sohbet önerisi");
     const link = root.querySelector("a")!;
     expect(link.getAttribute("href")).toBe("welcome.html");
     expect(link.getAttribute("target")).toBe("_blank");
@@ -125,6 +125,43 @@ describe("popup", () => {
     await flush();
     await flush();
     expect(root.querySelector("#week-title")).not.toBeNull();
+    // Geri dönünce odak Ayarlar satırına verilir.
+    expect(document.activeElement).toBe(settingsButton());
+  });
+
+  it("ayarlar özeti duruma göre kısa ve küçük harfli", async () => {
+    const { settingsSummary } = await import("./popup");
+    const base = { enabled: true, suggestionsEnabled: true, ringEnabled: true, exitCardEnabled: true } as Parameters<typeof settingsSummary>[0];
+    expect(settingsSummary({ ...base, ringEnabled: false })).toBe("Açık: öneriler, yeni sohbet önerisi");
+    expect(settingsSummary({ ...base, suggestionsEnabled: false })).toBe("Açık; uyarılar ve öneriler kapalı");
+    expect(settingsSummary({ ...base, enabled: false })).toBe("Kâfi AI kapalı");
+  });
+
+  it("anahtar değişince sayfa yeniden çizilse de odak aynı anahtarda kalır", async () => {
+    await open();
+    settingsButton().click();
+    await flush();
+    await flush();
+    checkbox("Halka").click();
+    await flush();
+    await flush();
+    expect(checkbox("Halka").checked).toBe(false);
+    expect(document.activeElement).toBe(checkbox("Halka"));
+  });
+
+  it("silme onayında Vazgeç odağı silme düğmesine geri verir", async () => {
+    await open();
+    settingsButton().click();
+    await flush();
+    await flush();
+    button("Tüm verilerimi sil").click();
+    await flush();
+    await flush();
+    expect(document.activeElement).toBe(button("Vazgeç"));
+    button("Vazgeç").click();
+    await flush();
+    await flush();
+    expect(document.activeElement).toBe(button("Tüm verilerimi sil"));
   });
 
   it("eklentiyi kapatınca kaydeder, diğer anahtarlar devre dışı kalır; ana görünümde aç düğmesi çıkar", async () => {
@@ -141,7 +178,7 @@ describe("popup", () => {
     await flush();
     await flush();
     expect(root.textContent).toContain("Kâfi AI şu an kapalı.");
-    button("Kâfi AI'yı aç").click();
+    button("Kâfi AI'ı aç").click();
     await flush();
     await flush();
     expect((await store.load()).enabled).toBe(true);
