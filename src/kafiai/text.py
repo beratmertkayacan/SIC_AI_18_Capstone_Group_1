@@ -78,10 +78,14 @@ _RLP = with_folded(REPAIR_RULES["limited_words"]["phrases"])
 _RPRE = with_folded(REPAIR_RULES["prefixes"])
 _RPH = with_folded(REPAIR_RULES["phrases"])
 _RSW = with_folded(REPAIR_RULES["starts_with"])
+# Yalnızca mesajın tamamı buysa sayılanlar ("tekrar"); uzun metindeki aynı kelime sayılmaz.
+_RWHOLE = set(with_folded(REPAIR_RULES.get("whole_messages", [])))
 
 
 def _repair_match(normalized):
     words = normalized.split()
+    if " ".join(words) in _RWHOLE:
+        return True
     if any(w in _RW for w in words):
         return True
     # "still", "again", "yine": yalnızca kısa mesajlarda sayılır; uzun metinde ayırt etmiyorlar.

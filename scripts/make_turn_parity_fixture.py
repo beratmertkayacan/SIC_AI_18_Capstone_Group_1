@@ -41,6 +41,8 @@ CONVERSATIONS = [
 ]
 
 REPAIR_SAMPLES = [
+    # Yalnızca mesajın tamamıysa onarım sayılanlar (whole_messages)
+    "tekrar", "Tekrar dene", "yeniden dene", "tekrar eden sayıları bul", "tekrar et bunu lütfen uzun bir cümle",
     "olmadı", "Olmadı ya", "HAYIR", "hayır bu değil", "I said no", "I SAID NO", "It doesn't work", "it doesnt work",
     "same problem", "still", "Still wrong!!", "anlamadın beni", "yanlışsın", "please try again", "thanks, great",
     "no worries", "but why", "But it fails", "error", "KeyError: 'x'", "some_error_handler", "hâlâ aynı", "yine mi",
