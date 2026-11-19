@@ -44,8 +44,9 @@ export function brandLockup(size: number, withTagline: boolean, asHeading = fals
 let tipSeq = 0;
 
 /**
- * Bilgi düğmesi ve açıklama kutusu. Kutu üzerine gelince, düğmeye odaklanınca ya da basınca açılır;
- * Esc ya da odağın ayrılmasıyla kapanır. Ekran okuyucu düğmeyi kutunun metniyle birlikte okur.
+ * Bilgi düğmesi ve açıklama kutusu. Kutu üzerine gelince, klavyeyle odaklanınca ya da basınca açılır;
+ * fare kutunun üzerine geçerken kapanmaz. Esc (odak nerede olursa olsun), odağın ayrılması ya da
+ * farenin çıkmasıyla kapanır (WCAG 1.4.13). Ekran okuyucu düğmeyi kutunun metniyle birlikte okur.
  */
 export function infoTip(label: string, text: string): HTMLElement {
   const id = `tip-${++tipSeq}`;
@@ -58,15 +59,43 @@ export function infoTip(label: string, text: string): HTMLElement {
   const tip = el("span", "tip", text);
   tip.id = id;
   tip.setAttribute("role", "tooltip");
-  const set = (open: boolean) => {
-    wrap.classList.toggle("open", open);
-    btn.setAttribute("aria-expanded", String(open));
+  let open = false;
+  // Tıklamayla sabitlenen kutu fare çekilince kapanmaz; ikinci tıklama, Esc ya da odağın ayrılması kapatır.
+  let pinned = false;
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      pinned = false;
+      set(false);
+    }
   };
-  btn.addEventListener("click", () => set(!wrap.classList.contains("open")));
-  btn.addEventListener("focus", () => set(true));
-  btn.addEventListener("blur", () => set(false));
-  btn.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") set(false);
+  const set = (value: boolean) => {
+    if (value === open) return;
+    open = value;
+    wrap.classList.toggle("open", value);
+    btn.setAttribute("aria-expanded", String(value));
+    // Esc yalnızca kutu açıkken dinlenir; sayfa yeniden çizilince dinleyici kalmaz.
+    if (value) document.addEventListener("keydown", onKey);
+    else document.removeEventListener("keydown", onKey);
+  };
+  // Fareyle basınca tarayıcı önce odak verir: odak açmasın, yoksa hemen ardından gelen tıklama kutuyu kapatır.
+  let pointer = false;
+  btn.addEventListener("pointerdown", () => { pointer = true; });
+  btn.addEventListener("focus", () => {
+    if (!pointer) set(true);
+    pointer = false;
+  });
+  // Fare üzerine gelince kutu zaten açılmış olur; tıklama onu kapatmaz, sabitler (ikinci tıklama kapatır).
+  btn.addEventListener("click", () => {
+    pinned = !pinned;
+    set(pinned);
+  });
+  btn.addEventListener("blur", () => {
+    pinned = false;
+    set(false);
+  });
+  wrap.addEventListener("mouseenter", () => set(true));
+  wrap.addEventListener("mouseleave", () => {
+    if (!pinned && document.activeElement !== btn) set(false);
   });
   wrap.append(btn, tip);
   return wrap;
