@@ -55,3 +55,21 @@ export const EXIT_CARD_COOLDOWN_TURNS = 5; // kapatılınca / yok sayılınca bu
 export const FRESH_START_MAX_CHARS = 400; // taslakta her istek en fazla bu kadar karakter
 
 // Sayaçların saklama süresi ve kovaları src/data/counter-schema.json içinde (karar K18).
+
+/**
+ * Kısıt kontrolü (deney): "cevap bitti" sinyalinden sonra cevabın değişmediğini görmek için ikinci okumaya kadar
+ * beklenen süre (ms). Sessizlik sinyali tek başına kesin tamamlanma kanıtı sayılmaz.
+ */
+export const CONSTRAINT_CONFIRM_MS = 1200;
+
+export type ExperimentName = "kisitKontrolu";
+
+/**
+ * Deneyler varsayılan olarak kapalıdır ve kullanıcıya hiçbir şey göstermez. Yalnızca yerel test düzeneği,
+ * eklentinin kendi betik ortamında globalThis.__kafiaiDeney = { kisitKontrolu: true } yazarak açar; sayfanın
+ * kendi betikleri bu ortama erişemez. Ayar ya da depolama kullanılmaz.
+ */
+export function experimentOn(name: ExperimentName): boolean {
+  const flags = (globalThis as { __kafiaiDeney?: Partial<Record<ExperimentName, unknown>> }).__kafiaiDeney;
+  return flags?.[name] === true;
+}

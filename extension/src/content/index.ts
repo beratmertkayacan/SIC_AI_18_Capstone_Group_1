@@ -1,5 +1,6 @@
 import { platformFor } from "../adapters/registry";
-import { BLANK_AFTER_SEND_MS, BLANK_TICKS, NAV_POLL_MS, POLL_MS } from "../config";
+import { BLANK_AFTER_SEND_MS, BLANK_TICKS, experimentOn, NAV_POLL_MS, POLL_MS } from "../config";
+import { ConstraintProbe } from "../core/constraint-probe";
 import { chromeStorage } from "../core/chrome-storage";
 import {
   CounterStore,
@@ -113,6 +114,17 @@ function main(): boolean {
   /** Bu platformda öneri gösterilebilir mi (platform kaydı, K19)? */
   const intervening = () => capabilities.interventions === "full";
   const phase = (): Phase => (suggesting() ? "oneri" : "sayim");
+  // Kısıt kontrolü (deney, varsayılanı kapalı): kullanıcıya hiçbir şey göstermez, yalnızca kararı konsola
+  // sayı ve etiketle yazar. Bayrak kapalıyken hiçbir şey okumaz (src/core/constraint-probe.ts).
+  const constraintProbe = new ConstraintProbe({
+    enabled: () => active() && experimentOn("kisitKontrolu"),
+    read: () => adapter.lastExchange?.() ?? null,
+    userTexts: () => ({ texts: userTexts, hidden: hiddenTurns }),
+    log: (line) => console.log(line),
+    schedule: (fn, ms) => {
+      window.setTimeout(fn, ms);
+    },
+  });
 
   /** Sayaç boyutları: yalnızca kısa, sabit sözcükler (K18). Mesaj metni buraya girmez. */
   const dims = (extra: Dims = {}): Dims => ({
@@ -472,6 +484,7 @@ function main(): boolean {
     if (!wasActive) {
       // Yeni açıldı (ya da sayfa yeni yüklendi): kapalıyken sayım yapılmadı, baştan başla.
       session.restart();
+      constraintProbe.reset();
       detector.reset();
       signals.reset();
       seenSignals.clear();
@@ -662,6 +675,7 @@ function main(): boolean {
       updateRing();
       maybeShowExitCard();
       maybeShowAffirmHint();
+      constraintProbe.onResponseComplete();
     },
     onSendNotSeen: () => {
       // Sayfa mesajı göndermedi (örneğin yeni açılmış sekmede Enter işlenmedi): sayılmadı.
@@ -676,6 +690,7 @@ function main(): boolean {
     },
     onEdit: () => {
       if (active()) record("edit", "-");
+      constraintProbe.onEdit();
     },
   });
 
@@ -694,6 +709,7 @@ function main(): boolean {
     // Bildiğimiz eski mesajlarla birebir aynı liste görünürse sayfa henüz değişmemiştir.
     // Sayfanın o anki hâli kullanılmaz: gecikmeyle fark edilen geçişte o zaten yeni sohbet olabilir.
     staleHistory = historySignature(userTexts);
+    constraintProbe.reset();
     detector.reset();
     signals.reset();
     seenSignals.clear();
