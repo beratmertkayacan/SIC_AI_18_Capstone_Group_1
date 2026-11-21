@@ -112,3 +112,74 @@ describe("ConstraintProbe", () => {
     expect(t.logs[0]).toContain("değerlendirilemiyor (cevap okunamadı)");
   });
 });
+
+describe("ConstraintProbe kısıt notu", () => {
+  const U3new = "Şimdi de bana yapay zekanın sağlıktaki kullanım alanlarını anlat.";
+  const RAISE = "30 kelime sınırını 50'ye çıkarıyorum, biraz daha ayrıntılı yaz.";
+  const turn = (i: number, user: string, n: number, extra: Partial<ExchangeSnapshot> = {}) =>
+    snap({ userKey: `fallback-turn-${i}:0:user`, assistantKey: `fallback-turn-${i}:1:assistant`, userText: user, assistantText: words(n), ...extra });
+
+  /** Turları sırayla oynatır: her tur için kullanıcı mesajları ve okunacak cevap. */
+  function play(steps: { texts: string[]; read: ExchangeSnapshot }[], opts: { note?: boolean; edit?: number } = {}) {
+    const logs: string[] = [];
+    const notes: { key: string; text: string }[] = [];
+    let current = steps[0]!;
+    const probe = new ConstraintProbe({
+      enabled: () => true,
+      read: () => current.read,
+      userTexts: () => ({ texts: current.texts, hidden: 0 }),
+      log: (l) => logs.push(l),
+      schedule: (fn) => fn(),
+      noteEnabled: () => opts.note ?? true,
+      showNote: (key, text) => (notes.push({ key, text }), true),
+    }, 0);
+    steps.forEach((s, i) => {
+      current = s;
+      if (opts.edit === i) probe.onEdit();
+      probe.onResponseComplete();
+    });
+    return { logs, notes, probe, again: () => probe.onResponseComplete() };
+  }
+  const main = [
+    { texts: [U1], read: turn(0, U1, 53) },
+    { texts: [U1, U2], read: turn(1, U2, 35) },
+  ];
+
+  it("ana akış: ikinci cevabın altında bir kez not; metin sınırı ve sayımı anar", () => {
+    const t = play(main);
+    expect(t.notes).toHaveLength(1);
+    expect(t.notes[0]!.key).toBe("fallback-turn-1:1:assistant");
+    expect(t.notes[0]!.text).toContain("30 kelime sınırını aşıyor (35 kelime)");
+    t.again(); // aynı cevap yeniden okunursa ikinci not yok
+    expect(t.notes).toHaveLength(1);
+  });
+
+  it("not bayrağı kapalıyken not yok (karar yine yazılır)", () => {
+    const t = play(main, { note: false });
+    expect(t.notes).toHaveLength(0);
+    expect(t.logs.some((l) => l.includes("tur 2, sonuç aşıyor"))).toBe(true);
+  });
+
+  it("ikinci cevap sınıra uyuyorsa not yok", () => {
+    expect(play([main[0]!, { texts: [U1, U2], read: turn(1, U2, 30) }]).notes).toHaveLength(0);
+  });
+
+  it("sınır değiştiyse (30'dan 50'ye) not yok", () => {
+    expect(play([main[0]!, { texts: [U1, RAISE], read: turn(1, RAISE, 60) }]).notes).toHaveLength(0);
+  });
+
+  it("ikinci mesaj sınırı yinelemiyorsa not yok", () => {
+    expect(play([main[0]!, { texts: [U1, U3new], read: turn(1, U3new, 35) }]).notes).toHaveLength(0);
+  });
+
+  it("eşleşme belirsizse (eski cevap, düzenleme) not yok", () => {
+    const stale = play([main[0]!, { texts: [U1, U2], read: turn(1, U2, 35, { assistantKey: "fallback-turn-0:1:assistant" }) }]);
+    expect(stale.notes).toHaveLength(0);
+    expect(play(main, { edit: 1 }).notes).toHaveLength(0);
+  });
+
+  it("ilk cevap belirsiz kaldıysa ardışık ihlal zinciri kurulmaz", () => {
+    const t = play([{ texts: [U1], read: turn(0, U1, 53, { generating: true }) }, main[1]!]);
+    expect(t.notes).toHaveLength(0);
+  });
+});

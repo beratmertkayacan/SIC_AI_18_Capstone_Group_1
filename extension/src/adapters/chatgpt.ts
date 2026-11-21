@@ -175,6 +175,15 @@ export const chatgptAdapter: Adapter = {
     };
   },
 
+  responseElement(key: string) {
+    // Deney (kısıt notu): notun yerleşeceği cevap öğesi; anahtarla birebir eşleşen ve ekranda yer kaplayan.
+    return (
+      Array.from(document.querySelectorAll<HTMLElement>(ASSISTANT_KEY_SELECTOR)).find(
+        (el) => el.getAttribute("data-content-search-unit-key") === key && el.getClientRects().length > 0,
+      ) ?? null
+    );
+  },
+
   readHistory() {
     // Sohbet değişince ChatGPT önceki sohbetin mesajını sayfada görünmez bir artık olarak
     // bırakabiliyor (canlı sayfada ölçüldü: yükseklik 0). Yalnızca ekranda yer kaplayanlar alınır.

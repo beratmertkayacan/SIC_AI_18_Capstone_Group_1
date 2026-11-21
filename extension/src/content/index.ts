@@ -1,6 +1,7 @@
 import { platformFor } from "../adapters/registry";
 import { BLANK_AFTER_SEND_MS, BLANK_TICKS, experimentOn, NAV_POLL_MS, POLL_MS } from "../config";
 import { ConstraintProbe } from "../core/constraint-probe";
+import { ConstraintNote } from "../ui/constraint-note";
 import { chromeStorage } from "../core/chrome-storage";
 import {
   CounterStore,
@@ -116,14 +117,19 @@ function main(): boolean {
   const phase = (): Phase => (suggesting() ? "oneri" : "sayim");
   // Kısıt kontrolü (deney, varsayılanı kapalı): kullanıcıya hiçbir şey göstermez, yalnızca kararı konsola
   // sayı ve etiketle yazar. Bayrak kapalıyken hiçbir şey okumaz (src/core/constraint-probe.ts).
+  // Kısıt notu (ayrı deney, varsayılanı kapalı): ardışık iki ihlalde ikinci cevabın altında bir kez; öneriler
+  // kapalıysa, platform müdahaleye izin vermiyorsa ya da sohbet kişiselse gösterilmez.
+  const constraintNote = new ConstraintNote();
   const constraintProbe = new ConstraintProbe({
-    enabled: () => active() && experimentOn("kisitKontrolu"),
+    enabled: () => active() && (experimentOn("kisitKontrolu") || experimentOn("kisitNotu")),
     read: () => adapter.lastExchange?.() ?? null,
     userTexts: () => ({ texts: userTexts, hidden: hiddenTurns }),
     log: (line) => console.log(line),
     schedule: (fn, ms) => {
       window.setTimeout(fn, ms);
     },
+    noteEnabled: () => experimentOn("kisitNotu") && suggesting() && intervening() && !personal,
+    showNote: (key, text) => constraintNote.show(adapter.responseElement?.(key) ?? null, text),
   });
 
   /** Sayaç boyutları: yalnızca kısa, sabit sözcükler (K18). Mesaj metni buraya girmez. */
@@ -485,6 +491,7 @@ function main(): boolean {
       // Yeni açıldı (ya da sayfa yeni yüklendi): kapalıyken sayım yapılmadı, baştan başla.
       session.restart();
       constraintProbe.reset();
+      constraintNote.hideAll();
       detector.reset();
       signals.reset();
       seenSignals.clear();
@@ -710,6 +717,7 @@ function main(): boolean {
     // Sayfanın o anki hâli kullanılmaz: gecikmeyle fark edilen geçişte o zaten yeni sohbet olabilir.
     staleHistory = historySignature(userTexts);
     constraintProbe.reset();
+    constraintNote.hideAll();
     detector.reset();
     signals.reset();
     seenSignals.clear();

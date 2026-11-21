@@ -98,6 +98,8 @@ export interface Adapter {
    * Cevap metni ile kimliği aynı öğeden okunur. Destekleyen adaptörler verir; diğerlerinde tanımsız.
    */
   lastExchange?(): ExchangeSnapshot | null;
+  /** Anahtarı verilen cevap öğesi (deney: kısıt notu, notun yerleşeceği yer). Bulunamazsa null. */
+  responseElement?(key: string): Element | null;
   /** Yeni (boş) bir sohbetin adresi. */
   newChatUrl(): string;
   /** Mesaj kutusu: arayüzü yerleştirmek için çapa ve kutunun boş olup olmadığı. Kutu yoksa null. */

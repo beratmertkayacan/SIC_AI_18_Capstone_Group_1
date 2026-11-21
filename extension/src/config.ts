@@ -62,11 +62,12 @@ export const FRESH_START_MAX_CHARS = 400; // taslakta her istek en fazla bu kada
  */
 export const CONSTRAINT_CONFIRM_MS = 1200;
 
-export type ExperimentName = "kisitKontrolu";
+/** kisitKontrolu: yalnızca kararı konsola yazar. kisitNotu: ayrıca ardışık iki ihlalde ikinci cevabın altına not koyar. */
+export type ExperimentName = "kisitKontrolu" | "kisitNotu";
 
 /**
  * Deneyler varsayılan olarak kapalıdır ve kullanıcıya hiçbir şey göstermez. Yalnızca yerel test düzeneği,
- * eklentinin kendi betik ortamında globalThis.__kafiaiDeney = { kisitKontrolu: true } yazarak açar; sayfanın
+ * eklentinin kendi betik ortamında globalThis.__kafiaiDeney = { kisitKontrolu: true } (ya da kisitNotu) yazarak açar; sayfanın
  * kendi betikleri bu ortama erişemez. Ayar ya da depolama kullanılmaz.
  */
 export function experimentOn(name: ExperimentName): boolean {
