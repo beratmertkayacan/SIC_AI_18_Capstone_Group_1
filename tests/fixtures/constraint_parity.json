@@ -1,0 +1,331 @@
+[
+ {
+  "name": "ilk tur, 30 kelimeyi aşıyor",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini açıkla. Yanıt en fazla 30 kelime olsun."
+  ],
+  "turn": 1,
+  "answer": "Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin ödev ve sınav değerlendirmesi gibi tekrarlayan işlerini hafifletir, öğrencilere anında geri bildirim verir ve farklı hızlarda öğrenenlere uygun içerik sunar. Bununla birlikte öğrencilerin kendi düşünme çabasını azaltma, kopya ve hatalı bilgi gibi riskler taşır; bu yüzden öğretmen rehberliğinde, eleştirel düşünmeyi destekleyecek biçimde ve açık kurallarla kullanılması gerekir.",
+  "earlier_unknown": false,
+  "result": "aşıyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 30,
+   "unit": "kelime",
+   "kind": "<="
+  },
+  "words": 53,
+  "chars": 439,
+  "chars_no_space": 387,
+  "reason": ""
+ },
+ {
+  "name": "ikinci tur sınırı yineliyor, 35 kelime",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini açıkla. Yanıt en fazla 30 kelime olsun.",
+   "En fazla 30 kelime demiştim."
+  ],
+  "turn": 2,
+  "answer": "Özür dilerim, haklısınız. Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin tekrarlayan işlerini azaltır ve anında geri bildirim sağlar. Ancak öğrencilerin düşünme çabasını azaltma ve hatalı bilgi riskleri vardır; bu nedenle öğretmen rehberliğinde ve açık kurallarla kullanılmalıdır.",
+  "earlier_unknown": false,
+  "result": "aşıyor",
+  "constraint_turn": 2,
+  "rule": {
+   "n": 30,
+   "unit": "kelime",
+   "kind": "<="
+  },
+  "words": 35,
+  "chars": 294,
+  "chars_no_space": 260,
+  "reason": ""
+ },
+ {
+  "name": "ikinci tur sınırı yineliyor, tam 30",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini açıkla. Yanıt en fazla 30 kelime olsun.",
+   "En fazla 30 kelime demiştim."
+  ],
+  "turn": 2,
+  "answer": "Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin yükünü hafifletir ve anında geri bildirim sağlar; ancak düşünme çabasını azaltma riski taşıdığı için mutlaka öğretmen rehberliğinde, açık ve net kurallarla, dikkatli biçimde kullanılmalıdır.",
+  "earlier_unknown": false,
+  "result": "uyuyor",
+  "constraint_turn": 2,
+  "rule": {
+   "n": 30,
+   "unit": "kelime",
+   "kind": "<="
+  },
+  "words": 30,
+  "chars": 251,
+  "chars_no_space": 222,
+  "reason": ""
+ },
+ {
+  "name": "aynı görevde sınır 50'ye çıktı",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini açıkla, en fazla 30 kelime.",
+   "30 kelime sınırını 50'ye çıkarıyorum, biraz daha ayrıntılı yaz."
+  ],
+  "turn": 2,
+  "answer": "Özür dilerim, haklısınız. Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin tekrarlayan işlerini azaltır ve anında geri bildirim sağlar. Ancak öğrencilerin düşünme çabasını azaltma ve hatalı bilgi riskleri vardır; bu nedenle öğretmen rehberliğinde ve açık kurallarla kullanılmalıdır.",
+  "earlier_unknown": false,
+  "result": "uyuyor",
+  "constraint_turn": 2,
+  "rule": {
+   "n": 50,
+   "unit": "kelime",
+   "kind": "<="
+  },
+  "words": 35,
+  "chars": 294,
+  "chars_no_space": 260,
+  "reason": ""
+ },
+ {
+  "name": "karakter, boşluğa göre karar değişiyor (ilk tur)",
+  "user_texts": [
+   "Şu değişiklik için commit mesajı yaz, English, max 50 karakter: login formuna mail adresi doğrulaması eklendi."
+  ],
+  "turn": 1,
+  "answer": "Add email format validation to the login form before submit",
+  "earlier_unknown": false,
+  "result": "değerlendirilemiyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 50,
+   "unit": "karakter",
+   "kind": "<="
+  },
+  "words": 10,
+  "chars": 59,
+  "chars_no_space": 50,
+  "reason": "boşluk tercihi yok; iki sayım farklı karar veriyor"
+ },
+ {
+  "name": "karakter, boşluğa göre karar değişiyor (yineleme)",
+  "user_texts": [
+   "Şu değişiklik için commit mesajı yaz, English, max 50 karakter: login formuna mail adresi doğrulaması eklendi.",
+   "50 karakteri geçmesin dedim."
+  ],
+  "turn": 2,
+  "answer": "Add email validation to the login form before submitting",
+  "earlier_unknown": false,
+  "result": "değerlendirilemiyor",
+  "constraint_turn": 2,
+  "rule": {
+   "n": 50,
+   "unit": "karakter",
+   "kind": "<="
+  },
+  "words": 9,
+  "chars": 56,
+  "chars_no_space": 48,
+  "reason": "boşluk tercihi yok; iki sayım farklı karar veriyor"
+ },
+ {
+  "name": "karakter, iki sayımda da aşıyor",
+  "user_texts": [
+   "Şu değişiklik için commit mesajı yaz, English, max 50 karakter: login formuna mail adresi doğrulaması eklendi."
+  ],
+  "turn": 1,
+  "answer": "Add client side email format validation and error messages to the login form",
+  "earlier_unknown": false,
+  "result": "aşıyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 50,
+   "unit": "karakter",
+   "kind": "<="
+  },
+  "words": 13,
+  "chars": 76,
+  "chars_no_space": 64,
+  "reason": ""
+ },
+ {
+  "name": "karakter, boşluklar hariç tam sınır",
+  "user_texts": [
+   "Commit mesajı yaz, boşluklar hariç en fazla 30 karakter."
+  ],
+  "turn": 1,
+  "answer": "Add email validation to login forms",
+  "earlier_unknown": false,
+  "result": "uyuyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 30,
+   "unit": "karakter",
+   "kind": "<="
+  },
+  "words": 6,
+  "chars": 35,
+  "chars_no_space": 30,
+  "reason": "boşluklar hariç"
+ },
+ {
+  "name": "yeni mesaj sınırı yinelemiyor",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini açıkla, en fazla 30 kelime.",
+   "Şimdi de bana yapay zekanın sağlıktaki kullanım alanlarını anlat."
+  ],
+  "turn": 2,
+  "answer": "Özür dilerim, haklısınız. Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin tekrarlayan işlerini azaltır ve anında geri bildirim sağlar. Ancak öğrencilerin düşünme çabasını azaltma ve hatalı bilgi riskleri vardır; bu nedenle öğretmen rehberliğinde ve açık kurallarla kullanılmalıdır.",
+  "earlier_unknown": false,
+  "result": "değerlendirilemiyor",
+  "constraint_turn": null,
+  "rule": null,
+  "words": 35,
+  "chars": 294,
+  "chars_no_space": 260,
+  "reason": "önceki kısıtın geçerliliği doğrulanamadı"
+ },
+ {
+  "name": "hiç kısıt yok",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini açıkla."
+  ],
+  "turn": 1,
+  "answer": "Özür dilerim, haklısınız. Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin tekrarlayan işlerini azaltır ve anında geri bildirim sağlar. Ancak öğrencilerin düşünme çabasını azaltma ve hatalı bilgi riskleri vardır; bu nedenle öğretmen rehberliğinde ve açık kurallarla kullanılmalıdır.",
+  "earlier_unknown": false,
+  "result": "tanınan kısıt yok",
+  "constraint_turn": null,
+  "rule": null,
+  "words": 35,
+  "chars": 294,
+  "chars_no_space": 260,
+  "reason": ""
+ },
+ {
+  "name": "önceki mesajlar okunamadı, bu mesajda kısıt yok",
+  "user_texts": [
+   "Biraz daha anlat."
+  ],
+  "turn": 1,
+  "answer": "Özür dilerim, haklısınız. Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin tekrarlayan işlerini azaltır ve anında geri bildirim sağlar. Ancak öğrencilerin düşünme çabasını azaltma ve hatalı bilgi riskleri vardır; bu nedenle öğretmen rehberliğinde ve açık kurallarla kullanılmalıdır.",
+  "earlier_unknown": true,
+  "result": "değerlendirilemiyor",
+  "constraint_turn": null,
+  "rule": null,
+  "words": 35,
+  "chars": 294,
+  "chars_no_space": 260,
+  "reason": "önceki kısıtın geçerliliği doğrulanamadı"
+ },
+ {
+  "name": "tam 30, 'den az'",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini 30 kelimeden az açıkla."
+  ],
+  "turn": 1,
+  "answer": "Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin yükünü hafifletir ve anında geri bildirim sağlar; ancak düşünme çabasını azaltma riski taşıdığı için mutlaka öğretmen rehberliğinde, açık ve net kurallarla, dikkatli biçimde kullanılmalıdır.",
+  "earlier_unknown": false,
+  "result": "aşıyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 30,
+   "unit": "kelime",
+   "kind": "<"
+  },
+  "words": 30,
+  "chars": 251,
+  "chars_no_space": 222,
+  "reason": ""
+ },
+ {
+  "name": "tam 12, fewer than",
+  "user_texts": [
+   "Write a one-sentence slogan for a bike-sharing app in fewer than 12 words."
+  ],
+  "turn": 1,
+  "answer": "Unlock a bike in seconds and leave all the city traffic behind.",
+  "earlier_unknown": false,
+  "result": "aşıyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 12,
+   "unit": "kelime",
+   "kind": "<"
+  },
+  "words": 12,
+  "chars": 63,
+  "chars_no_space": 52,
+  "reason": ""
+ },
+ {
+  "name": "tam 12, at most",
+  "user_texts": [
+   "Write a one-sentence slogan for a bike-sharing app, at most 12 words."
+  ],
+  "turn": 1,
+  "answer": "Unlock a bike in seconds and leave all the city traffic behind.",
+  "earlier_unknown": false,
+  "result": "uyuyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 12,
+   "unit": "kelime",
+   "kind": "<="
+  },
+  "words": 12,
+  "chars": 63,
+  "chars_no_space": 52,
+  "reason": ""
+ },
+ {
+  "name": "kapsam belirsiz",
+  "user_texts": [
+   "Bisiklet paylaşım uygulaması için bir başlık ve kısa bir açıklama yaz, en fazla 12 kelime."
+  ],
+  "turn": 1,
+  "answer": "Başlık: Şehirde Özgür Pedal Açıklama: Saniyeler içinde bisiklet kirala, trafiğe takılmadan şehrin her yerine ulaş.",
+  "earlier_unknown": false,
+  "result": "değerlendirilemiyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 12,
+   "unit": "kelime",
+   "kind": "<="
+  },
+  "words": 15,
+  "chars": 114,
+  "chars_no_space": 100,
+  "reason": "kapsam belirsiz"
+ },
+ {
+  "name": "tanınmayan ifade",
+  "user_texts": [
+   "Yapay zekanın eğitime etkisini açıkla, cevabı otuz kelimeyle sınırla."
+  ],
+  "turn": 1,
+  "answer": "Özür dilerim, haklısınız. Yapay zeka eğitimde öğrenmeyi kişiselleştirir, öğretmenlerin tekrarlayan işlerini azaltır ve anında geri bildirim sağlar. Ancak öğrencilerin düşünme çabasını azaltma ve hatalı bilgi riskleri vardır; bu nedenle öğretmen rehberliğinde ve açık kurallarla kullanılmalıdır.",
+  "earlier_unknown": false,
+  "result": "tanınan kısıt yok",
+  "constraint_turn": null,
+  "rule": null,
+  "words": 35,
+  "chars": 294,
+  "chars_no_space": 260,
+  "reason": ""
+ },
+ {
+  "name": "özet uzunluğunu aşan tam cevap",
+  "user_texts": [
+   "Yapay zekanın eğitimdeki yerini anlat, en fazla 150 kelime."
+  ],
+  "turn": 1,
+  "answer": "Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir. Yapay zeka öğrenmeyi destekler ama öğretmen rehberliği yine de gereklidir.",
+  "earlier_unknown": false,
+  "result": "aşıyor",
+  "constraint_turn": 1,
+  "rule": {
+   "n": 150,
+   "unit": "kelime",
+   "kind": "<="
+  },
+  "words": 170,
+  "chars": 1274,
+  "chars_no_space": 1105,
+  "reason": ""
+ }
+]
