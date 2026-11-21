@@ -27,7 +27,7 @@ describe("ExitCard", () => {
 
   it("tur sayısını söyler ve üç düğme sunar", () => {
     card.show(document.body, 7, null, actions());
-    expect(visibleText()).toContain("Bu sohbet 7. turunda.");
+    expect(visibleText()).toContain("Bu sohbet 7. mesajında.");
     for (const label of ["Taze başlat", "Kısa ara ver", "Kapat"]) expect(buttonByText(label)).toBeTruthy();
   });
 
@@ -148,13 +148,13 @@ describe("ExitCard: Bir daha gösterme", () => {
 describe("exitCardMessage", () => {
   it("görev türü biliniyorsa normu söyler", () => {
     const text = exitCardMessage(9, { label: "Kod yazma ve hata ayıklama", median_turns: 3, p75_turns: 5, p90_turns: 8 });
-    expect(text).toContain("Kod yazma ve hata ayıklama sohbetlerinin çoğu 5 turda ya da daha kısa sürede bitiyor");
-    expect(text).toContain("bu sohbet 9. turunda");
+    expect(text).toContain("Kod yazma ve hata ayıklama sohbetlerinin çoğu 5 mesajda ya da daha kısa sürede bitiyor");
+    expect(text).toContain("bu sohbet 9. mesajında");
   });
 
   it("görev türü bilinmiyorsa ya da 'Diğer' ise yalnızca tur sayısını söyler", () => {
-    expect(exitCardMessage(7, null)).toMatch(/^Bu sohbet 7\. turunda\./);
-    expect(exitCardMessage(7, { label: "Diğer", median_turns: 3, p75_turns: 5, p90_turns: 8 })).toMatch(/^Bu sohbet 7\. turunda\./);
+    expect(exitCardMessage(7, null)).toMatch(/^Bu sohbet 7\. mesajında\./);
+    expect(exitCardMessage(7, { label: "Diğer", median_turns: 3, p75_turns: 5, p90_turns: 8 })).toMatch(/^Bu sohbet 7\. mesajında\./);
   });
 });
 
@@ -167,7 +167,7 @@ describe("ExitCard model gerekçesiyle", () => {
     card.show(document.body, 3, null, actions(), reason);
     expect(visibleText()).toContain(modelCardMessage(reason));
     expect(visibleText()).toContain(MODEL_NOTE);
-    expect(visibleText()).not.toContain("Bu sohbet 3. turunda.");
+    expect(visibleText()).not.toContain("Bu sohbet 3. mesajında.");
   });
 
   it("'Yerinde değildi' geri bildirimi verir ve kartı kapatır", () => {

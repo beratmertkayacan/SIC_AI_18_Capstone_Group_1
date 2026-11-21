@@ -117,6 +117,7 @@ def replay(msgs, answers, model, reasons, policy, predictions=None, extra=None):
     similar_total = 0    # eski halkanın kullandığı sohbet boyu sayı
     quiet_until = 0
     short_repeat_offered = hint_shown = False
+    prev_short_strip = False  # kısa onarım şeridi art arda iki turda çıkmaz; kartın sırası gelir
     turns = []
     for t, text in enumerate(msgs):
         n = t + 1
@@ -150,7 +151,9 @@ def replay(msgs, answers, model, reasons, policy, predictions=None, extra=None):
             level = max(level, extra_ring[t])
         card = None
         # Bir turda tek müdahale: bu mesajda şerit çıktıysa kart en erken sonraki turda gelir.
-        stripped = after and (hold or signals.last_short_repair or short_repeat_strip)
+        short_strip = after and signals.last_short_repair and not prev_short_strip
+        prev_short_strip = short_strip
+        stripped = after and (hold or short_strip or short_repeat_strip)
         if n >= quiet_until and not stripped:
             if high:
                 card = "model"
@@ -170,7 +173,7 @@ def replay(msgs, answers, model, reasons, policy, predictions=None, extra=None):
         hint_shown = hint_shown or hint
         turns.append({"looping": after and (signals.looping or signals.last_short_repair),
                       "looping_end": after and signals.looping,
-                      "strip": hold, "short_strip": after and signals.last_short_repair,
+                      "strip": hold, "short_strip": short_strip,
                       "short_repeat_strip": short_repeat_strip, "hint": hint, "variation": variation, "ring": level, "card": card,
                       "exit": after and signals.exited, "segments": signals.segments, "segment_start": signals.segment_start,
                       "restated": after and bool(signals.restated_turns)})

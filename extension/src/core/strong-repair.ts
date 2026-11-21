@@ -16,9 +16,12 @@ const limitedPhrases = withFolded(rules.limited_words.phrases);
 const prefixes = withFolded(rules.prefixes);
 const phrases = withFolded(rules.phrases);
 const startsWith = withFolded(rules.starts_with);
+/** Yalnızca mesajın tamamı buysa sayılanlar ("tekrar"); uzun metindeki aynı kelime sayılmaz. */
+const wholeMessages = new Set<string>(withFolded(rules.whole_messages));
 
 function matchNormalized(normalized: string): boolean {
   const tokens = normalized.split(" ").filter((w) => w !== "");
+  if (wholeMessages.has(tokens.join(" "))) return true;
   if (tokens.some((w) => words.has(w))) return true;
   if (tokens.some((w) => prefixes.some((p) => w.startsWith(p)))) return true;
   const padded = ` ${normalized} `;

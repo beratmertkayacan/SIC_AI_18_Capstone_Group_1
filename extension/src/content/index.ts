@@ -99,6 +99,8 @@ function main(): boolean {
   let ringExplained = false;
   /** Bu sohbette kısa tekrar şeridi ve onay zinciri önerisi gösterildi mi (her biri sohbet başına bir kez)? */
   let shortRepeatOffered = false;
+  /** Kısa onarım şeridinin en son çıktığı tur; art arda iki turda çıkmasın diye. */
+  let lastShortStripTurn = -1;
   let affirmHintShown = false;
   /** Konsola yazılan son halka seviyesi; elle doğrulamada seviye değişimini tek satırda görmek için */
   let ringLogged = 0;
@@ -502,11 +504,14 @@ function main(): boolean {
       // Kısa onarım ("olmadı", "yanlış"): tekrar değil ama neyin olmadığını söylemiyor.
       // İlk mesajda anlamı yok; önce bir cevap gelmiş olmalı.
       // Soruyla biten cevaba verilen yalın "hayır" bir teklifi geri çevirmektir, şerit çıkmaz.
-      const shortRepair =
+      const shortRepairMsg =
         !check.similar && session.turns > 0 && isShortRepair(text) && !isOfferDecline(text, signals.lastAnswerAskedQuestion);
+      // Art arda iki turda kısa onarım şeridi çıkmaz: "try again" üst üste yazılınca şerit her turda
+      // çıkıp çıkış kartını sürekli ertelemesin (bir turda tek müdahale kuralı). Halka yine sayar.
+      const shortRepair = shortRepairMsg && lastShortStripTurn !== session.turns;
       // Aynı kısa mesaj ("devam") üçüncü kez: neyle ve nasıl devam edeceğini yazmayı öner (sohbet başına bir kez).
       const shortRepeat =
-        !check.similar && !shortRepair && !shortRepeatOffered && signals.previewShortRepeat(text) === SHORT_REPEAT_STREAK;
+        !check.similar && !shortRepairMsg && !shortRepeatOffered && signals.previewShortRepeat(text) === SHORT_REPEAT_STREAK;
       // Birebir olmayan yeniden yazımda gönderim bekletilmez; halka ve kart yine de sayar.
       if (!check.hold && !shortRepair && !shortRepeat) {
         skipNextCheck = false;
@@ -542,6 +547,7 @@ function main(): boolean {
       );
       record("strip", `gosterildi${suffix}`);
       if (kind === "short_repeat") shortRepeatOffered = true;
+      if (kind === "short_repair") lastShortStripTurn = session.turns + 1; // mesaj gönderilince bu tur numarasını alacak
       policy.noteStrip(session.turns + 1); // mesaj gönderilince bu tur numarasını alacak
       exitCard.hide();
       const task = currentTask();
@@ -697,6 +703,7 @@ function main(): boolean {
     ringPeak = 0;
     ringExplained = false;
     shortRepeatOffered = false;
+    lastShortStripTurn = -1;
     affirmHintShown = false;
     ringLogged = 0;
     policy.reset();

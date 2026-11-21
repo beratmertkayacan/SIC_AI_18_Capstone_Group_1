@@ -4,6 +4,7 @@
     "content": "src/content/index.ts",
     "background": "src/background/index.ts",
     "popup": "src/popup/index.ts",
-    "welcome": "src/welcome/index.ts"
+    "welcome": "src/welcome/index.ts",
+    "weekly": "src/weekly/index.ts"
   }
 }

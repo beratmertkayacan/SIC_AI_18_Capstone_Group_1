@@ -126,8 +126,8 @@ export function conversationLines(s: ConversationSnapshot): string[] {
     const p75 = Math.round(s.norm.p75);
     lines.push(
       median === p75
-        ? `Bu tür sohbetler genelde ${median} turda bitiyor.`
-        : `Bu tür sohbetler genelde ${median} turda, çoğu en geç ${p75} turda bitiyor.`,
+        ? `Bu tür sohbetler genelde ${median} mesajda bitiyor.`
+        : `Bu tür sohbetler genelde ${median} mesajda, çoğu en geç ${p75} mesajda bitiyor.`,
     );
   }
   if (s.exited) {

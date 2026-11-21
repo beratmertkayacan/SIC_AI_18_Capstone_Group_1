@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Haftalık Özet · Kâfi AI</title>
+    <link rel="stylesheet" href="brand.css" />
+    <style>
+      body { font-size: 14px; }
+      #root { max-width: 1200px; margin: 0 auto; padding: 40px 32px 56px; }
+
+      .page-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+      .page-top .brand-name { font-size: 20px; }
+      .page-top .privacy-chip { font-size: 12.5px; padding: 6px 14px 6px 12px; background: var(--soft); border-color: transparent; }
+
+      .page-title { margin: 56px 0 40px; }
+      h1 { margin: 0 0 14px; font-size: clamp(30px, 3.4vw, 40px); line-height: 1.1; font-weight: 600; letter-spacing: -.02em; }
+      .week-nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .week-label { font-size: 16px; font-weight: 500; min-width: 10.5em; text-align: center; }
+      .week-hint { color: var(--muted); font-size: 12.5px; margin-left: 8px; }
+      .icon-btn {
+        position: relative; width: 36px; height: 36px; padding: 0; border-radius: 50%;
+        background: var(--card); border: 1px solid var(--line);
+      }
+      .icon-btn::before {
+        content: ""; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px;
+        border-left: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor;
+        transform: translate(-35%, -50%) rotate(45deg);
+      }
+      .icon-btn.next::before { transform: translate(-65%, -50%) rotate(-135deg); }
+      .icon-btn:disabled { opacity: .4; }
+
+      .section-title { margin: 0 0 16px; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+
+      /* Genel Görünüm: dört sayı kartı */
+      .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+      .stats.three { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 20px; }
+      .stat { padding: 18px 20px 16px; display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; }
+      .stat-title { margin: 0; font-size: 13px; font-weight: 600; line-height: 1.4; }
+      .stat-num { margin: 14px 0 12px; font-size: 40px; }
+      .stat-desc { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+      .stat-foot { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12.5px; }
+      .headline { margin: 18px 0 0; font-size: 15px; }
+      .headline b, .block-line b { font-weight: 600; }
+
+      /* Bloklar: iki sütunlu ızgara, Haftanın Gidişi tam genişlik */
+      .blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 40px; align-items: start; }
+      .block { padding: 24px 28px 26px; }
+      .block.wide { grid-column: 1 / -1; }
+      .block > .card-head { margin-bottom: 22px; }
+      .block-line { margin: 18px 0 0; font-size: 14px; }
+      .block-strong { margin: 18px 0 2px; font-weight: 600; font-size: 14.5px; }
+      .block-note { margin: 16px 0 0; color: var(--muted); font-size: 12.5px; }
+      .divided { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+      .minor-title { margin: 0 0 10px; font-size: 13.5px; font-weight: 600; }
+
+      /* Ad, çubuk, değer satırları */
+      .brows { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+      .brow { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 8.5rem; align-items: center; column-gap: 18px; }
+      .brow-label { display: flex; flex-direction: column; min-width: 0; }
+      .brow-name { font-weight: 600; font-size: 13.5px; }
+      .brow-sub { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+      .brow-value { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+      .brow-num { font-weight: 600; font-size: 13.5px; }
+      .brow-meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+      .brows.compact { gap: 12px; }
+      .brows.compact .brow { grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) 6.5rem; }
+      .brows.compact .brow-name { font-weight: 500; }
+
+      .plain-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+      .plain-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+      .plain-list li > span:first-child { display: flex; flex-direction: column; }
+      .pl-name { font-weight: 600; font-size: 13px; }
+      .pl-sub { color: var(--muted); font-size: 12px; }
+      .pl-num { font-weight: 600; font-size: 13px; white-space: nowrap; }
+      .plain-list li.dim .pl-name, .plain-list li.dim .pl-num { font-weight: 500; color: var(--muted); }
+
+      /* Ne Zaman: ısı haritası (gerçek tablo; ekran okuyucu sayıları okur) */
+      .heat { width: 100%; border-collapse: separate; border-spacing: 6px; margin: -6px; table-layout: fixed; }
+      .heat thead th { font-size: 11.5px; font-weight: 500; color: var(--muted); padding-bottom: 2px; }
+      .heat thead td { width: 32%; }
+      .heat tbody th { text-align: left; font-weight: 500; font-size: 13px; line-height: 1.25; }
+      .slot-name { display: block; }
+      .slot-hours { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
+      .cell { display: block; height: 32px; border-radius: 6px; }
+      .cell.l0 { background: var(--c-track); }
+      .cell.l1 { background: color-mix(in srgb, var(--c-3) 70%, var(--c-track)); }
+      .cell.l2 { background: var(--c-2); }
+      .cell.l3 { background: var(--c-1); }
+      .heat-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+      .heat-foot .block-line { margin: 0; }
+      .heat-legend { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11.5px; }
+      .heat-legend .cell { width: 14px; height: 14px; border-radius: 4px; }
+
+      /* Ne İşe Yaradı: daireler */
+      .rings { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 14px; }
+      .ring-dot {
+        width: 72px; height: 72px; padding: 10px; box-sizing: border-box; border-radius: 50%; display: grid; place-content: center; text-align: center;
+        border: 1.5px dashed var(--c-2); color: var(--fg);
+      }
+      .ring-dot.full { background: var(--c-1); border: 1.5px solid var(--c-1); color: var(--card); }
+      .ring-num { font-weight: 600; font-size: 15px; line-height: 1.1; }
+      .ring-unit { font-size: 11px; opacity: .85; }
+      .ring-more { align-self: center; color: var(--muted); font-weight: 600; }
+
+      /* Haftanın Gidişi: iki katmanlı sütunlar */
+      .block.wide > .card-head { align-items: center; }
+      .legend { display: flex; gap: 18px; font-size: 12px; color: var(--muted); }
+      .lg::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+      .lg.all::before { background: var(--c-3); }
+      .lg.loop::before { background: var(--c-2); }
+      .cols { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+      .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+      .col-plot { position: relative; width: 100%; height: 160px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid var(--line); }
+      .col-all { position: relative; width: min(56px, 70%); background: var(--c-3); border-radius: 4px 4px 0 0; display: flex; align-items: flex-end; }
+      .col-loop { display: block; width: 100%; background: var(--c-2); border-top: 2px solid var(--card); }
+      .col-num { position: absolute; top: -20px; left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 600; }
+      .col-day { color: var(--muted); font-size: 12px; }
+
+      /* İstersen bir dahaki sefere */
+      .nexttime { margin-top: 24px; padding: 22px 28px; border-radius: 16px; background: var(--soft); }
+      .nexttime .card-title { margin-bottom: 8px; }
+      .nexttime-tip { margin: 0; font-size: 14.5px; }
+      .nexttime-because { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
+
+      /* Boş hafta ve az veri */
+      .state { padding: 48px 40px; }
+      .state.empty { display: grid; justify-items: center; text-align: center; padding: 56px 40px; }
+      .state.few { display: flex; align-items: center; gap: 28px; }
+      .state-ring { flex: none; width: 56px; height: 56px; border-radius: 50%; border: 6px solid var(--c-3); box-sizing: border-box; }
+      .state.empty .state-ring { width: 64px; height: 64px; margin-bottom: 22px; border-color: var(--c-track); }
+      .state-title { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
+      .state-body { margin: 0; color: var(--muted); max-width: 58ch; }
+
+      .page-foot { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      .foot-note { margin: 0; color: var(--muted); font-size: 12.5px; }
+      .foot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .foot-actions > button { background: var(--card); }
+      .foot-notice { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; text-align: right; }
+      .confirm { padding: 12px 14px; border: 1px solid var(--danger); border-radius: 12px; background: var(--card); }
+      .confirm p { margin: 0 0 10px; font-weight: 500; }
+      .confirm-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      button.danger-solid { background: var(--danger); border-color: var(--danger); color: var(--card); }
+      button.danger-solid:hover { filter: brightness(1.08); background: var(--danger); }
+
+      .block .info .tip, .stat .info .tip { right: -8px; }
+
+      @media (max-width: 1040px) {
+        .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .blocks { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 640px) {
+        #root { padding: 24px 18px 40px; }
+        .page-title { margin: 36px 0 28px; }
+        .stats, .stats.three { grid-template-columns: 1fr; }
+        .block { padding: 20px 18px; }
+        .brow, .brows.compact .brow { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; }
+        .brow .hbar { grid-column: 1 / -1; grid-row: 2; }
+        .week-hint { flex-basis: 100%; margin-left: 0; }
+        .state.few { flex-direction: column; align-items: flex-start; }
+        .page-top .privacy-chip { font-size: 11px; padding: 4px 10px 4px 8px; }
+        .page-foot, .foot-actions { flex-direction: column; align-items: stretch; }
+        .foot-notice { text-align: left; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="weekly.js"></script>
+  </body>
+</html>

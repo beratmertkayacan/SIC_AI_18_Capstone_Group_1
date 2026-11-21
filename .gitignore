@@ -27,3 +27,6 @@ extension/dist/
 
 # Sayfa görüntüleri (ham hâlleri git dışında; temizlenmişleri extension/test-snapshots/)
 snapshots_raw/
+PRODUCT.md
+DESIGN.md
+.impeccable

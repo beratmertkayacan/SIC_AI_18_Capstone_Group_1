@@ -1233,6 +1233,26 @@
   ],
   "repairs": [
     {
+      "text": "tekrar",
+      "strong_repair": true
+    },
+    {
+      "text": "Tekrar dene",
+      "strong_repair": true
+    },
+    {
+      "text": "yeniden dene",
+      "strong_repair": true
+    },
+    {
+      "text": "tekrar eden sayıları bul",
+      "strong_repair": false
+    },
+    {
+      "text": "tekrar et bunu lütfen uzun bir cümle",
+      "strong_repair": false
+    },
+    {
       "text": "olmadı",
       "strong_repair": true
     },

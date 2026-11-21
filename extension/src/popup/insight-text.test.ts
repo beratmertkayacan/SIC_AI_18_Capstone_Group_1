@@ -48,7 +48,7 @@ describe("içgörü metinleri", () => {
   it("'Bu sohbet' satırları", () => {
     expect(conversationLines(snap())).toEqual([
       "Kod yazma ve hata ayıklama · 7 mesaj",
-      "Bu tür sohbetler genelde 3 turda, çoğu en geç 5 turda bitiyor.",
+      "Bu tür sohbetler genelde 3 mesajda, çoğu en geç 5 mesajda bitiyor.",
       "Son mesajlarından 2 tanesi öncekine çok benziyordu.",
     ]);
     expect(conversationLines(snap({ personal: true }))).toEqual(["Bu sohbette öneri göstermiyorum."]);

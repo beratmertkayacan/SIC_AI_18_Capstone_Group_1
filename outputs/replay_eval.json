@@ -65,8 +65,8 @@
       "isabet_yuzde": 21.51
     },
     "kisa_onarim_seridi": {
-      "100_sohbette": 0.91,
-      "isabet_yuzde": 57.69
+      "100_sohbette": 0.81,
+      "isabet_yuzde": 58.28
     },
     "dongu_sonu": {
       "donguli_sohbet_yuzde": 23.8,
@@ -90,24 +90,24 @@
       "cikis_mesaji": 336
     },
     "kart": {
-      "100_sohbette": 19.12,
-      "isabet_yuzde": 31.03,
+      "100_sohbette": 19.15,
+      "isabet_yuzde": 31.12,
       "kaynaga_gore": {
         "model": {
-          "sayi": 3102,
-          "isabet_yuzde": 27.72
+          "sayi": 3103,
+          "isabet_yuzde": 27.78
         },
         "ozur": {
-          "sayi": 485,
-          "isabet_yuzde": 44.54
+          "sayi": 487,
+          "isabet_yuzde": 44.76
         },
         "tekrar": {
-          "sayi": 208,
-          "isabet_yuzde": 51.44
+          "sayi": 209,
+          "isabet_yuzde": 51.67
         },
         "norm": {
-          "sayi": 30,
-          "isabet_yuzde": 13.33
+          "sayi": 31,
+          "isabet_yuzde": 12.9
         }
       },
       "tekrarlayan_memnuniyetsizlikte_yakalama_yuzde": 32.3,
