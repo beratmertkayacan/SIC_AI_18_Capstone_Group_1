@@ -42,7 +42,7 @@ export const PRIVACY: WelcomeSection[] = [
   {
     title: "Verin nerede durur",
     lines: [
-      "Hiçbir mesaj cihazından çıkmaz. Eklentide internete istek gönderen kod yoktur.",
+      `Varsayılan olarak hiçbir mesaj cihazından çıkmaz. Ayarlardaki anlam desteğini kendin açarsan, cevap bittiğinde son mesajların kısa bir bölümü değerlendirme için ${BRAND_NAME} sunucusuna gider ve saklanmaz; kişisel sohbetlerde gitmez.`,
       "Mesaj metni kaydedilmez; yalnızca sekme açıkken bellekte durur ve sekme kapanınca silinir.",
       `Kalıcı olarak yalnızca ayarların ve günlük sayılar (kaç kez şerit ya da kart gösterildi gibi) tutulur. Sayılar 90 gün sonra silinir; istersen ${BRAND_NAME} penceresinden hemen silebilirsin.`,
     ],

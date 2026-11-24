@@ -33,7 +33,10 @@ describe("karşılama ekranı", () => {
     expect(text).not.toContain("kişisel bilgilerine bakmaz");
     expect(WELCOME_LEAD).toContain("bunu fark etmene yardım eder");
     expect(text).not.toContain("Cevabın metnini okumaz");
-    expect(text).toContain("Hiçbir mesaj cihazından çıkmaz");
+    // Anlam desteği (K51 taslağı) kullanıcı açmadıkça kapalı; metin bunu ve neyin gittiğini açıkça söylemeli.
+    expect(text).toContain("Varsayılan olarak hiçbir mesaj cihazından çıkmaz");
+    expect(text).toContain("anlam desteğini kendin açarsan");
+    expect(text).not.toContain("internete istek gönderen kod yoktur");
     expect(text).toContain("Mesaj metni kaydedilmez");
     expect(text).toContain("90 gün");
   });

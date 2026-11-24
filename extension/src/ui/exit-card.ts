@@ -73,6 +73,7 @@ export class ExitCard {
     const { host, box } = mountCard("exit-card", anchor);
     const apology = reason?.key === APOLOGY_REASON;
     const ignored = reason?.key === IGNORED_REPAIR_REASON;
+    const judged = reason?.key === JUDGE_REASON;
     // Elle açılan kısa sohbette "uzun sohbet" demek yanlış olur: tur sayısı normun altındaysa ya da norm
     // bilinmiyorsa kart yalnızca yeni sohbetin neden hızlı olduğunu söyler; mola önerisi de anlamsızdır.
     const manualShort = reason === null && options.manual === true && (norm === null || turns <= norm.p75_turns);
@@ -81,7 +82,9 @@ export class ExitCard {
         ? "Aynı yerde dönüyor"
         : ignored
           ? "Düzeltme alınmadı"
-          : MODEL_CHIP
+          : judged
+            ? JUDGE_CHIP
+            : MODEL_CHIP
       : manualShort
         ? "Yeni sohbet"
         : "Uzun sohbet";
@@ -126,7 +129,7 @@ export class ExitCard {
         header(chip),
         el("p", reason ? modelCardMessage(reason) : manualShort ? MANUAL_SHORT_MESSAGE : exitCardMessage(turns, norm), "body"),
         ...(actions.ruleRestated?.() ? [el("p", RULE_RESTATED_NOTE, "body")] : []),
-        ...(reason ? [el("p", apology ? APOLOGY_NOTE : ignored ? IGNORED_REPAIR_NOTE : MODEL_NOTE, "note")] : []),
+        ...(reason ? [el("p", apology ? APOLOGY_NOTE : ignored ? IGNORED_REPAIR_NOTE : judged ? JUDGE_NOTE : MODEL_NOTE, "note")] : []),
         row(
           fresh,
           ...(manualShort ? [] : [button("Kısa ara ver", "secondary", showBreak)]),
@@ -244,6 +247,13 @@ export const MANUAL_SHORT_MESSAGE =
 /** "Bir daha gösterme" onayı; kullanıcıya görünen özellik adı her yerde "yeni sohbet önerisi". */
 export const NEVER_MESSAGE = `Tamam, yeni sohbet önerisi bir daha gösterilmeyecek. İstersen ${BRAND_NAME} penceresindeki Ayarlar'dan yeniden açabilirsin.`;
 
+/** Anlam desteği kartının gerekçe anahtarı (K51 taslağı); metin değerlendiriciden gelir. */
+export const JUDGE_REASON = "anlam";
+export const JUDGE_CHIP = "Anlam desteği";
+/** Anlam desteği kartında, önerinin nereden geldiğini dürüstçe söyleyen not. */
+export const JUDGE_NOTE =
+  `Bu öneri, açtığın anlam desteğinden geliyor: son mesajlarının kısa bir bölümü değerlendirilmek için ${BRAND_NAME} sunucusuna gönderildi ve saklanmadı. Pencereden kapatabilirsin.`;
+
 /** Özür döngüsü kartının gerekçe anahtarı (src/data/model-reasons.json, K32). */
 export const APOLOGY_REASON = "ozur";
 
@@ -270,6 +280,8 @@ export const FRESH_START_TIP = "İstersen isteklerini tek taslakta toplayıp yen
 
 /** Model kaynaklı kartın ana cümlesi: durum ve yeni sohbete uyan somut öneri. */
 export function modelCardMessage(reason: Reason): string {
+  // Anlam desteğinin önerisi bu sohbete özgü ve en değerli kısmı; sabit cümleyle değiştirilmez.
+  if (reason.key === JUDGE_REASON) return `${reason.why} ${reason.tip}`;
   const tip = FRESH_START_REASONS.includes(reason.key) ? reason.tip : FRESH_START_TIP;
   return `${reason.why} ${tip}`;
 }

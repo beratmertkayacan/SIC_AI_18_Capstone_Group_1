@@ -27,8 +27,9 @@ export function logo(size: number, src = size > 48 ? "icons/logo256.png" : "icon
   return img;
 }
 
-export function privacyChip(): HTMLElement {
-  return el("span", "privacy-chip", "Veriler cihazında kalır");
+/** Gizlilik rozeti. Anlam desteği açıkken "cihazında kalır" demek yanlış olur; o zaman ne gittiğini söyler. */
+export function privacyChip(semantic = false): HTMLElement {
+  return el("span", "privacy-chip", semantic ? "Anlam desteği açık" : "Veriler cihazında kalır");
 }
 
 /** Logo, marka adı ve istenirse slogan. */

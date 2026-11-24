@@ -368,7 +368,7 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     const suggesting = settings.enabled && settings.suggestionsEnabled;
 
     const top = el("header", "page-top");
-    top.append(brandLockup(40, false), privacyChip());
+    top.append(brandLockup(40, false), privacyChip(settings.semanticEnabled));
 
     const title = el("div", "page-title");
     const h1 = el("h1", undefined, "Haftalık özet");

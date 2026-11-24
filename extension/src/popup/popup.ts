@@ -1,4 +1,5 @@
 import { BRAND_NAME } from "../brand";
+import { JUDGE } from "../core/judge";
 import { CounterStore, dayOf } from "../core/counters";
 import type { ConversationSnapshot } from "../core/messages";
 import { SettingsStore, type Settings } from "../core/settings";
@@ -29,7 +30,20 @@ const SUMMARY_NAMES: [keyof Settings, string][] = [
   ["ringEnabled", "halka"],
   ["exitCardEnabled", "yeni sohbet önerisi"],
   ["habitsEnabled", "haftalık özet"],
+  ["semanticEnabled", "anlam desteği"],
 ];
+
+/** Anlam desteği anahtarının açıklaması: ne, nereye gidiyor, ne zaman. */
+export const SEMANTIC_HELP =
+  `Açıkken, bir cevap bittiğinde son mesajların ve cevapların kısa bir bölümü döngüyü daha iyi anlamak için ${BRAND_NAME} sunucusuna gönderilir; saklanmaz. Kişisel sohbetlerde gönderilmez.`;
+
+/** "Verilerin" bölümündeki cümle; anlam desteği açıksa bunu da söyler. */
+export function dataNote(s: Settings): string {
+  const base = "Yalnızca ayarların ve günlük sayılar tutulur; sayılar 90 gün sonra silinir.";
+  return s.semanticEnabled
+    ? `Anlam desteği açık: son mesajların kısa bir bölümü değerlendirme için sunucuya gider ve saklanmaz. Başka hiçbir mesaj cihazından çıkmaz. ${base}`
+    : `Hiçbir mesaj cihazından çıkmaz ve saklanmaz. ${base}`;
+}
 
 /** Ayarlar satırının alt yazısı: "Açık: öneriler, halka, yeni sohbet önerisi". */
 export function settingsSummary(s: Settings): string {
@@ -93,9 +107,9 @@ export function mountPopup(
     await render();
   };
 
-  const header = () => {
+  const header = (settings: Settings) => {
     const top = el("header", "top");
-    top.append(brandLockup(30, true, true), privacyChip());
+    top.append(brandLockup(30, true, true), privacyChip(settings.semanticEnabled));
     return top;
   };
 
@@ -208,7 +222,7 @@ export function mountPopup(
 
   const mainView = async (settings: Settings) => {
     const [counts, snap] = await Promise.all([counters.load(), tab.snapshot().catch(() => null)]);
-    const parts: HTMLElement[] = [header(), el("hr")];
+    const parts: HTMLElement[] = [header(settings), el("hr")];
     if (!settings.enabled) {
       const off = el("section", "card lifted");
       const on = el("button", "primary wide", `${BRAND_NAME}'ı aç`);
@@ -250,7 +264,7 @@ export function mountPopup(
     head.append(h1, back);
     const list = el("div", "settings");
     const sub = !settings.enabled || !settings.suggestionsEnabled;
-    type Toggle = "enabled" | "suggestionsEnabled" | "ringEnabled" | "exitCardEnabled" | "habitsEnabled";
+    type Toggle = "enabled" | "suggestionsEnabled" | "ringEnabled" | "exitCardEnabled" | "habitsEnabled" | "semanticEnabled";
     const toggle = (key: Toggle) => (v: boolean) => update({ [key]: v } as Partial<Settings>, key);
     const rows = [
       switchRow(`${BRAND_NAME} açık`, "Kapalıyken hiçbir şey yapmaz.", settings.enabled, false, toggle("enabled")),
@@ -259,8 +273,10 @@ export function mountPopup(
       switchRow("Halka", "Mesaj kutusunun kenarında sohbetin gidişini sakin bir tonla gösterir.", settings.ringEnabled, sub, toggle("ringEnabled")),
       switchRow("Yeni sohbet önerisi", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, sub, toggle("exitCardEnabled")),
       switchRow("Haftalık özet", "Kapalıyken pencerede haftalık özet görünmez; sayılar yine tutulur.", settings.habitsEnabled, sub, toggle("habitsEnabled")),
+      // Mesaj metnini cihazdan çıkaran tek ayar (K51 taslağı): varsayılanı kapalı, metni ne gittiğini açıkça söyler.
+      switchRow("Anlam desteği", SEMANTIC_HELP, settings.semanticEnabled, sub || !JUDGE.endpoint, toggle("semanticEnabled")),
     ];
-    (["enabled", "suggestionsEnabled", "ringEnabled", "exitCardEnabled", "habitsEnabled"] as const).forEach((key, i) => {
+    (["enabled", "suggestionsEnabled", "ringEnabled", "exitCardEnabled", "habitsEnabled", "semanticEnabled"] as const).forEach((key, i) => {
       const input = rows[i]!.querySelector("input");
       if (input) input.dataset.focus = key;
     });
@@ -268,7 +284,7 @@ export function mountPopup(
     const data = el("section", "data");
     data.append(
       el("h2", "sec-title", "Verilerin"),
-      el("p", "line muted", "Hiçbir mesaj cihazından çıkmaz ve saklanmaz. Yalnızca ayarların ve günlük sayılar tutulur; sayılar 90 gün sonra silinir."),
+      el("p", "line muted", dataNote(settings)),
     );
     if (confirming) {
       const box = el("div", "confirm");

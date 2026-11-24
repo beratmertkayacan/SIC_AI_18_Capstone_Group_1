@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import buildEntries from "../build-entries.json";
 import platforms from "./data/platforms.json";
 import manifest from "../public/manifest.json";
+import judge from "./data/judge.json";
 
 /**
  * Gizlilik sözünün denetimi: derlenmiş eklentide ağ isteği yapabilen hiçbir API geçmez.
@@ -13,13 +14,18 @@ import manifest from "../public/manifest.json";
  * build.mjs ile aynı ayarlarla derlenen dosyalarda (giriş listesi build-entries.json) aşağıdaki
  * adlardan hiçbiri bulunmamalı. Ayrıca derlenmiş kodda platform kaydındaki adresler dışında
  * hiçbir web adresi geçmemeli (uzaktan kod ya da veri yüklenmesine karşı).
+ *
+ * Tek istisna anlam desteği (K51 taslağı): kullanıcı izin verirse arka plan çalışanı sohbetin son
+ * turlarını yalnızca src/data/judge.json'daki sunucu adresine gönderir. Bu yüzden arka plan derlemesinde
+ * tam olarak bir fetch çağrısı olabilir; içerik betiği, pencere ve diğer sayfalarda hiçbiri olamaz.
  */
 const FORBIDDEN = ["fetch", "XMLHttpRequest", "WebSocket", "sendBeacon", "EventSource", "importScripts"];
 
 const ENTRIES = buildEntries.entries as Record<string, string>;
 // SVG ad alanı bir web adresine benzer ama ağ isteği değildir: logo DOM API ile çizilirken gerekir.
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-const ALLOWED_URLS = new Set([...Object.values(platforms.platforms).flatMap((p) => p.matches), SVG_NAMESPACE]);
+const JUDGE_URLS = judge.endpoint ? [judge.endpoint] : [];
+const ALLOWED_URLS = new Set([...Object.values(platforms.platforms).flatMap((p) => p.matches), SVG_NAMESPACE, ...JUDGE_URLS]);
 
 async function bundle(entry: string): Promise<string> {
   const result = await build({
@@ -35,10 +41,12 @@ async function bundle(entry: string): Promise<string> {
 }
 
 describe("ağ isteği yok", () => {
-  it.each(Object.entries(ENTRIES))("%s derlemesinde ağ API'si geçmiyor", async (_name, entry) => {
+  it.each(Object.entries(ENTRIES))("%s derlemesinde ağ API'si geçmiyor (arka planda yalnızca tek fetch)", async (name, entry) => {
     const code = await bundle(entry);
     for (const word of FORBIDDEN) {
-      expect(new RegExp(`\\b${word}\\b`).test(code), `${entry}: ${word}`).toBe(false);
+      const count = (code.match(new RegExp(`\\b${word}\\b`, "g")) ?? []).length;
+      const allowed = name === "background" && word === "fetch" ? 1 : 0;
+      expect(count, `${entry}: ${word}`).toBe(allowed);
     }
   });
 
@@ -53,8 +61,15 @@ describe("ağ isteği yok", () => {
     expect(Object.keys(ENTRIES)).toEqual(expect.arrayContaining(["content", "background", "popup"]));
   });
 
-  it("eklenti sayfaları ve arka plan çalışanı için connect-src 'none'", () => {
-    expect(manifest.content_security_policy.extension_pages).toContain("connect-src 'none'");
+  it("connect-src yalnızca anlam desteği sunucusuna izin veriyor (adres yoksa 'none')", () => {
+    const csp = manifest.content_security_policy.extension_pages;
+    if (!judge.endpoint) {
+      expect(csp).toContain("connect-src 'none'");
+    } else {
+      const origin = new URL(judge.endpoint).origin;
+      expect(csp).toContain(`connect-src ${origin};`);
+      expect(manifest.host_permissions).toContain(`${origin}/*`);
+    }
   });
 
   it("manifest yalnızca depolama ve pano izni istiyor", () => {

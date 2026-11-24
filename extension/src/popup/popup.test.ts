@@ -4,7 +4,7 @@ import { CounterStore, dayOf, validateExport, type Dims, type EventName } from "
 import { DEFAULT_SETTINGS, SettingsStore, type KeyValueStorage } from "../core/settings";
 import { mountWeekly } from "../weekly/weekly";
 import type { ConversationSnapshot } from "../core/messages";
-import { mountPopup, type TabBridge } from "./popup";
+import { dataNote, mountPopup, type TabBridge } from "./popup";
 
 function memoryStorage(): KeyValueStorage & { data: Record<string, unknown> } {
   const data: Record<string, unknown> = {};
@@ -448,5 +448,17 @@ describe("popup", () => {
     mountWeekly(root, { settings: store, counters, now: () => NOW, copy: async () => true });
     await rerender();
     expect(tipText()).toBe(inPopup);
+  });
+});
+
+describe("anlam desteği ayarı (K51 taslağı)", () => {
+  it("veri notu ayar açıkken neyin gittiğini, kapalıyken hiçbir şeyin çıkmadığını söyler", () => {
+    expect(dataNote({ ...DEFAULT_SETTINGS })).toContain("Hiçbir mesaj cihazından çıkmaz");
+    const on = dataNote({ ...DEFAULT_SETTINGS, semanticEnabled: true });
+    expect(on).toContain("Anlam desteği açık");
+    expect(on).not.toContain("Hiçbir mesaj cihazından çıkmaz");
+  });
+  it("varsayılanı kapalı", () => {
+    expect(DEFAULT_SETTINGS.semanticEnabled).toBe(false);
   });
 });
