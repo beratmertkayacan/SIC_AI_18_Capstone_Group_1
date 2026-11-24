@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CounterStore, type CountsV2, type Dims, type EventName } from "../core/counters";
+import { CounterStore, dayOf, type CountsV2, type Dims, type EventName } from "../core/counters";
 import { SettingsStore, type KeyValueStorage } from "../core/settings";
 import { weekReport } from "../core/week-report";
 import { mountWeekly, WEEKS_BACK } from "./weekly";
-import { headline, lengthLine, numberOf, numberWas, platformLine, slotLine, weekLabel } from "./weekly-text";
+import { lengthLine, numberOf, numberWas, platformLine, slotLine, weekLabel } from "./weekly-text";
 
 function memoryStorage(): KeyValueStorage & { data: Record<string, unknown> } {
   const data: Record<string, unknown> = {};
@@ -70,8 +70,10 @@ describe("haftalık özet sayfası", () => {
     await conv(day(17), "kod", "1-3", "dongu");
     await conv(day(18), "soru", "4-6", "normal", "chatgpt", 2);
     await open();
-    expect(text()).toContain("Bu hafta 3 yapay zeka sohbetin var.");
+    expect(text()).toContain("3 sohbet bitti.");
+    expect(text()).toContain("Bir şey önermek için en az 5 sohbet gerekiyor.");
     expect(text()).not.toMatch(/%\d/);
+    expect(text()).not.toContain("İstersen");
     expect(root.querySelector(".blocks")).toBeNull();
   });
 
@@ -88,23 +90,38 @@ describe("haftalık özet sayfası", () => {
     await record("send", "benzer", new Date(2026, 10, 18, 20), { platform: "chatgpt", slot: "18-24", task: "kod", len: "4-6" }, 3);
     await record("card_action", "taze_baslat", day(19), { platform: "chatgpt" });
     await record("fresh_followup", "1-3", day(19), { platform: "chatgpt" });
+    await record("loop_end", "toparlandi", day(16), { platform: "chatgpt", task: "kod", len: "1-3" });
     await open();
 
-    const stats = Array.from(root.querySelectorAll(".stat-num")).map((e) => e.textContent);
-    expect(stats).toEqual(["6", "%17", "3kez", "1kez"]);
-    expect(text()).toContain("(6 sohbetin 1'i)");
-    expect(text()).toContain("Geçen hafta %40'tı");
-    expect(text()).toContain("Bu hafta sohbetlerinin %17'sinde takılıp kaldın; geçen hafta bu oran %40'tı.");
+    // Genel görünüm: yüzde kutusu ve yüzdeli başlık yok; penceredeki satırlarla aynı cümleler.
+    const ov = root.querySelector(".habits")!;
+    expect(root.querySelector(".stat-num")).toBeNull();
+    expect(ov.textContent).not.toContain("%");
+    expect(ov.textContent).toContain("6 sohbet bitti.");
+    expect(ov.textContent).toContain("1 sohbette aynı yerde dönmeye başladın.");
+    expect(ov.textContent).toContain("1 kez eksik olanı bir cümleyle ekledin, 1 kez Taze başlat'ı kullandın.");
+    expect(ov.textContent).toContain("Kâfi AI 4 kez araya girdi.");
+    expect(ov.textContent).toContain("Geçen hafta 5 sohbet bitmişti.");
+    // Görev satırı da aynı döngü tanımını (loop_end) kullanır.
+    expect(text()).not.toMatch(/takılıp|takıldın/i); // eski "takılıp kalınan" tanımı ekranda yok
     expect(text()).toContain("Şeritler bu hafta 4 kez çıktı (3 benzer mesaj, 1 kısa düzeltme)");
-    expect(text()).toContain("Benzer mesajlarının %100'ü akşam (18.00–24.00) geldi.");
+    expect(text()).toContain("3 benzer mesajın 3'ü akşam (18.00–24.00) geldi.");
+    // Dağılımlarda yüzde yok, ana bilgi sayı; başlıklar cümle düzeninde, "uyarı" sözcüğü yok.
+    expect(text()).not.toContain("%");
+    expect(text()).toContain("2 sohbet1'inde aynı yerde döndün");
+    expect(Array.from(root.querySelectorAll("h1, h2")).map((h) => h.textContent)).toEqual(expect.arrayContaining([
+      "Haftalık özet", "Genel görünüm", "Ne tür işler", "Önerilere ne yaptın", "Ne zaman", "Ne işe yaradı", "Sohbetlerin ne kadar sürdü", "Hangi araçlarda", "Haftanın gidişi",
+    ]));
+    expect(text().toLocaleLowerCase("tr")).not.toContain("uyarı");
     expect(text()).toContain("Yeni açtığın sohbetlerin 1'i 3 mesaj içinde bitti.");
     expect(text()).toContain("En çok Gemini'yi kullandın.");
     expect(text()).not.toContain("Kod sohbetinde hata çıktısını ekledin");
     // ısı haritası: Çarşamba akşam hücresi en koyu ton
     const cell = root.querySelector('.heat tbody tr:nth-child(4) td:nth-child(4) .cell');
     expect(cell?.className).toBe("cell l3");
-    // ipucu: takılınan tek tür kod
-    expect(text()).toContain("Bu hafta takılıp kaldığın sohbetlerin 1'i kod yazarken oldu.");
+    // Öneri: benzer mesaj şeridi en çok kod sohbetinde çıktı (3 kez) → kod ipucu, tek öneri.
+    expect(ov.querySelector(".hab-tip-text")?.textContent).toBe("İstersen ilk mesaja hata çıktısını, kullandığın dili ve beklediğin sonucu birlikte yaz.");
+    expect(root.querySelectorAll(".hab-tip").length).toBe(1);
   });
 
   it("dağılımların toplamı ana sayıya eşit (rapor düzeyinde)", async () => {
@@ -115,10 +132,9 @@ describe("haftalık özet sayfası", () => {
     expect(r.tasks.reduce((s, t) => s + t.conversations, 0)).toBe(r.conversations);
     expect(r.lengths.reduce((s, t) => s + t.conversations, 0)).toBe(r.conversations);
     expect(r.platforms.reduce((s, t) => s + t.conversations, 0)).toBe(r.conversations);
-    expect(lengthLine(r)).toBe("Sohbetlerinin %57'si 11 ya da daha fazla mesaj sürdü.");
+    expect(lengthLine(r)).toBe("4 sohbet 11 ya da daha fazla mesaj sürdü.");
     expect(platformLine(r)).toBe("En çok Copilot'u kullandın.");
     expect(slotLine(r, ["00-06", "06-12", "12-18", "18-24"])).toBe("Bu hafta öncekine çok benzeyen bir mesaj göndermedin.");
-    expect(headline(r)).toBe("Bu hafta sohbetlerinin %43'ünde takılıp kaldın.");
   });
 
   it("hafta gezinmesi: ileri bu haftada kapalı, geri en fazla 11 hafta", async () => {
@@ -213,8 +229,25 @@ describe("haftalık özet sayfası", () => {
     }
     expect(root.querySelector<HTMLButtonElement>(".icon-btn.prev")!.disabled).toBe(true);
     expect(document.activeElement).toBe(root.querySelector(".icon-btn.next"));
-    expect(text()).toContain("Takılıp kaldığın sohbetler");
+    expect(text()).toContain("6 sohbet bitti.");
     expect(text()).not.toContain("Geçen hafta");
+  });
+
+  it("öneri: Yerinde değildi 4 hafta susturur, sayılır, aynı hafta yerine başka öneri gelmez", async () => {
+    await conv(day(17), "kod", "1-3", "normal", "chatgpt", 6);
+    await record("strip", "gosterildi_kisa", day(17), { platform: "chatgpt", task: "kod" }, 3);
+    await record("strip", "gosterildi", day(17), { platform: "chatgpt", task: "kod" }, 3);
+    await open();
+    expect(root.querySelector(".hab-tip-text")?.textContent).toContain("neyin olmadığını");
+    Array.from(root.querySelectorAll("button")).find((b) => b.textContent === "Yerinde değildi")!.click();
+    await flush();
+    await flush();
+    expect(root.querySelector(".hab-tip")).toBeNull(); // kod ipucu da koşulu tutsa bile bu hafta gelmez
+    expect(text()).toContain("Bu öneri 4 hafta gösterilmeyecek.");
+    expect(document.activeElement).toBe(root.querySelector("#ov-title"));
+    expect((await settings.load()).mutedTips).toEqual({ kisa_duzeltme: { since: "2026-11-16", weeks: 4 } });
+    const json = JSON.parse(await new CounterStore(storage, { flushDelayMs: 0 }).exportJson());
+    expect(json.days[dayOf(NOW)].c["insight|na|oneri_yerinde_degil"]).toBe(1);
   });
 
   it("silme satır içinde onay ister; onaylanınca her şey silinir", async () => {
@@ -234,7 +267,7 @@ describe("haftalık özet sayfası", () => {
     await conv(day(17), "kod", "1-3", "dongu", "chatgpt", 6);
     await open();
     const t = text().toLowerCase();
-    for (const bad of ["bağımlı", "risk", "tehlike", "rozet", "puan"]) expect(t).not.toContain(bad);
+    for (const bad of ["bağımlı", "risk", "tehlike", "rozet", "puan", "seri", "ödül", "sıralama", "%"]) expect(t).not.toContain(bad);
     expect(root.querySelectorAll("script").length).toBe(0);
     vi.restoreAllMocks();
   });

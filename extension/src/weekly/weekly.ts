@@ -3,24 +3,20 @@ import schema from "../data/counter-schema.json";
 import config from "../data/insights-config.json";
 import { CONTINUE_REPAIRS, REPAIRS, shortRepairs } from "../core/repairs";
 import { CounterStore } from "../core/counters";
-import { SettingsStore } from "../core/settings";
-import { percent, shiftWeek, weekReport, weekStart, type WeekReport } from "../core/week-report";
+import { SettingsStore, type Settings } from "../core/settings";
+import { shiftWeek, weekReport, weekStart, type WeekReport } from "../core/week-report";
+import { habitSummary, muteTip, pickTip, type Tip } from "../popup/habits-text";
 import { copyToClipboard } from "../ui/clipboard";
+import { habitRows, tipRow } from "../ui/habits-view";
 import { brandLockup, el, hbar, infoTip, privacyChip } from "../ui/page-kit";
 import {
   DAY_LONG,
   DAY_SHORT,
   followupLine,
-  freshFootLine,
-  headline,
   LEN_NAMES,
   lengthLine,
-  loopShare,
-  nextTimeTip,
-  numberOf,
   PLATFORM_NAMES,
   platformLine,
-  previousLoopLine,
   slotLine,
   SLOT_NAMES,
   TASK_ROWS,
@@ -33,6 +29,8 @@ import {
  * Haftalık özet sayfası (weekly.html). Araç çubuğu penceresindeki "Haftalık özeti aç" ile yeni
  * sekmede açılır. Yalnızca bu cihazdaki sayaçlardan çizilir; hiçbir şey ağa gitmez.
  * Üç hal: boş hafta (sohbet yok), az veri (yüzde söylemek için yetersiz), dolu hafta.
+ * Genel görünüm araç çubuğu penceresindeki "Bu hafta" ile aynı satırları ve aynı tek öneriyi
+ * (habits-text.ts) kullanır; iki yüzey aynı haftada farklı bir şey söylemez.
  */
 
 const SLOTS: string[] = schema.dimensions.slot;
@@ -52,19 +50,6 @@ function block(title: string, sub: string | null, info: string | null, ...body: 
   return card;
 }
 
-function stat(title: string, value: string, unit: string | null, desc: string | null, foot: string | null, info: string | null) {
-  const card = el("section", "card stat");
-  const head = el("div", "card-head");
-  head.append(el("h3", "stat-title", title));
-  if (info) head.append(infoTip(title, info));
-  const num = el("p", "num stat-num", value);
-  if (unit) num.append(el("small", undefined, unit));
-  card.append(head, num);
-  if (desc) card.append(el("p", "stat-desc", desc));
-  if (foot) card.append(el("p", "stat-foot", foot));
-  return card;
-}
-
 /** Ad, alt satır, çubuk ve sağda sayı: tüm dağılımlar aynı satır düzenini kullanır. */
 function barRow(name: string, sub: string | null, ratio: number, value: string, meta: string | null): HTMLElement {
   const row = el("li", "brow");
@@ -79,15 +64,16 @@ function barRow(name: string, sub: string | null, ratio: number, value: string, 
 }
 
 function tasksBlock(r: WeekReport): HTMLElement {
-  const list = el("ul", "brows");
+  // "tasks": sağdaki alt satır ("6 sohbet · 3'ünde aynı yerde döndün") uzun; iki satıra kırılabilir.
+  const list = el("ul", "brows tasks");
   const byTask = new Map(r.tasks.map((t) => [t.task, t]));
   for (const { task, examples } of TASK_ROWS) {
-    const t = byTask.get(task) ?? { conversations: 0, loops: 0 };
+    const t = byTask.get(task) ?? { conversations: 0, loops: 0, loop_ends: 0 };
     list.append(barRow(taskName(task), examples, r.conversations ? t.conversations / r.conversations : 0,
-      `%${percent(t.conversations, r.conversations)}`, taskMeta(t.conversations, t.loops)));
+      `${t.conversations} sohbet`, taskMeta(t.conversations, t.loop_ends)));
   }
-  return block("Ne Tür İşler", "Sohbetlerinin konusuna göre dağılımı",
-    "Sohbetin türü ilk mesajındaki sözcüklerden tahmin edilir. Emin olunamayan sohbetler “Diğer” sayılır. “Takıldın”, o sohbetin takılıp kaldığın sohbetlerden biri olduğunu söyler.",
+  return block("Ne tür işler", "Sohbetlerinin konusuna göre dağılımı",
+    "Sohbetin türü ilk mesajındaki sözcüklerden tahmin edilir. Emin olunamayan sohbetler “Diğer” sayılır. “Aynı yerde döndün”, o sohbette aynı isteği tekrar tekrar yazmaya başladığını söyler; genel görünümdeki “Takılınca nasıl bitti” ile aynı sayıdır.",
     list);
 }
 
@@ -127,8 +113,8 @@ function actionsBlock(r: WeekReport): HTMLElement {
   ].filter(([n]) => (n as number) > 0).map(([n, name]) => `${n} ${name}`);
   const sub = shown === 0 ? "Bu hafta şerit çıkmadı" : `Şeritler bu hafta ${shown} kez çıktı (${kinds.join(", ")}). Sonrasında:`;
   const info =
-    "Şerit, mesajın gönderilmeden önce çıkan küçük uyarıdır. Tepkiler sayaçta şeridin türüne göre ayrılmaz; üç türün toplamıdır. Bir şeritte birden çok düğme seçilebildiği için tepkilerin toplamı şerit sayısını tutmayabilir.";
-  if (shown === 0) return block("Uyarılara Ne Yaptın", sub, info);
+    "Şerit, mesajın gönderilmeden önce çıkan küçük bir öneridir. Tepkiler sayaçta şeridin türüne göre ayrılmaz; üç türün toplamıdır. Bir şeritte birden çok düğme seçilebildiği için tepkilerin toplamı şerit sayısını tutmayabilir.";
+  if (shown === 0) return block("Önerilere ne yaptın", sub, info);
   const repairTotal = Object.values(r.repairs).reduce((a, b) => a + b, 0);
   const values = ACTION_ROWS.map(([k]) => (k === "repairs" ? repairTotal : r.strip_actions[k]));
   const max = Math.max(1, ...values);
@@ -147,7 +133,7 @@ function actionsBlock(r: WeekReport): HTMLElement {
   }
   const sec = el("div", "divided");
   sec.append(el("h3", "minor-title", "Seçtiğin düzeltme düğmeleri"), repairs);
-  return block("Uyarılara Ne Yaptın", sub, info, list, sec);
+  return block("Önerilere ne yaptın", sub, info, list, sec);
 }
 
 function timeBlock(r: WeekReport): HTMLElement {
@@ -189,7 +175,7 @@ function timeBlock(r: WeekReport): HTMLElement {
   legend.setAttribute("aria-hidden", "true");
   legend.append(el("span", undefined, "Yok"), el("span", "cell l0"), el("span", "cell l1"), el("span", "cell l2"), el("span", "cell l3"), el("span", undefined, "Çok"));
   foot.append(el("p", "block-line", slotLine(r, SLOTS)), legend);
-  return block("Ne Zaman", "Benzer mesajlarının gün ve saate dağılımı",
+  return block("Ne zaman", "Benzer mesajlarının gün ve saate dağılımı",
     "Öncekine çok benzeyen her gönderilmiş mesaj sayılır; şerit çıksın ya da çıkmasın. Gün ve saat, mesajı gönderdiğin ana göre.",
     table, foot);
 }
@@ -214,16 +200,16 @@ function freshBlock(r: WeekReport): HTMLElement {
   if (line) body.push(el("p", "block-strong", line));
   body.push(el("p", "block-note divided",
     "Taze başlat, sohbette istediklerini tek bir taslakta toplar ve yeni bir sohbet açar. Taslağın sonundaki “Beklediğim sonuç” satırını doldurmak yeni sohbete baştan yön verir."));
-  return block("Ne İşe Yaradı", sub, info, ...body);
+  return block("Ne işe yaradı", sub, info, ...body);
 }
 
 function lengthBlock(r: WeekReport): HTMLElement {
   const list = el("ul", "brows compact");
   for (const l of r.lengths) {
     list.append(barRow(LEN_NAMES[l.len] ?? l.len, null, r.conversations ? l.conversations / r.conversations : 0,
-      `%${percent(l.conversations, r.conversations)}`, `${l.conversations} sohbet`));
+      `${l.conversations} sohbet`, null));
   }
-  return block("Sohbetlerin Ne Kadar Sürdü", "Bir sohbette kaç mesaj gönderdiğin",
+  return block("Sohbetlerin ne kadar sürdü", "Bir sohbette kaç mesaj gönderdiğin",
     "Bir sohbette senin gönderdiğin mesajlar sayılır; yapay zekanın cevapları sayılmaz.",
     list, el("p", "block-line", lengthLine(r)));
 }
@@ -232,9 +218,9 @@ function platformBlock(r: WeekReport): HTMLElement {
   const list = el("ul", "brows compact");
   for (const p of r.platforms.filter((x) => x.conversations > 0)) {
     list.append(barRow(PLATFORM_NAMES[p.platform] ?? p.platform, null, p.conversations / Math.max(1, r.conversations),
-      `%${percent(p.conversations, r.conversations)}`, `${p.conversations} sohbet`));
+      `${p.conversations} sohbet`, null));
   }
-  return block("Hangi Araçlarda", "Sohbetlerinin araçlara göre dağılımı", null, list, el("p", "block-line", platformLine(r)));
+  return block("Hangi araçlarda", "Sohbetlerinin araçlara göre dağılımı", null, list, el("p", "block-line", platformLine(r)));
 }
 
 function trendBlock(r: WeekReport): HTMLElement {
@@ -243,13 +229,14 @@ function trendBlock(r: WeekReport): HTMLElement {
   r.days.forEach((d, i) => {
     const li = el("li", "col");
     // Ekran okuyucu her sütunu tek cümle olarak okur; görsel parçalar ondan gizlenir.
-    li.append(el("span", "sr-only", `${DAY_LONG[i]}: ${d.conversations} sohbet, ${d.loops} takılıp kalınan`));
+    const loopsSr = d.loop_ends > 0 ? `, ${d.loop_ends} tanesinde aynı yerde dönmeye başladın` : "";
+    li.append(el("span", "sr-only", `${DAY_LONG[i]}: ${d.conversations} sohbet${loopsSr}`));
     const plot = el("div", "col-plot");
     plot.setAttribute("aria-hidden", "true");
     const all = el("span", "col-all");
     all.style.height = `${(d.conversations / max) * 100}%`;
     const loops = el("span", "col-loop");
-    loops.style.height = d.conversations ? `${(d.loops / d.conversations) * 100}%` : "0";
+    loops.style.height = d.conversations ? `${Math.min(1, d.loop_ends / d.conversations) * 100}%` : "0";
     all.append(loops);
     if (d.conversations > 0) all.append(el("span", "col-num", String(d.conversations)));
     plot.append(all);
@@ -260,69 +247,30 @@ function trendBlock(r: WeekReport): HTMLElement {
   });
   const legend = el("div", "legend");
   legend.setAttribute("aria-hidden", "true");
-  legend.append(el("span", "lg all", "Tüm sohbetler"), el("span", "lg loop", "Takılıp kaldıkların"));
-  const card = block("Haftanın Gidişi", "Günlere göre biten sohbet sayısı", null, chart);
+  legend.append(el("span", "lg all", "Tüm sohbetler"), el("span", "lg loop", "Aynı yerde dönmeye başladıkların"));
+  const card = block("Haftanın gidişi", "Günlere göre biten sohbet sayısı", null, chart);
   card.querySelector(".card-head")?.append(legend);
   card.classList.add("wide");
   return card;
 }
 
-function tipBlock(r: WeekReport): HTMLElement | null {
-  const t = nextTimeTip(r);
-  if (!t) return null;
-  const box = el("section", "nexttime");
-  box.append(el("h2", "card-title", "İstersen Bir Dahaki Sefere"), el("p", "nexttime-tip", t.tip.replace(/^İstersen /, "").replace(/^./, (c) => c.toLocaleUpperCase("tr"))));
-  if (t.because) box.append(el("p", "nexttime-because", t.because));
-  return box;
-}
-
-/** comparable: bir önceki hafta saklama süresinin içinde mi (en eski haftada değil). */
-function overview(r: WeekReport, comparable: boolean): HTMLElement {
-  const grid = el("div", "stats");
-  const followTotal = Object.values(r.fresh_followups).reduce((a, b) => a + b, 0);
-  grid.append(
-    stat("Yapay zeka sohbetlerin", String(r.conversations), null,
-      "ChatGPT, Gemini ve benzeri araçlarda bu hafta biten sohbetler",
-      comparable ? `Geçen hafta ${r.previous.conversations} sohbet` : null,
-      "Bir sohbet, başka bir sohbete geçtiğinde ya da sekmeyi kapattığında biter ve o günün sayısına yazılır. Hala açık olan sohbet henüz sayılmaz."),
-    stat("Takılıp kaldığın sohbetler", `%${loopShare(r)}`, null,
-      `Cevap işe yaramadı deyip aynı şeyi tekrar istediğin sohbetler (${r.conversations} sohbetin ${r.loops > 0 ? numberOf(r.loops) : "hiçbiri"})`,
-      comparable ? previousLoopLine(r) : null,
-      "İkinci mesajından sonra en az iki kez “olmadı”, “yanlış” gibi bir düzeltme yazdığın ya da bir düzeltmeyle birlikte aynı mesajı yeniden gönderdiğin sohbetler bu sayıya girer."),
-    stat("Benzer mesaj uyarısı", String(r.strips.benzer), "kez",
-      `Mesajın öncekine çok benzediğinde ${BRAND_NAME}'ın gönderimi durdurduğu anlar`,
-      comparable ? `Geçen hafta ${r.previous.strips_benzer} kez` : null,
-      "Gönder'e bastığında mesajın son 5 mesajınla karşılaştırılır. Neredeyse aynıysa, gönderilmeden önce küçük bir uyarı çıkar. “1. soruyu çöz”, “2. soruyu çöz” gibi bilerek yaptığın seri istekler sayılmaz."),
-    stat("Taze başlat", String(r.fresh_starts), "kez",
-      "Sohbette istediklerini tek mesajda toplayıp yeni sohbet açan düğme",
-      followTotal > 0 || r.fresh_starts > 0 ? freshFootLine(r) : "Bu hafta kullanılmadı",
-      "Çıkış kartındaki Taze başlat, sohbetteki isteklerini tek bir taslakta toplar ve yeni bir sohbet açar. Yeni sohbet bitince kaç mesaj sürdüğü sayılır."),
-  );
+/**
+ * Genel görünüm: penceredeki "Bu hafta" ile aynı satırlar, altında haftanın tek önerisi (varsa).
+ * comparable: bir önceki hafta saklama süresinin içinde mi (en eski haftada değil).
+ */
+function overview(r: WeekReport, comparable: boolean, tip: HTMLElement | null): HTMLElement {
   const sec = el("section", "overview");
   sec.setAttribute("aria-labelledby", "ov-title");
-  const h = el("h2", "section-title", "Genel Görünüm");
+  const h = el("h2", "section-title", "Genel görünüm");
   h.id = "ov-title";
-  sec.append(h, grid, el("p", "headline", headline(r, comparable)));
+  // Öneri kapatılınca odak kaybolmasın diye başlık programla odaklanabilir (sekme sırasına girmez).
+  h.tabIndex = -1;
+  h.dataset.focus = "overview";
+  const card = el("div", "card habits");
+  card.append(...habitRows(habitSummary(r, { comparable })));
+  if (tip) card.append(tip);
+  sec.append(h, card);
   return sec;
-}
-
-function fewState(r: WeekReport): HTMLElement[] {
-  const card = el("section", "card state few");
-  const icon = el("span", "state-ring");
-  icon.setAttribute("aria-hidden", "true");
-  const text = el("div");
-  text.append(
-    el("h2", "state-title", `Bu hafta ${r.conversations} yapay zeka sohbetin var.`),
-    el("p", "state-body", `Bir örüntüden söz etmek için en az ${config.min_conversations} sohbet gerekiyor. Az sohbette yüzdeler yanıltıcı olabilir; bu yüzden şimdilik yalnızca sayıları gösteriyoruz.`),
-  );
-  card.append(icon, text);
-  const grid = el("div", "stats three");
-  grid.append(
-    stat("Yapay zeka sohbetlerin", String(r.conversations), null, null, null, null),
-    stat("Benzer mesaj uyarısı", String(r.strips.benzer), "kez", null, null, null),
-    stat("Taze başlat", String(r.fresh_starts), "kez", null, null, null),
-  );
-  return [card, grid];
 }
 
 function emptyState(): HTMLElement {
@@ -366,24 +314,45 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
   let notice = "";
   let seen = false;
   let focusAfter: string | null = null;
+  let tipNotice = "";
   let lastLabel = "";
   // Hafta değişince okunacak canlı bölge sayfanın dışında durur; her çizimde yeniden kurulmadığı için ekran okuyucu değişikliği kaçırmaz.
   const announcer = el("p", "sr-only");
   announcer.setAttribute("aria-live", "polite");
   (root.parentElement ?? document.body).append(announcer);
 
+  /** Öneri satırı; penceredekiyle aynı düğmeler, aynı sayaçlar ve aynı susturma. */
+  const tipFor = (settings: Settings, r: WeekReport): HTMLElement | null => {
+    const tip = pickTip(r, settings, r.start);
+    if (!tip) {
+      if (!tipNotice) return null;
+      const n = el("p", "hab-group hab-note", tipNotice);
+      n.setAttribute("role", "status");
+      return n;
+    }
+    const react = async (t: Tip, kind: "yerinde_degil" | "kapat") => {
+      deps.counters.record("insight", {}, kind === "kapat" ? "oneri_kapat" : "oneri_yerinde_degil", "oneri");
+      void deps.counters.flush();
+      tipNotice = kind === "kapat" ? "Öneri bu hafta için kapatıldı." : "Bu öneri 4 hafta gösterilmeyecek.";
+      focusAfter = "overview";
+      await deps.settings.update({ mutedTips: muteTip(settings.mutedTips, t.id, r.start, kind) });
+      await render();
+    };
+    return tipRow(tip, { notHelpful: () => void react(tip, "yerinde_degil"), close: () => void react(tip, "kapat") });
+  };
+
   const render = async () => {
     const [settings, counts] = await Promise.all([deps.settings.load(), deps.counters.load()]);
     const current = weekStart(now());
     const start = shiftWeek(current, back);
-    const r = weekReport(counts, start);
+    const r = weekReport(counts, start, settings.habitsFrom);
     const suggesting = settings.enabled && settings.suggestionsEnabled;
 
     const top = el("header", "page-top");
     top.append(brandLockup(40, false), privacyChip());
 
     const title = el("div", "page-title");
-    const h1 = el("h1", undefined, "Haftalık Özet");
+    const h1 = el("h1", undefined, "Haftalık özet");
     const nav = el("div", "week-nav");
     const prev = el("button", "icon-btn prev");
     prev.type = "button";
@@ -392,6 +361,7 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     prev.disabled = back >= WEEKS_BACK;
     prev.addEventListener("click", () => {
       back += 1;
+      tipNotice = "";
       // En eski haftaya varınca düğme kapanır; odak öbür düğmeye geçer.
       focusAfter = back >= WEEKS_BACK ? "next" : "prev";
       void render();
@@ -403,6 +373,7 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     next.disabled = back === 0;
     next.addEventListener("click", () => {
       back -= 1;
+      tipNotice = "";
       focusAfter = back === 0 ? "prev" : "next";
       void render();
     });
@@ -414,13 +385,11 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     main.append(title);
     if (!suggesting) main.append(pausedState(settings.enabled));
     else if (r.conversations === 0) main.append(emptyState());
-    else if (!r.enough) main.append(...fewState(r));
+    else if (!r.enough) main.append(overview(r, false, null));
     else {
       const grid = el("div", "blocks");
       grid.append(tasksBlock(r), actionsBlock(r), timeBlock(r), freshBlock(r), lengthBlock(r), platformBlock(r), trendBlock(r));
-      main.append(overview(r, back < WEEKS_BACK), grid);
-      const tip = tipBlock(r);
-      if (tip) main.append(tip);
+      main.append(overview(r, back < WEEKS_BACK, tipFor(settings, r)), grid);
       if (!seen) {
         seen = true;
         deps.counters.record("insight", {}, "ayrinti", "oneri");

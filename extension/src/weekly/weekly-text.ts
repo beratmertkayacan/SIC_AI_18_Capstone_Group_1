@@ -1,7 +1,7 @@
 import config from "../data/insights-config.json";
 import taskRules from "../data/task-rules.json";
 import { BRAND_NAME } from "../brand";
-import { percent, type WeekReport } from "../core/week-report";
+import type { WeekReport } from "../core/week-report";
 import { numberIn } from "../popup/insight-text";
 
 /**
@@ -90,32 +90,12 @@ export function weekLabel(start: string, end: string): string {
   return `${d1}–${d2} ${MONTHS[m2 - 1]} ${y2}`;
 }
 
-export const loopShare = (r: Pick<WeekReport, "loops" | "conversations">) => percent(r.loops, r.conversations);
-
-/** Genel Görünüm'ün altındaki cümle. comparable false ise (en eski hafta) geçen haftaya değinmez. */
-export function headline(r: WeekReport, comparable = true): string {
-  if (r.loops === 0) return "Bu hafta hiçbir sohbette aynı isteği tekrar tekrar yazman gerekmedi.";
-  const now = `Bu hafta sohbetlerinin %${numberIn(loopShare(r))} takılıp kaldın`;
-  if (!comparable || r.previous.conversations < config.min_conversations) return `${now}.`;
-  return `${now}; geçen hafta bu oran %${numberWas(percent(r.previous.loops, r.previous.conversations))}.`;
-}
-
-export function previousLoopLine(r: WeekReport): string {
-  if (r.previous.conversations < config.min_conversations) return "Geçen hafta karşılaştırma için az sohbet vardı";
-  return `Geçen hafta %${numberWas(percent(r.previous.loops, r.previous.conversations))}`;
-}
-
-export function freshFootLine(r: WeekReport): string {
-  const total = Object.values(r.fresh_followups).reduce((a, b) => a + b, 0);
-  if (total === 0) return r.fresh_starts > 0 ? "Yeni sohbetler bitince burada görünür" : "Bu hafta kullanılmadı";
-  const short = r.fresh_followups[config.short_followup_bucket] ?? 0;
-  return `Biten ${total} yeni sohbetin ${numberOf(short)} 3 mesaj içinde bitti`;
-}
-
-/** Bir görev satırının sağ alt cümlesi: "5 sohbet · 2'sinde takıldın". */
-export function taskMeta(conversations: number, loops: number): string {
-  if (conversations === 0) return "0 sohbet";
-  return loops > 0 ? `${conversations} sohbet · ${numberIn(loops)} takıldın` : `${conversations} sohbet`;
+/**
+ * Bir görev satırının sağ alt cümlesi: "2'sinde aynı yerde döndün" (sohbet sayısı hemen üstünde yazar).
+ * Döngü sayısı loop_end'den gelir; genel görünümdeki "Takılınca nasıl bitti" ile aynı tanım.
+ */
+export function taskMeta(conversations: number, loopEnds: number): string | null {
+  return conversations > 0 && loopEnds > 0 ? `${numberIn(loopEnds)} aynı yerde döndün` : null;
 }
 
 /** Ne Zaman: benzer mesajların en yoğun olduğu saat dilimi; az veriyle bir şey söylenmez. */
@@ -129,7 +109,8 @@ export function slotLine(r: WeekReport, slots: string[]): string {
   });
   const slot = SLOT_NAMES[slots[best] ?? ""];
   if (!slot) return "";
-  return `Benzer mesajlarının %${numberOf(percent(sums[best] ?? 0, r.similar_sends))} ${slot.name.toLocaleLowerCase("tr")} (${slot.hours}) geldi.`;
+  // Yüzde yok: "6 benzer mesajın 4'ü akşam geldi."
+  return `${r.similar_sends} benzer mesajın ${numberOf(sums[best] ?? 0)} ${slot.name.toLocaleLowerCase("tr")} (${slot.hours}) geldi.`;
 }
 
 /** Sohbet süresi: en kalabalık kova. */
@@ -137,7 +118,8 @@ export function lengthLine(r: WeekReport): string {
   if (r.conversations === 0) return "";
   const top = [...r.lengths].sort((a, b) => b.conversations - a.conversations)[0]!;
   const name = LEN_NAMES[top.len] ?? top.len;
-  return `Sohbetlerinin %${numberOf(percent(top.conversations, r.conversations))} ${top.len === "11+" ? "11 ya da daha fazla mesaj sürdü" : `${name}da bitti`}.`;
+  // Yüzde yok: "4 sohbet 1–3 mesajda bitti."
+  return `${top.conversations} sohbet ${top.len === "11+" ? "11 ya da daha fazla mesaj sürdü" : `${name}da bitti`}.`;
 }
 
 export function platformLine(r: WeekReport): string {
@@ -145,17 +127,6 @@ export function platformLine(r: WeekReport): string {
   if (!top || top.conversations === 0) return "";
   const tied = r.platforms.filter((p) => p.conversations === top.conversations).length > 1;
   return tied ? "Birden çok aracı aynı sıklıkta kullandın." : `En çok ${PLATFORM_ACC[top.platform] ?? top.platform} kullandın.`;
-}
-
-/** İstersen bir dahaki sefere: en çok takılınan görev türünün ipucu. Takılma yoksa null. */
-export function nextTimeTip(r: WeekReport): { tip: string; because: string | null } | null {
-  // Eşitlikte bilinen bir tür "Diğer"in önüne geçer: ipucu daha somut olur.
-  const top = [...r.tasks].sort((a, b) => b.loops - a.loops || Number(a.task === "diger") - Number(b.task === "diger") || b.conversations - a.conversations)[0];
-  if (!top || top.loops === 0) return null;
-  const tip = TIPS[top.task] ?? TIPS["diger"] ?? "";
-  const phrase = TASK_WHILE[top.task];
-  const because = phrase ? `Bu hafta takılıp kaldığın sohbetlerin ${numberOf(top.loops)} ${phrase} oldu.` : null;
-  return { tip, because };
 }
 
 /** Taze başlat sonrası: "Yeni açtığın sohbetlerin 2'si 3 mesaj içinde bitti." */

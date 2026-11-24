@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Haftalık Özet · Kâfi AI</title>
+    <title>Haftalık özet · Kâfi AI</title>
     <link rel="stylesheet" href="brand.css" />
     <style>
       body { font-size: 14px; }
@@ -32,16 +32,21 @@
 
       .section-title { margin: 0 0 16px; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
 
-      /* Genel Görünüm: dört sayı kartı */
-      .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
-      .stats.three { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 20px; }
-      .stat { padding: 18px 20px 16px; display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; }
-      .stat-title { margin: 0; font-size: 13px; font-weight: 600; line-height: 1.4; }
-      .stat-num { margin: 14px 0 12px; font-size: 40px; }
-      .stat-desc { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
-      .stat-foot { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12.5px; }
-      .headline { margin: 18px 0 0; font-size: 15px; }
-      .headline b, .block-line b { font-weight: 600; }
+      /* Genel Görünüm: penceredeki "Bu hafta" ile aynı satırlar. Gruplar yan yana sütunlar, aralarında
+         yalnızca üstte 1px çizgi; kutu içinde kutu yok. */
+      .habits { padding: 24px 28px 22px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 32px; align-items: start; }
+      .habits .hab-total { grid-column: 1 / -1; font-size: 17px; font-weight: 600; }
+      .habits .hab-note { grid-column: 1 / -1; font-size: 14px; }
+      .habits .hab-group { margin-top: 18px; padding-top: 14px; }
+      .habits .hab-label { font-size: 13px; margin-bottom: 6px; }
+      .habits .hab-line, .habits .hab-rows li { font-size: 14px; }
+      .habits .hab-line { max-width: 60ch; }
+      .habits .hab-tip, .habits > p.hab-group { grid-column: 1 / -1; }
+      .habits .hab-tip-text { font-size: 15px; }
+      .habits button.link { font-size: 13px; }
+      .block-line b { font-weight: 600; }
+      .overview h2:focus { outline: none; }
+      .overview h2:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
 
       /* Bloklar: iki sütunlu ızgara, Haftanın Gidişi tam genişlik */
       .blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 40px; align-items: start; }
@@ -63,6 +68,8 @@
       .brow-value { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
       .brow-num { font-weight: 600; font-size: 13.5px; }
       .brow-meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+      .brows.tasks .brow { grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) 10rem; }
+      .brows.tasks .brow-meta { white-space: normal; }
       .brows.compact { gap: 12px; }
       .brows.compact .brow { grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) 6.5rem; }
       .brows.compact .brow-name { font-weight: 500; }
@@ -117,16 +124,9 @@
       .col-num { position: absolute; top: -20px; left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 600; }
       .col-day { color: var(--muted); font-size: 12px; }
 
-      /* İstersen bir dahaki sefere */
-      .nexttime { margin-top: 24px; padding: 22px 28px; border-radius: 16px; background: var(--soft); }
-      .nexttime .card-title { margin-bottom: 8px; }
-      .nexttime-tip { margin: 0; font-size: 14.5px; }
-      .nexttime-because { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
-
       /* Boş hafta ve az veri */
       .state { padding: 48px 40px; }
       .state.empty { display: grid; justify-items: center; text-align: center; padding: 56px 40px; }
-      .state.few { display: flex; align-items: center; gap: 28px; }
       .state-ring { flex: none; width: 56px; height: 56px; border-radius: 50%; border: 6px solid var(--c-3); box-sizing: border-box; }
       .state.empty .state-ring { width: 64px; height: 64px; margin-bottom: 22px; border-color: var(--c-track); }
       .state-title { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
@@ -143,21 +143,22 @@
       button.danger-solid { background: var(--danger); border-color: var(--danger); color: var(--card); }
       button.danger-solid:hover { filter: brightness(1.08); background: var(--danger); }
 
-      .block .info .tip, .stat .info .tip { right: -8px; }
+      .block .info .tip { right: -8px; }
 
       @media (max-width: 1040px) {
-        .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .habits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .blocks { grid-template-columns: 1fr; }
       }
       @media (max-width: 640px) {
         #root { padding: 24px 18px 40px; }
         .page-title { margin: 36px 0 28px; }
-        .stats, .stats.three { grid-template-columns: 1fr; }
+        .habits { grid-template-columns: 1fr; padding: 20px 18px; }
         .block { padding: 20px 18px; }
         .brow, .brows.compact .brow { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; }
         .brow .hbar { grid-column: 1 / -1; grid-row: 2; }
+        .brows.tasks .brow { grid-template-columns: minmax(0, 1fr) minmax(0, 9.5rem); }
+        .block.wide > .card-head { flex-wrap: wrap; }
         .week-hint { flex-basis: 100%; margin-left: 0; }
-        .state.few { flex-direction: column; align-items: flex-start; }
         .page-top .privacy-chip { font-size: 11px; padding: 4px 10px 4px 8px; }
         .page-foot, .foot-actions { flex-direction: column; align-items: stretch; }
         .foot-notice { text-align: left; }
