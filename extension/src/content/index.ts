@@ -646,9 +646,15 @@ function main(): boolean {
   const applySettings = (next: Settings) => {
     const wasActive = active();
     const first = settings === null;
+    const semanticBefore = settings?.semanticEnabled;
     settings = next;
     if (first) console.log(`[KafiAI] ayarlar: ${next.enabled ? "açık" : "kapalı"}, çıkış kartı ${next.exitCardEnabled ? "açık" : "kapalı"}`);
     if (first) console.log(`[KafiAI] öneriler: ${next.suggestionsEnabled ? "açık" : "kapalı (yalnızca say)"}`);
+    // Anlam desteğinin durumu: elle denemede neden sorulmadığı ilk satırlardan anlaşılsın (ilk yüklemede ve değişince).
+    if (first || next.semanticEnabled !== semanticBefore) {
+      const server = JUDGE.endpoint ? "sunucu var" : "sunucu adresi yok (KAFI_JUDGE_URL ile derle)";
+      console.log(`[KafiAI] anlam desteği: ${next.semanticEnabled ? "açık" : "kapalı (Ayarlar'dan açılır)"}, ${server}, ${JUDGE.min_turn}. mesajdan itibaren sorulur`);
+    }
     if (!next.enabled || !next.suggestionsEnabled || !next.ringEnabled) ring.hide();
     if (!next.enabled || !next.suggestionsEnabled) {
       strip.hide();
