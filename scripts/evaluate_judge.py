@@ -30,11 +30,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from kafiai.judge import SPEC, karar_duzelt, sohbet_metni, turlari_al  # noqa: E402
+from kafiai.judge import SPEC, kart_eylemi, karar_duzelt, sohbet_metni, turlari_al  # noqa: E402
 
 CACHE = ROOT / "outputs" / "judge_cache"
 VAKA_DOSYASI = ROOT / "prova" / "sentetik" / "vakalar_prova.py"
 SENARYO_DOSYASI = ROOT / "prova" / "sentetik" / "senaryolar_judge.py"
+DAVRANIS_DOSYASI = ROOT / "prova" / "sentetik" / "davranis_seti.py"
+BOLUM_TOHUMU = "7"
 KART_ESIKLERI = (0.5, 0.6, 0.7, 0.75, 0.8, 0.9)
 
 
@@ -57,6 +59,61 @@ def senaryolari_yukle() -> tuple[dict[str, list[dict]], dict[str, dict]]:
     """Açık senaryo seti (uydurma metinler; etiketler senaryo yazarının niyeti, insan etiketi değil)."""
     s = _modul(SENARYO_DOSYASI).SENARYOLAR
     return {sid: _turlar(v["turlar"]) for sid, v in s.items()}, {sid: {**v["beklenen"], "kategori": v["kategori"]} for sid, v in s.items()}
+
+
+def davranis_yukle(bolum: str) -> tuple[dict[str, list[dict]], dict[str, dict]]:
+    """Davranış seti (uydurma metinler, etiketler davranış tanımına göre yazar niyeti). Her kategori kendi içinde
+    sabit tohumlu bir sırayla ayar ve test yarılarına bölünür; istem yalnızca ayar yarısında değiştirilir."""
+    vakalar = _modul(DAVRANIS_DOSYASI).VAKALAR
+    kategoriler: dict[str, list[str]] = {}
+    for vid, v in vakalar.items():
+        kategoriler.setdefault(v["kategori"], []).append(vid)
+    secilen = set()
+    for ids in kategoriler.values():
+        sirali = sorted(ids, key=lambda x: hashlib.sha256(f"{BOLUM_TOHUMU}:{x}".encode()).hexdigest())
+        secilen |= {vid for i, vid in enumerate(sirali) if (i % 2 == 0) == (bolum == "ayar")}
+    if bolum == "hepsi":
+        secilen = set(vakalar)
+    return (
+        {vid: _turlar(vakalar[vid]["turlar"]) for vid in sorted(secilen)},
+        {vid: {"beklenen": vakalar[vid]["beklenen"], "kategori": vakalar[vid]["kategori"]} for vid in sorted(secilen)},
+    )
+
+
+def davranis_kiyasla(sonuclar: dict[str, dict], beklenen: dict[str, dict]) -> dict:
+    """Kart kararı eklentideki kuralla (kart_eylemi) hesaplanır; kabul ölçütleri planla aynı."""
+    def davranis(k):
+        e = kart_eylemi(k)
+        return "dongu_karti" if e["card"] else "ayni_istek_karti" if e["repeat"] else "hicbiri"
+
+    tahmin = {vid: davranis(s["karar"]) for vid, s in sonuclar.items()}
+    def oran(pay, payda):
+        return {"pay": pay, "payda": payda, "yuzde": round(100 * pay / payda, 1) if payda else None}
+    b = {vid: x["beklenen"] for vid, x in beklenen.items()}
+    ayni = [v for v in b if b[v] == "ayni_istek_karti"]
+    hic = [v for v in b if b[v] == "hicbiri"]
+    dng = [v for v in b if b[v] == "dongu_karti"]
+    karmasa: dict[str, dict[str, int]] = {}
+    for v in b:
+        karmasa.setdefault(b[v], {}).setdefault(tahmin[v], 0)
+        karmasa[b[v]][tahmin[v]] += 1
+    kategori: dict[str, dict] = {}
+    for v, x in beklenen.items():
+        c = kategori.setdefault(x["kategori"], {"vaka": 0, "dogru": 0})
+        c["vaka"] += 1
+        c["dogru"] += tahmin[v] == b[v]
+    return {
+        "kabul": {
+            "ayni_istek_yakalama (kart_çeşidi_fark_etmez)": oran(sum(tahmin[v] != "hicbiri" for v in ayni), len(ayni)),
+            "ayni_istek_yakalama (tam)": oran(sum(tahmin[v] == "ayni_istek_karti" for v in ayni), len(ayni)),
+            "ilerleme_ve_kisiselde_yersiz_kart": oran(sum(tahmin[v] != "hicbiri" for v in hic), len(hic)),
+            "dongu_yakalama": oran(sum(tahmin[v] == "dongu_karti" for v in dng), len(dng)),
+            "yersiz_dongu_karti": oran(sum(tahmin[v] == "dongu_karti" for v in b if b[v] != "dongu_karti"), len(b) - len(dng)),
+        },
+        "karmasa (beklenen -> tahmin)": karmasa,
+        "kategori": kategori,
+        "hatalar": [{"vaka": v, "beklenen": b[v], "tahmin": tahmin[v]} for v in b if tahmin[v] != b[v]],
+    }
 
 
 def senaryo_kiyasla(sonuclar: dict[str, dict], beklenen: dict[str, dict]) -> dict:
@@ -173,18 +230,25 @@ def kiyasla(sonuclar: dict[str, dict], anahtar: dict) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--set", choices=["prova", "senaryo"], default="prova", help="açık prova (P vakaları) ya da açık senaryo seti")
+    ap.add_argument("--set", choices=["prova", "senaryo", "davranis"], default="prova", help="açık prova, senaryo seti ya da davranış seti")
+    ap.add_argument("--bolum", choices=["ayar", "test", "hepsi"], default="ayar", help="davranış setinin hangi yarısı (istem yalnızca ayarda değişir)")
     ap.add_argument("--anahtar", type=Path, help="cevap anahtarı (beklenen_v*.json); yalnızca prova kıyası için")
     ap.add_argument("--kuru", action="store_true", help="API çağırmadan ilk vakanın model metnini göster")
     ap.add_argument("--paralel", type=int, default=4)
     ap.add_argument("--dusunme", choices=["acik", "kapali"], help="spec'teki düşünme ayarını bu çalıştırma için değiştir")
+    ap.add_argument("--model", help="spec'teki modeli bu çalıştırma için değiştir (ör. claude-sonnet-5-5)")
     args = ap.parse_args()
     if args.dusunme:
         SPEC["dusunme"] = args.dusunme
+    if args.model:
+        SPEC["model"] = args.model
 
     beklenen = None
+    davranis_beklenen = None
     if args.set == "senaryo":
         ham, beklenen = senaryolari_yukle()
+    elif args.set == "davranis":
+        ham, davranis_beklenen = davranis_yukle(args.bolum)
     else:
         ham = vakalari_yukle()
     vakalar = {vid: sohbet_metni(turlari_al({"turlar": t})) for vid, t in ham.items()}
@@ -211,14 +275,18 @@ def main() -> None:
         "kullanim": {k: sum(s.get("kullanim", {}).get(k, 0) for s in sonuclar.values()) for k in ("giris", "onbellek_okuma", "cikis")},
         "vakalar": {vid: s["karar"] for vid, s in sonuclar.items()},
     }
-    if beklenen is not None:
+    if davranis_beklenen is not None:
+        ozet["bolum"] = args.bolum
+        ozet["kiyas"] = davranis_kiyasla(sonuclar, davranis_beklenen)
+        hedef = ROOT / "outputs" / f"judge_davranis_{args.bolum}_v{SPEC['surum']}_{SPEC['model']}.json"
+    elif beklenen is not None:
         ozet["kiyas"] = senaryo_kiyasla(sonuclar, beklenen)
-        hedef = ROOT / "outputs" / f"judge_senaryo_v{SPEC['surum']}_{SPEC.get('dusunme', 'acik')}.json"
+        hedef = ROOT / "outputs" / f"judge_senaryo_v{SPEC['surum']}_{SPEC['model']}.json"
     elif args.anahtar:
         anahtar = json.loads(args.anahtar.read_text(encoding="utf-8"))
         ozet["anahtar"] = {"dosya": args.anahtar.name, "surum": anahtar.get("surum")}
         ozet["kiyas"] = kiyasla(sonuclar, anahtar["vakalar"])
-        hedef = args.anahtar.parent / "cikti" / f"judge_prova_kiyas_v{SPEC['surum']}_{SPEC.get('dusunme', 'acik')}.json"
+        hedef = args.anahtar.parent / "cikti" / f"judge_prova_kiyas_v{SPEC['surum']}_{SPEC['model']}.json"
     else:
         hedef = ROOT / "outputs" / f"judge_prova_{SPEC.get('dusunme', 'acik')}.json"
     hedef.parent.mkdir(parents=True, exist_ok=True)
@@ -228,6 +296,10 @@ def main() -> None:
     for alan, t in ozet.get("kiyas", {}).items():
         if "dogru" in t:
             print(f"  {alan}: {t['dogru']}/{t['toplam']}")
+    for alan, t in ozet.get("kiyas", {}).get("kabul", {}).items():
+        print(f"  {alan}: {t['pay']}/{t['payda']} (%{t['yuzde']})")
+    for h in ozet.get("kiyas", {}).get("hatalar", []):
+        print(f"  ✗ {h['vaka']}: beklenen {h['beklenen']}, tahmin {h['tahmin']}")
     for esik, t in ozet.get("kiyas", {}).get("kart_esik_taramasi", {}).items():
         print(f"  kart eşiği {esik}: doğru {t['dogru_kart']}, yersiz {t['yersiz_kart']}, kaçan {t['kacan']}")
     print(f"Yazıldı: {hedef}")
