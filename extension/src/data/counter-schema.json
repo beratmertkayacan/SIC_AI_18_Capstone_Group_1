@@ -220,9 +220,11 @@
       ],
       "details": [
         "pencere",
-        "ayrinti"
+        "ayrinti",
+        "oneri_yerinde_degil",
+        "oneri_kapat"
       ],
-      "note": "Haftalık içgörü. pencere: araç çubuğu penceresi içgörüyle açıldı (görev 'na'); ayrinti: haftalık özet sayfası dolu haliyle açıldı (görev 'na', sayfa açık kaldığı sürece bir kez). 19 Kasım 2026 öncesinde ayrinti, araç çubuğu penceresinde bir görev satırının açılması demekti ve görevi taşıyordu; eski ve yeni sayılar görev boyutuyla ayrılır."
+      "note": "Haftalık içgörü. pencere: araç çubuğu penceresi içgörüyle açıldı (görev 'na'); ayrinti: haftalık özet sayfası dolu haliyle açıldı (görev 'na', sayfa açık kaldığı sürece bir kez). oneri_yerinde_degil ve oneri_kapat: haftalık özetteki tek 'İstersen…' önerisine verilen tepki (görev 'na'; hangi öneri olduğu sayaca yazılmaz). 19 Kasım 2026 öncesinde ayrinti, araç çubuğu penceresinde bir görev satırının açılması demekti ve görevi taşıyordu; eski ve yeni sayılar görev boyutuyla ayrılır."
     },
     "loop_end": {
       "dims": [
