@@ -106,9 +106,12 @@ def replay(msgs, answers, model, reasons, policy, predictions=None, extra=None):
     cevap gelir, özür sinyali işlenir, halka güncellenir, kart koşuluna bakılır.
 
     extra: aday kural denemesi için (scripts/evaluate_stage3.py). {"ring": {tur: seviye}, "card": {tur: gerekçe}};
-    kart soğuma süresine ve bir turda tek müdahale kuralına uyar, öncelikte "tekrar"dan sonra gelir."""
+    kart soğuma süresine ve bir turda tek müdahale kuralına uyar, öncelikte "tekrar"dan sonra gelir.
+    extra["veto"]: kartın o turda gösterilmeyeceği turlar (anlam desteğinin onaylayıcı kullanımı, K51 taslağı);
+    bastırılan kart soğuma süresi başlatmaz."""
     extra_ring = (extra or {}).get("ring", {})
     extra_card = (extra or {}).get("card", {})
+    extra_veto = (extra or {}).get("veto", set())
     after = policy == "sonra"
     flags = detector_flags(msgs, use_variation=after)
     signals = ConversationSignals()
@@ -165,6 +168,8 @@ def replay(msgs, answers, model, reasons, policy, predictions=None, extra=None):
                 card = extra_card[t]
             elif n >= min_turns and repeats >= config.EXT_EXIT_CARD_MIN_REPEATS and (suggest or not after):
                 card = "norm"
+        if card and t in extra_veto:
+            card = None
         if card:
             quiet_until = n + config.EXT_EXIT_CARD_COOLDOWN_TURNS
         # Onay zinciri önerisi: cevabın altında, sohbet başına bir kez, kart ya da şerit yoksa.

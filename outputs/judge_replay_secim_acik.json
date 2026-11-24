@@ -1,0 +1,328 @@
+{
+ "UYARI": "Yalnızca sayılar. Eşik seçimi seçim örnekleminde yapılır; rapor örnekleminde yalnızca seçilen eşik koşulur.",
+ "orneklem": "secim",
+ "sohbet": 2000,
+ "spec_surum": "0.3",
+ "model": "claude-haiku-5-5",
+ "dusunme": "acik",
+ "istek": {
+  "kapidan_gecen": 7555,
+  "cevapsiz": 0,
+  "karar_yok": 12
+ },
+ "degerlendirici_tek_basina": {
+  "degerlendirilen_tur": 7543,
+  "taban_dsat_yuzde": 8.6,
+  "dongu_ve_guven_esigi": {
+   "0.50": {
+    "tur_yuzde": 16.96,
+    "dsat_yuzde": 25.1
+   },
+   "0.55": {
+    "tur_yuzde": 16.96,
+    "dsat_yuzde": 25.1
+   },
+   "0.60": {
+    "tur_yuzde": 16.89,
+    "dsat_yuzde": 25.12
+   },
+   "0.65": {
+    "tur_yuzde": 15.3,
+    "dsat_yuzde": 26.26
+   },
+   "0.70": {
+    "tur_yuzde": 15.3,
+    "dsat_yuzde": 26.26
+   },
+   "0.75": {
+    "tur_yuzde": 13.63,
+    "dsat_yuzde": 27.43
+   },
+   "0.80": {
+    "tur_yuzde": 13.47,
+    "dsat_yuzde": 27.56
+   },
+   "0.85": {
+    "tur_yuzde": 3.51,
+    "dsat_yuzde": 49.43
+   },
+   "0.90": {
+    "tur_yuzde": 0.94,
+    "dsat_yuzde": 74.65
+   }
+  }
+ },
+ "bugunku_sistem": {
+  "kart_100_sohbette": 17.75,
+  "kart_isabet_yuzde": 27.89,
+  "yakalama_yuzde": 26.15,
+  "anlam_karti": null,
+  "halka2_tur_yuzde": 9.43,
+  "halka2_isabet_yuzde": 25.8
+ },
+ "tarama_kart": {
+  "0.50": {
+   "kart_100_sohbette": 39.3,
+   "kart_isabet_yuzde": 19.08,
+   "yakalama_yuzde": 35.38,
+   "anlam_karti": {
+    "sayi": 464,
+    "isabet_yuzde": 13.58
+   },
+   "halka2_tur_yuzde": 16.79,
+   "halka2_isabet_yuzde": 21.58
+  },
+  "0.55": {
+   "kart_100_sohbette": 39.3,
+   "kart_isabet_yuzde": 19.08,
+   "yakalama_yuzde": 35.38,
+   "anlam_karti": {
+    "sayi": 464,
+    "isabet_yuzde": 13.58
+   },
+   "halka2_tur_yuzde": 16.79,
+   "halka2_isabet_yuzde": 21.58
+  },
+  "0.60": {
+   "kart_100_sohbette": 39.2,
+   "kart_isabet_yuzde": 19.13,
+   "yakalama_yuzde": 35.38,
+   "anlam_karti": {
+    "sayi": 462,
+    "isabet_yuzde": 13.64
+   },
+   "halka2_tur_yuzde": 16.75,
+   "halka2_isabet_yuzde": 21.58
+  },
+  "0.65": {
+   "kart_100_sohbette": 37.25,
+   "kart_isabet_yuzde": 19.46,
+   "yakalama_yuzde": 33.85,
+   "anlam_karti": {
+    "sayi": 421,
+    "isabet_yuzde": 13.78
+   },
+   "halka2_tur_yuzde": 15.96,
+   "halka2_isabet_yuzde": 22.05
+  },
+  "0.70": {
+   "kart_100_sohbette": 37.25,
+   "kart_isabet_yuzde": 19.46,
+   "yakalama_yuzde": 33.85,
+   "anlam_karti": {
+    "sayi": 421,
+    "isabet_yuzde": 13.78
+   },
+   "halka2_tur_yuzde": 15.96,
+   "halka2_isabet_yuzde": 22.05
+  },
+  "0.75": {
+   "kart_100_sohbette": 34.95,
+   "kart_isabet_yuzde": 20.17,
+   "yakalama_yuzde": 33.08,
+   "anlam_karti": {
+    "sayi": 373,
+    "isabet_yuzde": 14.21
+   },
+   "halka2_tur_yuzde": 15.19,
+   "halka2_isabet_yuzde": 22.6
+  },
+  "0.80": {
+   "kart_100_sohbette": 34.75,
+   "kart_isabet_yuzde": 20.14,
+   "yakalama_yuzde": 33.08,
+   "anlam_karti": {
+    "sayi": 370,
+    "isabet_yuzde": 14.05
+   },
+   "halka2_tur_yuzde": 15.12,
+   "halka2_isabet_yuzde": 22.65
+  },
+  "0.85": {
+   "kart_100_sohbette": 21.3,
+   "kart_isabet_yuzde": 26.76,
+   "yakalama_yuzde": 28.46,
+   "anlam_karti": {
+    "sayi": 83,
+    "isabet_yuzde": 25.3
+   },
+   "halka2_tur_yuzde": 10.34,
+   "halka2_isabet_yuzde": 26.13
+  },
+  "0.90": {
+   "kart_100_sohbette": 18.25,
+   "kart_isabet_yuzde": 27.67,
+   "yakalama_yuzde": 26.15,
+   "anlam_karti": {
+    "sayi": 12,
+    "isabet_yuzde": 33.33
+   },
+   "halka2_tur_yuzde": 9.55,
+   "halka2_isabet_yuzde": 26.02
+  }
+ },
+ "tarama_halka": {
+  "0.30": {
+   "kart_100_sohbette": 17.75,
+   "kart_isabet_yuzde": 27.89,
+   "yakalama_yuzde": 26.15,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "0.40": {
+   "kart_100_sohbette": 17.75,
+   "kart_isabet_yuzde": 27.89,
+   "yakalama_yuzde": 26.15,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "0.50": {
+   "kart_100_sohbette": 17.75,
+   "kart_isabet_yuzde": 27.89,
+   "yakalama_yuzde": 26.15,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "0.60": {
+   "kart_100_sohbette": 17.75,
+   "kart_isabet_yuzde": 27.89,
+   "yakalama_yuzde": 26.15,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "0.70": {
+   "kart_100_sohbette": 17.75,
+   "kart_isabet_yuzde": 27.89,
+   "yakalama_yuzde": 26.15,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  }
+ },
+ "tarama_onay": {
+  "onay0.00_kartyok": {
+   "kart_100_sohbette": 9.3,
+   "kart_isabet_yuzde": 39.25,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.00_kart0.85": {
+   "kart_100_sohbette": 12.9,
+   "kart_isabet_yuzde": 34.11,
+   "yakalama_yuzde": 19.23,
+   "anlam_karti": {
+    "sayi": 83,
+    "isabet_yuzde": 25.3
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.00_kart0.90": {
+   "kart_100_sohbette": 9.85,
+   "kart_isabet_yuzde": 38.07,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": {
+    "sayi": 12,
+    "isabet_yuzde": 33.33
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.50_kartyok": {
+   "kart_100_sohbette": 9.3,
+   "kart_isabet_yuzde": 39.25,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.50_kart0.85": {
+   "kart_100_sohbette": 12.9,
+   "kart_isabet_yuzde": 34.11,
+   "yakalama_yuzde": 19.23,
+   "anlam_karti": {
+    "sayi": 83,
+    "isabet_yuzde": 25.3
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.50_kart0.90": {
+   "kart_100_sohbette": 9.85,
+   "kart_isabet_yuzde": 38.07,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": {
+    "sayi": 12,
+    "isabet_yuzde": 33.33
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.60_kartyok": {
+   "kart_100_sohbette": 9.25,
+   "kart_isabet_yuzde": 39.46,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.60_kart0.85": {
+   "kart_100_sohbette": 12.85,
+   "kart_isabet_yuzde": 34.24,
+   "yakalama_yuzde": 19.23,
+   "anlam_karti": {
+    "sayi": 83,
+    "isabet_yuzde": 25.3
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.60_kart0.90": {
+   "kart_100_sohbette": 9.8,
+   "kart_isabet_yuzde": 38.27,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": {
+    "sayi": 12,
+    "isabet_yuzde": 33.33
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.70_kartyok": {
+   "kart_100_sohbette": 9.05,
+   "kart_isabet_yuzde": 40.88,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": null,
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.70_kart0.85": {
+   "kart_100_sohbette": 12.65,
+   "kart_isabet_yuzde": 35.18,
+   "yakalama_yuzde": 19.23,
+   "anlam_karti": {
+    "sayi": 83,
+    "isabet_yuzde": 25.3
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  },
+  "onay0.70_kart0.90": {
+   "kart_100_sohbette": 9.6,
+   "kart_isabet_yuzde": 39.58,
+   "yakalama_yuzde": 16.92,
+   "anlam_karti": {
+    "sayi": 12,
+    "isabet_yuzde": 33.33
+   },
+   "halka2_tur_yuzde": 9.43,
+   "halka2_isabet_yuzde": 25.8
+  }
+ }
+}

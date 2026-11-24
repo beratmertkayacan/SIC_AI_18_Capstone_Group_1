@@ -1,0 +1,531 @@
+{
+ "UYARI": "Yalnızca açık prova; küçük, sentetik ve kuralları yazanlarca hazırlanmış set. Genel doğruluk değildir.",
+ "spec_surum": "0.3",
+ "model": "claude-haiku-5-5",
+ "dusunme": "acik",
+ "vaka": 36,
+ "karar_yok": 0,
+ "gecikme_ms_medyan": 1416,
+ "kullanim": {
+  "giris": 16024,
+  "onbellek_okuma": 86048,
+  "cikis": 8535
+ },
+ "vakalar": {
+  "kod_hata_uc_deneme": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.6,
+   "gerekce": "Aynı KeyError üç denemede de sürdü; sorun büyük ihtimalle sütun adından çok dosyanın okunma biçiminde ya da veride olabilir.",
+   "oneri": "İstersen print(df.columns.tolist()) çıktısını ve csv dosyasının ilk iki satırını buraya yapıştır; böylece sorunu tek seferde bulabiliriz."
+  },
+  "js_undefined_map": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.8,
+   "gerekce": "Aynı hata birkaç denemeden sonra hâlâ devam ediyor; bu noktada tek tek kod parçaları yerine hatanın kaynağını birlikte bulmak daha verimli o",
+   "oneri": "İstersen hatanın tam çıktısını, users'ın nereden geldiğini gösteren fetch kodunu ve ilgili bileşenin kodunu tek mesajda paylaş; kısa bir mola da işe yarayabilir"
+  },
+  "kelime_siniri_cignenmesi": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.85,
+   "gerekce": "Kelime sınırı üç denemede de aşıldı; son paragraf hâlâ 56 kelime. Bu yüzden kısıtı ayrıca ve cümle cümle kontrol etmek gerekiyor.",
+   "oneri": "İstersen paragrafı kısa cümlelere bölüp kelimeleri tek tek say ya da 'en fazla 45 kelime' gibi daha düşük bir hedef vererek yeniden iste."
+  },
+  "madde_isareti_yasagi": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.9,
+   "gerekce": "Düz paragraf isteğin üç kez söylenmesine rağmen cevaplarda liste biçimi sürüyor, bu da aynı engelin tekrar etmesi anlamına geliyor.",
+   "oneri": "İstersen isteğini tek mesajda net yaz: 'Madde işareti, numara ve liste kullanma, tek bir düz paragraf yaz.' Ya da yeni bir sohbet açıp baştan başlayabilirsin."
+  },
+  "parafraz_resmi_ton": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 3,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.7,
+   "gerekce": "Resmi bir dil isteğin üç kez dile getirildi, ama son cevap da hâlâ gündelik kaldı. Aynı noktada dönüyor olabilirsin.",
+   "oneri": "İstersen hocanın unvanını, dersin adını, teslim tarihini ve uzatma süresini tek mesajda yaz; resmi bir dilekçe metni baştan hazırlayayım."
+  },
+  "turkce_karaktersiz_kisalt": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.8,
+   "gerekce": "Kısa bir açıklama istediğin halde cevaplar hâlâ uzun kaldı, bu yüzden aynı isteği tekrar yazmak zorunda kaldın.",
+   "oneri": "İstersen isteğini tek mesajda yaz: \"Instagram için tek cümle, en fazla 15 kelime, sadece metin\" gibi net bir sınır koy."
+  },
+  "ozur_ayni_yanlis_hesap": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": true,
+   "tur": "ozur_dongusu",
+   "dongu": true,
+   "guven": 0.9,
+   "gerekce": "Ardışık indirimin nasıl hesaplanacağı sorusu, asistanın özür dileyip aynı toplama yöntemini tekrarlamasıyla birkaç kez döndü.",
+   "oneri": "İstersen soruyu yeni bir sohbette tek cümleyle sor: 1200 TL'ye önce %20, sonra kalan fiyata %10 indirim uygulanırsa son fiyat kaç TL olur?"
+  },
+  "ozur_sql_ayni_hata": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": true,
+   "tur": "ozur_dongusu",
+   "dongu": true,
+   "guven": 0.9,
+   "gerekce": "Aynı GROUP BY hatası iki kez geri geldi ve asistan her seferinde özür dileyip benzer sorguyu yeniden verdi, bu yüzden döngüye girmiş gibi gö",
+   "oneri": "İstersen hatayı ve tablo yapısını tek mesajda yeniden paylaş, ya da her departmanın en yüksek maaşlı çalışanını bulmak için ROW_NUMBER veya DISTINCT ON kullanan"
+  },
+  "css_ortalama_olmuyor": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.8,
+   "gerekce": "Div'i dikeyde ortalama isteği üç farklı denemeye rağmen hâlâ karşılanmadı, bu yüzden aynı sorunla dönüp duruyorsun.",
+   "oneri": "İstersen HTML yapını ve sayfadaki diğer CSS kurallarını tek mesajda paylaş; dikey ortalamayı engelleyen şeyi birlikte bulalım."
+  },
+  "modul_bulunamadi": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.85,
+   "gerekce": "Aynı ModuleNotFoundError hatası birkaç denemeden sonra hâlâ devam ediyor; bu, çözümün farklı bir yerde aranması gerektiğine işaret ediyor.",
+   "oneri": "İstersen çalıştırdığın dosyanın tam yolunu, `python -c \"import sys; print(sys.executable)\"` çıktısını ve pip show requests sonucunu paylaş; birlikte nerede durd"
+  },
+  "ilk_kelime_ihlali": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "ayni_istek_yeniden",
+   "dongu": false,
+   "guven": 0.3,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "ilk_hata_mesaji": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.9,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "ilk_json_bicim": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": false,
+   "guven": 0.6,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "ilk_dil_ihlali": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "ayni_istek_yeniden",
+   "dongu": false,
+   "guven": 0.6,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "ilk_ihlal_sonra_duzeldi": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "ayni_istek_yeniden",
+   "dongu": false,
+   "guven": 0.6,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "hikaye_siradaki_bolum": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "urun_aciklama_serisi": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.9,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "ceviri_serisi": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "odev_sorulari_serisi": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "eposta_revizyon_ilerliyor": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "glutensiz_kosul_eklendi": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.9,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "turkce_cevapla_sonradan": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kod_adim_adim_refactor": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kayma_odev_bitmiyor": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "konu_kaymasi",
+   "dongu": false,
+   "guven": 0.0,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kayma_verimli_kesif": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kayma_tatil_plani_dagildi": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.9,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kisisel_ayrilik_tekrar": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.2,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kisisel_sinav_kaygisi": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.2,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kisisel_aile_tartisma": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.3,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "enjeksiyon_dongu_gizleme": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": false,
+   "guven": 0.4,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "enjeksiyon_tersine": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.95,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "karisik_dil_docker": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": false,
+   "guven": 0.35,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kisa_mesajlar_ucuncu": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 1,
+   "onceki_cevap_karsiladi": "hayir",
+   "tikanma": true,
+   "ozur_dongusu": false,
+   "tur": "karsilanmayan_engel",
+   "dongu": true,
+   "guven": 0.8,
+   "gerekce": "Aynı #YOK hatası birkaç denemeden sonra hâlâ sürüyor, bu yüzden çözüm arayışı bir süredir aynı yerde dönüyor.",
+   "oneri": "İstersen Excel'den hücre örneğini ve formülünü tek mesajda paylaş, ya da kısa bir mola verip yeni bir sohbette baştan başlayalım."
+  },
+  "kisa_mesaj_ilk_kez": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "belirsiz",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.3,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "kisa_onaylar_teklif": {
+   "ayni_istek": false,
+   "onceki_istek_turu": -1,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.9,
+   "gerekce": "",
+   "oneri": ""
+  },
+  "yeniden_uretilen_cevaplar": {
+   "ayni_istek": true,
+   "onceki_istek_turu": 3,
+   "onceki_cevap_karsiladi": "evet",
+   "tikanma": false,
+   "ozur_dongusu": false,
+   "tur": "yok",
+   "dongu": false,
+   "guven": 0.7,
+   "gerekce": "",
+   "oneri": ""
+  }
+ },
+ "kiyas": {
+  "dongu": {
+   "dogru": 33,
+   "toplam": 36,
+   "hatalar": [
+    "kayma_odev_bitmiyor",
+    "enjeksiyon_dongu_gizleme",
+    "karisik_dil_docker"
+   ]
+  },
+  "tur": {
+   "dogru": 28,
+   "toplam": 36,
+   "hatalar": [
+    "parafraz_resmi_ton",
+    "turkce_karaktersiz_kisalt",
+    "ilk_kelime_ihlali",
+    "ilk_json_bicim",
+    "ilk_dil_ihlali",
+    "ilk_ihlal_sonra_duzeldi",
+    "kayma_verimli_kesif",
+    "kayma_tatil_plani_dagildi"
+   ]
+  },
+  "kategori": {
+   "gercek_dongu": {
+    "vaka": 10,
+    "dongu_dogru": 10
+   },
+   "ilk_ihlal": {
+    "vaka": 5,
+    "dongu_dogru": 5
+   },
+   "verimli_seri": {
+    "vaka": 8,
+    "dongu_dogru": 8
+   },
+   "konu_kaymasi": {
+    "vaka": 3,
+    "dongu_dogru": 2
+   },
+   "kisisel": {
+    "vaka": 3,
+    "dongu_dogru": 3
+   },
+   "zor_durumlar": {
+    "vaka": 7,
+    "dongu_dogru": 5
+   }
+  },
+  "kart_esik_taramasi": {
+   "0.5": {
+    "dogru_kart": 11,
+    "yersiz_kart": 0,
+    "kacan": 3
+   },
+   "0.6": {
+    "dogru_kart": 11,
+    "yersiz_kart": 0,
+    "kacan": 3
+   },
+   "0.7": {
+    "dogru_kart": 10,
+    "yersiz_kart": 0,
+    "kacan": 4
+   },
+   "0.75": {
+    "dogru_kart": 9,
+    "yersiz_kart": 0,
+    "kacan": 5
+   },
+   "0.8": {
+    "dogru_kart": 9,
+    "yersiz_kart": 0,
+    "kacan": 5
+   },
+   "0.9": {
+    "dogru_kart": 3,
+    "yersiz_kart": 0,
+    "kacan": 11
+   }
+  }
+ }
+}
