@@ -23,6 +23,9 @@ eda_outputs.zip
 
 # Eklenti
 extension/node_modules/
+server/node_modules/
+server/.vercel/
+outputs/judge_cache/
 extension/dist/
 
 # Sayfa görüntüleri (ham hâlleri git dışında; temizlenmişleri extension/test-snapshots/)
