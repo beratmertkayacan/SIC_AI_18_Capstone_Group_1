@@ -161,4 +161,26 @@ h1.brand-name { margin: 0; font-size: inherit; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
+/* "Bu hafta" özeti (pencere ve haftalık sayfa): kutusuz, satırlı. Gruplar 1px çizgiyle ayrılır; sayı yalnızca
+   "takılınca nasıl bitti" satırlarının sağında. Ölçüler pencereye göre; haftalık sayfa büyütür. */
+.hab-total { margin: 0; font-size: 14px; font-weight: 500; line-height: 1.45; }
+.hab-note { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+.hab-group { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--line); }
+.hab-label { margin: 0 0 3px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.hab-line { margin: 0; font-size: 12.5px; line-height: 1.5; }
+.hab-quiet { color: var(--muted); }
+.hab-rows { list-style: none; margin: 6px 0 0; padding: 0; }
+.hab-rows li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 3px 0; font-size: 12.5px; }
+.hab-row-num { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+.hab-rows li.quiet { color: var(--muted); }
+.hab-rows li.quiet .hab-row-num { font-weight: 500; }
+.hab-tip-text { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--accent-ink); font-weight: 500; }
+.hab-tip-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin: 6px 0 0 -8px; }
+.hab-tip-actions .strong { margin-right: auto; }
+
+/* Bağlantı görünümlü düğme: çizgisiz, soluk; hedef alanı en az 28px. */
+button.link { min-height: 28px; padding: 4px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 500; }
+button.link:hover { border: 0; color: var(--fg); background: color-mix(in srgb, var(--soft) 80%, transparent); }
+button.link.strong { color: var(--accent-ink); font-weight: 600; }
+
 @media (prefers-reduced-motion: reduce) { .tip, .switch { transition: none; } }

@@ -1,12 +1,13 @@
 import { BRAND_NAME } from "../brand";
-import config from "../data/insights-config.json";
-import { CounterStore } from "../core/counters";
+import { CounterStore, dayOf } from "../core/counters";
 import type { ConversationSnapshot } from "../core/messages";
 import { SettingsStore, type Settings } from "../core/settings";
-import { percent, weekReport, weekStart } from "../core/week-report";
+import { weekReport, weekStart, type WeekReport } from "../core/week-report";
 import { copyToClipboard } from "../ui/clipboard";
 import { brandLockup, el, privacyChip, switchRow } from "../ui/page-kit";
-import { numberWas, weekLabel } from "../weekly/weekly-text";
+import { weekLabel } from "../weekly/weekly-text";
+import { habitRows, tipRow } from "../ui/habits-view";
+import { habitSummary, muteTip, pickTip, type Tip } from "./habits-text";
 import { conversationLines, taskLabel } from "./insight-text";
 
 /** Açık sekmedeki sohbetle konuşmak için (testte sahtesi verilir). */
@@ -27,6 +28,7 @@ const SUMMARY_NAMES: [keyof Settings, string][] = [
   ["suggestionsEnabled", "öneriler"],
   ["ringEnabled", "halka"],
   ["exitCardEnabled", "yeni sohbet önerisi"],
+  ["habitsEnabled", "haftalık özet"],
 ];
 
 /** Ayarlar satırının alt yazısı: "Açık: öneriler, halka, yeni sohbet önerisi". */
@@ -65,12 +67,6 @@ function progress(turns: number, median: number): HTMLElement {
   return wrap;
 }
 
-function tile(value: string, label: string): HTMLElement {
-  const t = el("div", "tile");
-  t.append(el("span", "num tile-num", value), el("span", "tile-label", label));
-  return t;
-}
-
 /** Araç çubuğu penceresini kurar. Tüm metinler textContent ile yazılır (HTML eklenmez). */
 export function mountPopup(
   root: HTMLElement,
@@ -86,6 +82,7 @@ export function mountPopup(
   let notice = "";
   let cardNotice = "";
   let insightSeen = false;
+  let tipNotice = "";
   let focusAfter: string | null = null;
 
   /** Ayar değişince sayfa yeniden çizilir; odak basılan anahtara geri verilir. */
@@ -105,7 +102,7 @@ export function mountPopup(
   const conversationCard = (snap: ConversationSnapshot): HTMLElement => {
     const sec = el("section", "card lifted");
     sec.setAttribute("aria-labelledby", "conv-title");
-    const h = el("h2", "sec-title", "Bu Sohbet");
+    const h = el("h2", "sec-title", "Bu sohbet");
     h.id = "conv-title";
     sec.append(h);
     const lines = conversationLines(snap);
@@ -133,29 +130,48 @@ export function mountPopup(
     return sec;
   };
 
-  const weekSection = (counts: Awaited<ReturnType<CounterStore["load"]>>): HTMLElement => {
-    const r = weekReport(counts, weekStart(now()));
+  /** Öneriye verilen tepki: ayarlara yazılır, insight sayacına yalnızca tepki girer (öneri kimliği girmez). */
+  const reactToTip = async (settings: Settings, r: WeekReport, tip: Tip, kind: "yerinde_degil" | "kapat") => {
+    counters.record("insight", {}, kind === "kapat" ? "oneri_kapat" : "oneri_yerinde_degil", "oneri");
+    void counters.flush();
+    tipNotice = kind === "kapat" ? "Öneri bu hafta için kapatıldı." : "Bu öneri 4 hafta gösterilmeyecek.";
+    focusAfter = "weekly";
+    await store.update({ mutedTips: muteTip(settings.mutedTips, tip.id, r.start, kind) });
+    await render();
+  };
+
+  const weekSection = (counts: Awaited<ReturnType<CounterStore["load"]>>, settings: Settings): HTMLElement => {
+    const today = now();
+    const r = weekReport(counts, weekStart(today), settings.habitsFrom);
     const sec = el("section", "week");
     sec.setAttribute("aria-labelledby", "week-title");
     const head = el("div", "sec-head");
-    const h = el("h2", "sec-title", "Bu Hafta");
+    const h = el("h2", "sec-title", "Bu hafta");
     h.id = "week-title";
     head.append(h, el("span", "sec-meta", weekLabel(r.start, r.end).replace(/ \d{4}$/, "")));
-    const tiles = el("div", "tiles");
-    tiles.append(
-      tile(String(r.conversations), "Sohbet"),
-      tile(r.enough ? `%${percent(r.loops, r.conversations)}` : String(r.loops), "Takılıp kalınan"),
-      tile(String(r.strips.benzer), "Benzer mesaj"),
-    );
-    let line: string;
-    if (r.conversations === 0) line = "Bu hafta henüz biten bir sohbet yok.";
-    else if (!r.enough) line = `Yüzde söylemek için en az ${config.min_conversations} sohbet gerekiyor; şimdilik yalnızca sayılar.`;
-    else if (r.previous.conversations >= config.min_conversations)
-      line = `Takılıp kalma oranı geçen hafta %${numberWas(percent(r.previous.loops, r.previous.conversations))}.`;
-    else line = "Geçen hafta karşılaştırma için az sohbet vardı.";
+    // Pencerede geçen hafta satırı yok (yalnızca haftalık sayfada); 600px yüksekliğe sığmak için sıkı düzen.
+    const summary = habitSummary(r, { comparable: false, restartedToday: settings.habitsFrom === dayOf(today) });
+    sec.append(head, ...habitRows(summary, { compact: true }));
+    const tip = pickTip(r, settings, r.start);
+    if (tip) {
+      sec.append(tipRow(tip, {
+        openSettings: async () => {
+          view = "settings";
+          focusAfter = "exitCardEnabled";
+          await render();
+        },
+        notHelpful: () => void reactToTip(settings, r, tip, "yerinde_degil"),
+        close: () => void reactToTip(settings, r, tip, "kapat"),
+      }));
+    } else if (tipNotice) {
+      const n = el("p", "hab-group hab-note", tipNotice);
+      n.setAttribute("role", "status");
+      sec.append(n);
+    }
     const openWeekly = el("button", "wide", "Haftalık özeti aç");
+    openWeekly.dataset.focus = "weekly";
     openWeekly.addEventListener("click", () => openPage("weekly.html"));
-    sec.append(head, tiles, el("p", "line muted", line), openWeekly);
+    sec.append(openWeekly);
     if (!insightSeen && r.conversations > 0) {
       insightSeen = true;
       counters.record("insight", {}, "pencere", "oneri");
@@ -197,11 +213,12 @@ export function mountPopup(
     } else {
       const suggesting = settings.suggestionsEnabled;
       if (suggesting && snap !== null && snap.active) parts.push(conversationCard(snap));
-      if (suggesting) parts.push(weekSection(counts));
-      else {
+      // "Haftalık özet" kapalıysa bölüm hiç çizilmez; sayılar yine tutulur.
+      if (suggesting && settings.habitsEnabled) parts.push(weekSection(counts, settings));
+      else if (!suggesting) {
         const sec = el("section", "week");
         sec.append(
-          el("h2", "sec-title", "Bu Hafta"),
+          el("h2", "sec-title", "Bu hafta"),
           el("p", "line muted", "Uyarılar ve öneriler kapalı; şu an yalnızca günlük sayılar tutuluyor. Özet, öneriler açılınca burada görünür."),
         );
         parts.push(sec);
@@ -228,7 +245,7 @@ export function mountPopup(
     head.append(h1, back);
     const list = el("div", "settings");
     const sub = !settings.enabled || !settings.suggestionsEnabled;
-    type Toggle = "enabled" | "suggestionsEnabled" | "ringEnabled" | "exitCardEnabled";
+    type Toggle = "enabled" | "suggestionsEnabled" | "ringEnabled" | "exitCardEnabled" | "habitsEnabled";
     const toggle = (key: Toggle) => (v: boolean) => update({ [key]: v } as Partial<Settings>, key);
     const rows = [
       switchRow(`${BRAND_NAME} açık`, "Kapalıyken hiçbir şey yapmaz.", settings.enabled, false, toggle("enabled")),
@@ -236,8 +253,9 @@ export function mountPopup(
         settings.suggestionsEnabled, !settings.enabled, toggle("suggestionsEnabled")),
       switchRow("Halka", "Mesaj kutusunun kenarında sohbetin gidişini sakin bir tonla gösterir.", settings.ringEnabled, sub, toggle("ringEnabled")),
       switchRow("Yeni sohbet önerisi", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, sub, toggle("exitCardEnabled")),
+      switchRow("Haftalık özet", "Kapalıyken pencerede haftalık özet görünmez; sayılar yine tutulur.", settings.habitsEnabled, sub, toggle("habitsEnabled")),
     ];
-    (["enabled", "suggestionsEnabled", "ringEnabled", "exitCardEnabled"] as const).forEach((key, i) => {
+    (["enabled", "suggestionsEnabled", "ringEnabled", "exitCardEnabled", "habitsEnabled"] as const).forEach((key, i) => {
       const input = rows[i]!.querySelector("input");
       if (input) input.dataset.focus = key;
     });
@@ -271,6 +289,19 @@ export function mountPopup(
       box.append(el("p", "confirm-text", "Ayarların ve sayaçların silinecek. Emin misin?"), actions);
       data.append(box);
     } else {
+      // Özeti sıfırlamak sayaçları silmez: yalnızca özetin okumaya başladığı günü bugüne alır.
+      const restart = el("div", "restart");
+      const rb = el("button", "link strong", "Özeti bugünden başlat");
+      rb.type = "button";
+      rb.dataset.focus = "restart";
+      rb.addEventListener("click", async () => {
+        await store.update({ habitsFrom: dayOf(now()) });
+        notice = "Özet bugünden başlayacak. Sayılar silinmez; silmek için “Tüm verilerimi sil”.";
+        focusAfter = "restart";
+        await render();
+      });
+      restart.append(rb, el("span", "restart-hint", "Bugünden önceki sayılar özette görünmez."));
+      data.append(restart);
       const exp = el("button", undefined, "Sayaçlarımı kopyala");
       exp.dataset.focus = "copy";
       exp.addEventListener("click", async () => {
