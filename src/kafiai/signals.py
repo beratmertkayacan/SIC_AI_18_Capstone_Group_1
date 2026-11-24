@@ -244,6 +244,11 @@ class ConversationSignals:
             self.clean_run = 0
             self.recovered = True
 
+    def mark_last_similar(self):
+        """Anlam desteği son mesajı karşılanmamış isteğin yeniden yazımı saydı (K51 taslağı); eklentide markLastSimilar."""
+        if self.recent_flags:
+            self.recent_flags[-1] = True
+
     @property
     def recent_similar(self):
         return sum(self.recent_flags)

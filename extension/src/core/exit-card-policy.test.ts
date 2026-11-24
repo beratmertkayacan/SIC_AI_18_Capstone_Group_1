@@ -206,3 +206,25 @@ describe("düzeltme alınmadı kartı", () => {
     expect(p.triggerSource(5)).toBe(null);
   });
 });
+
+describe("anlam desteği kaynağı (K51 taslağı)", () => {
+  it("yüksek güvenli anlam kararı kartı o turda açar; tekrar ve özürden sonra gelir", () => {
+    const p = new ExitCardPolicy();
+    p.noteJudge(4);
+    expect(p.triggerSource(4)).toBe("anlam");
+    expect(p.shouldShow(4)).toBe(true);
+    expect(p.triggerSource(5)).toBeNull();
+    p.noteIgnoredRepair(4);
+    expect(p.triggerSource(4)).toBe("tekrar");
+  });
+  it("bekleme süresine ve döngüden çıkışa uyar", () => {
+    const p = new ExitCardPolicy();
+    p.dismissed(3);
+    p.noteJudge(4);
+    expect(p.shouldShow(4)).toBe(false);
+    const q = new ExitCardPolicy();
+    q.noteJudge(6);
+    q.clearRepeats();
+    expect(q.triggerSource(6)).toBeNull();
+  });
+});

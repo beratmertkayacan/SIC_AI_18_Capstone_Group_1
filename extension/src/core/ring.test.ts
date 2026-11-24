@@ -72,3 +72,16 @@ describe("düzeltme alınmadı", () => {
     expect(ringText(s)).toMatch(/düzeltmeyi almamış/);
   });
 });
+
+describe("anlam desteği halkada (K51 taslağı)", () => {
+  it("kurallardan yüksekse seviyeyi ve açıklamayı o belirler", () => {
+    const s = { prediction: null, similarCount: 0, judgeRing: 2 as const, judgeWhy: "Aynı hata üçüncü kez geldi." };
+    expect(ringLevel(s)).toBe(2);
+    expect(ringText(s)).toBe("Aynı hata üçüncü kez geldi.");
+  });
+  it("kurallar daha yüksekse kuralın açıklaması kalır", () => {
+    const s = { prediction: null, similarCount: 2, judgeRing: 1 as const, judgeWhy: "x" };
+    expect(ringLevel(s)).toBe(2);
+    expect(ringText(s)).toContain("öncekilere çok benziyor");
+  });
+});

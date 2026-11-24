@@ -21,6 +21,12 @@ export interface Settings {
   /** Araç çubuğu penceresinde "Bu hafta" özeti gösterilsin mi? Kapalıyken de sayılar tutulur. */
   habitsEnabled: boolean;
   /**
+   * Anlam desteği (K51 taslağı): açıksa cevap bittiğinde sohbetin son turları Kâfi sunucusuna gider ve
+   * bir dil modeli döngü olup olmadığını değerlendirir. Mesaj metni cihazdan çıkan TEK özellik; bu yüzden
+   * varsayılanı kapalı ve yalnızca kullanıcının açık izniyle açılır.
+   */
+  semanticEnabled: boolean;
+  /**
    * Haftalık özetteki "İstersen…" önerilerinden susturulanlar: öneri kimliği → susturulduğu haftanın
    * Pazartesisi ve kaç hafta susacağı. "Yerinde değildi" 4 hafta, "Kapat" yalnızca o hafta (1).
    * Kimlikler koddaki sabit listeden (TIP_IDS); metin yazılmaz.
@@ -52,6 +58,7 @@ export const DEFAULT_SETTINGS: Settings = {
   suggestionsEnabled: true,
   ringEnabled: true,
   habitsEnabled: true,
+  semanticEnabled: false,
   mutedTips: {},
   habitsFrom: null,
 };
@@ -100,6 +107,7 @@ export function parseSettings(raw: unknown): Settings {
       typeof r.suggestionsEnabled === "boolean" ? r.suggestionsEnabled : DEFAULT_SETTINGS.suggestionsEnabled,
     ringEnabled: typeof r.ringEnabled === "boolean" ? r.ringEnabled : DEFAULT_SETTINGS.ringEnabled,
     habitsEnabled: typeof r.habitsEnabled === "boolean" ? r.habitsEnabled : DEFAULT_SETTINGS.habitsEnabled,
+    semanticEnabled: r.semanticEnabled === true,
     mutedTips: parseMuted(r.mutedTips),
     habitsFrom: isDay(r.habitsFrom) ? r.habitsFrom : DEFAULT_SETTINGS.habitsFrom,
   };

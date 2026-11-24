@@ -317,6 +317,14 @@ export class ConversationSignals {
     return this.answerAskedQuestion;
   }
 
+  /**
+   * Anlam desteği son mesajı karşılanmamış bir isteğin yeniden yazımı saydı (K51 taslağı): 3-gram onu
+   * kaçırmış olsa da son mesajın benzer mesaj bayrağı açılır. Çıkış mesajından sonra bayrak yoktur.
+   */
+  markLastSimilar(): void {
+    if (this.recentFlags.length > 0) this.recentFlags[this.recentFlags.length - 1] = true;
+  }
+
   /** Son birkaç mesajdan kaçı öncekine çok benziyordu (çıkış ya da konu değişince sıfırlanır). */
   get recentSimilar(): number {
     return this.recentFlags.filter(Boolean).length;

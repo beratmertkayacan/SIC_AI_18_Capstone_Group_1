@@ -41,7 +41,9 @@ import {
 } from "../core/settings";
 import { taskNorm, taskType, type TaskType } from "../core/tasks";
 import { EXACT_REPEAT_THRESHOLD, turnFeatures } from "../core/turn-features";
-import { MODEL_MIN_TURN, predict, reasonByKey, type Prediction } from "../core/turn-model";
+import { MODEL_MIN_TURN, predict, reasonByKey, type Prediction, type Reason } from "../core/turn-model";
+import { buildJudgeTurns, confirmsLoop, JUDGE, JUDGE_MESSAGE, judgeAction, needsConfirm, parseVerdict, shouldAsk, type JudgeReply } from "../core/judge";
+import { JUDGE_REASON } from "../ui/exit-card";
 import { copyToClipboard } from "../ui/clipboard";
 import { ExitCard } from "../ui/exit-card";
 import { Ring } from "../ui/ring";
@@ -112,6 +114,32 @@ function main(): boolean {
   let heldText: string | null = null;
   /** Konsola yazılan son halka seviyesi; elle doğrulamada seviye değişimini tek satırda görmek için */
   let ringLogged = 0;
+  /**
+   * Anlam desteği (K51 taslağı; yalnızca izin verildiyse). answers[i], userTexts[i]'ye gelen cevabın
+   * bellekteki başı ve sonudur; sekme belleğinde kalır, hiçbir yere yazılmaz. judgeSeq geç gelen bir
+   * cevabın başka bir sohbete ya da tura uygulanmasını önler.
+   */
+  let answers: (string | null)[] = [];
+  let judgeAskedTurn = -1;
+  let judgeSeq = 0;
+  let judgeRing: 0 | 1 | 2 = 0;
+  let judgeWhy = "";
+  let judgeReason: Reason | null = null;
+  /** Onay modu: kararın geldiği (ya da gelmediği kesinleşen) tur, döngüyü onaylayıp onaylamadığı ve bekleyen kart. */
+  let judgeSettledTurn = -1;
+  let judgeConfirmed = true;
+  let cardWaitingTurn = -1;
+  const resetJudge = () => {
+    judgeSettledTurn = -1;
+    judgeConfirmed = true;
+    cardWaitingTurn = -1;
+    answers = [];
+    judgeAskedTurn = -1;
+    judgeSeq += 1;
+    judgeRing = 0;
+    judgeWhy = "";
+    judgeReason = null;
+  };
 
   // Ayarlar yüklenene kadar (null) eklenti hiçbir şey yapmaz.
   let settings: Settings | null = null;
@@ -170,11 +198,96 @@ function main(): boolean {
     freshStartUsed = false;
   };
 
+  /**
+   * Anlam desteği (K51 taslağı): izin varsa son turları arka plan çalışanı üzerinden sunucuya sorar.
+   * Karar yaklaşık bir saniyede gelir; o arada yeni mesaj gönderildiyse ya da sohbet değiştiyse atılır.
+   * Hata ya da zaman aşımında hiçbir şey değişmez, kurallar bugünkü gibi çalışır.
+   */
+  const askJudge = () => {
+    const gate = {
+      consent: settings?.semanticEnabled === true,
+      configured: JUDGE.endpoint !== "",
+      personal,
+      turns: session.turns,
+      lastAskedTurn: judgeAskedTurn,
+    };
+    if (!active() || !shouldAsk(gate) || userTexts.length === 0) return;
+    judgeAskedTurn = session.turns;
+    const seq = ++judgeSeq;
+    const turn = session.turns;
+    record("judge", "soruldu");
+    const request = { type: JUDGE_MESSAGE, turlar: buildJudgeTurns(userTexts, answers) };
+    chrome.runtime.sendMessage(request).then(
+      (reply: JudgeReply | undefined) => {
+        if (seq !== judgeSeq || session.turns !== turn || !active()) return;
+        if (!reply?.ok) {
+          const why = reply?.ok === false ? reply.hata : "cevap_yok";
+          record("judge", why === "zaman_asimi" ? "zaman_asimi" : "hata");
+          console.log(`[KafiAI] anlam: karar gelmedi (${why})`);
+          settleJudge(turn, true);
+          return;
+        }
+        applyJudge(parseVerdict(reply.data), turn, reply.ms);
+      },
+      () => {
+        record("judge", "hata");
+        if (seq === judgeSeq && session.turns === turn) settleJudge(turn, true);
+      },
+    );
+  };
+
+  /**
+   * Onay modu: karar kesinleşti. Karar gelmediyse kart bugünkü gibi gösterilir (confirmed = true);
+   * kurallardan gelen bir kart bu kararı bekliyorsa koşula yeniden bakılır.
+   */
+  const settleJudge = (turn: number, confirmed: boolean) => {
+    judgeSettledTurn = turn;
+    judgeConfirmed = confirmed;
+    if (cardWaitingTurn === turn && session.turns === turn) {
+      cardWaitingTurn = -1;
+      maybeShowExitCard();
+    }
+  };
+
+  const applyJudge = (verdict: ReturnType<typeof parseVerdict>, turn: number, ms: number) => {
+    if (!verdict) {
+      record("judge", "hata");
+      console.log("[KafiAI] anlam: karar okunamadı");
+      settleJudge(turn, true);
+      return;
+    }
+    // Yalnızca sayı ve etiket; gerekçe ve öneri metni günlüğe yazılmaz.
+    console.log(`[KafiAI] anlam: güven ${verdict.guven.toFixed(2)}, tür ${verdict.tur}, döngü ${verdict.dongu ? "evet" : "hayır"}, süre ${ms} ms`);
+    if (verdict.dongu) record("judge", "dongu_dedi");
+    const action = judgeAction(verdict);
+    if (action.sameRequest) {
+      // 3-gram'ın kaçırdığı yeniden yazım: benzer mesaj sinyali ve kart politikası güncellenir.
+      signals.markLastSimilar();
+      policy.setRepeats(signals.recentSimilar);
+    }
+    judgeRing = action.ring;
+    judgeWhy = verdict.gerekce;
+    if (action.card) {
+      judgeReason = { key: JUDGE_REASON, short: "Anlam desteği", why: verdict.gerekce, tip: verdict.oneri };
+      policy.noteJudge(turn);
+    }
+    updateRing();
+    const waiting = cardWaitingTurn === turn;
+    settleJudge(turn, confirmsLoop(verdict));
+    if (action.card && !waiting) maybeShowExitCard();
+  };
+
   /** Cevap bitti: kart koşulu sağlanıyorsa, kullanıcı yazmaya başlamadan çıkış kartını göster. */
   const maybeShowExitCard = () => {
     if (strip.visible || exitCard.visible) return;
     const source = policy.triggerSource(session.turns);
     if (source === null) return;
+    // Onay modu (K51 taslağı): bu turda değerlendiriciye soruldu ve karar henüz gelmedi; kart kararı bekler.
+    const awaitsJudge = needsConfirm() && source !== "anlam" && judgeAskedTurn === session.turns;
+    if (awaitsJudge && judgeSettledTurn !== session.turns) {
+      cardWaitingTurn = session.turns;
+      return;
+    }
     record("card", `tetiklendi_${source}`);
     // Kart modelin yüksek güvenli tahmininden geliyorsa gerekçesi ve önerisi gösterilir.
     const reason =
@@ -182,12 +295,16 @@ function main(): boolean {
         ? (lastPrediction?.reasons[0] ?? null)
         : source === "ozur" || source === "tekrar"
           ? reasonByKey(source)
-          : null;
+          : source === "anlam"
+            ? judgeReason
+            : null;
     const hide = (why: string) => {
       record("card", `gizlendi_${why}`);
       console.log(`[KafiAI] çıkış kartı gösterilmedi (${why}, tur ${session.turns})`);
     };
     if (policy.inCooldown(session.turns)) return hide("bekleme");
+    // Değerlendirici döngüyü onaylamadı: kart çıkmaz ve bekleme süresi başlamaz (yeniden oynatmayla aynı).
+    if (awaitsJudge && !judgeConfirmed) return hide("anlam");
     // Bu turda şerit zaten araya girdi; kart bekleme süresi başlatmadan bir sonraki tura kalır.
     if (policy.stripShownThisTurn(session.turns)) return hide("serit");
     if (!settings?.exitCardEnabled) return hide("kapali");
@@ -211,7 +328,7 @@ function main(): boolean {
     suggesting() && intervening() && !personal && userTexts.length > 0 && !strip.visible && !exitCard.visible && adapter.composer() !== null;
 
   /** Çıkış kartını gösterir: kendiliğinden (norm, model) ya da pencereden istenince (elle). */
-  const showCard = (source: "norm" | "model" | "ozur" | "tekrar" | "elle", reason: Prediction["reasons"][number] | null, anchor: Element) => {
+  const showCard = (source: "norm" | "model" | "ozur" | "tekrar" | "anlam" | "elle", reason: Prediction["reasons"][number] | null, anchor: Element) => {
     console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns}, ${source}${reason ? `: ${reason.key}` : ""})`);
     record("card", `gosterildi_${source}`);
     ring.hide();
@@ -348,6 +465,8 @@ function main(): boolean {
       shortRepeatStreak: signals.shortRepeatStreak,
       shortRepair: signals.shortRepair,
       ignoredRepair: signals.answerIgnoredRepair,
+      judgeRing,
+      judgeWhy,
     };
     const level = ringLevel(ringSignals);
     if (level !== ringLogged) {
@@ -355,7 +474,7 @@ function main(): boolean {
       console.log(
         `[KafiAI] halka: seviye ${ringLogged} → ${level} (benzer ${ringSignals.similarCount}, özür ${ringSignals.apologyStreak}, ` +
           `belirsiz ${ringSignals.vagueStreak}, kısa tekrar ${ringSignals.shortRepeatStreak}, ` +
-          `kısa onarım ${ringSignals.shortRepair ? "evet" : "hayır"}, model ${ringSignals.prediction?.level ?? "yok"})`,
+          `kısa onarım ${ringSignals.shortRepair ? "evet" : "hayır"}, model ${ringSignals.prediction?.level ?? "yok"}, anlam ${judgeRing})`,
       );
       ringLogged = level;
     }
@@ -412,6 +531,8 @@ function main(): boolean {
     policy.setRepeats(signals.recentSimilar);
     if (signals.exited || signals.segments > segmentsBefore) {
       policy.clearRepeats();
+      judgeRing = 0;
+      judgeWhy = "";
       console.log(`[KafiAI] ${signals.exited ? "döngüden çıkış mesajı" : "yeni konu"}: halka ve kart sinyalleri sıfırlandı`);
     }
   };
@@ -476,6 +597,7 @@ function main(): boolean {
         detector.remember(text);
       }
       userTexts = [...texts];
+      answers = texts.map(() => null);
       if (!seed.partial && texts.length >= MODEL_MIN_TURN && capabilities.model === "on") {
         lastPrediction = predict(turnFeatures(userTexts));
       }
@@ -518,6 +640,7 @@ function main(): boolean {
       seenSignals.clear();
       policy.reset();
       userTexts = [];
+      resetJudge();
       hiddenTurns = 0;
       lastPrediction = null;
       sentThisVisit = false;
@@ -692,8 +815,10 @@ function main(): boolean {
     onResponseComplete: () => {
       if (!active()) return;
       console.log("[KafiAI] cevap bitti");
-      // Cevabın yalnızca başı, yalnızca bellekte ve yalnızca özür kuralı için okunur (K32).
-      signals.noteAnswer(adapter.lastResponse?.() ?? null);
+      // Cevabın yalnızca başı ve sonu, yalnızca bellekte okunur (K32). İzin varsa anlam desteğine de gider.
+      const answer = adapter.lastResponse?.() ?? null;
+      signals.noteAnswer(answer);
+      if (userTexts.length > 0) answers[userTexts.length - 1] = answer;
       if (signals.apologyStreak > 0) console.log(`[KafiAI] cevap özürle başladı (üst üste ${signals.apologyStreak})`);
       policy.noteApologies(signals.apologyStreak, session.turns);
       if (signals.looping) loopSeen = true;
@@ -710,6 +835,7 @@ function main(): boolean {
       }
       if (signals.apologyStreak >= 2) recordSignal("ozur_dongusu");
       updateRing();
+      askJudge(); // onay modunda kart bu kararı bekler; o yüzden kart koşulundan önce
       maybeShowExitCard();
       maybeShowAffirmHint();
       constraintProbe.onResponseComplete();
@@ -763,6 +889,7 @@ function main(): boolean {
     ringLogged = 0;
     policy.reset();
     userTexts = [];
+    resetJudge();
     hiddenTurns = 0;
     lastPrediction = null;
     personal = false;

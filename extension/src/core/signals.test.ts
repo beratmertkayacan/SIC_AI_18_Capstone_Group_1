@@ -201,3 +201,14 @@ describe("kısa onay zinciri ve kısa tekrar önizlemesi", () => {
     expect(t.previewShortRepeat("tamam")).toBe(SHORT_REPEAT_STREAK);
   });
 });
+
+describe("markLastSimilar (anlam desteği, K51 taslağı)", () => {
+  it("son mesajın benzer bayrağını sonradan açar; boş pencerede bir şey yapmaz", () => {
+    const s = new ConversationSignals();
+    s.markLastSimilar();
+    expect(s.recentSimilar).toBe(0);
+    s.noteUser("bu fonksiyonu yazar mısın lütfen", { similar: false });
+    s.markLastSimilar();
+    expect(s.recentSimilar).toBe(1);
+  });
+});

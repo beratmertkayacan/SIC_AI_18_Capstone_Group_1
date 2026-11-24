@@ -141,10 +141,12 @@
         "tetiklendi_model",
         "tetiklendi_ozur",
         "tetiklendi_tekrar",
+        "tetiklendi_anlam",
         "gosterildi_norm",
         "gosterildi_model",
         "gosterildi_ozur",
         "gosterildi_tekrar",
+        "gosterildi_anlam",
         "gosterildi_elle",
         "gizlendi_sayim",
         "gizlendi_rastgele",
@@ -153,7 +155,8 @@
         "gizlendi_platform",
         "gizlendi_yaziyor",
         "gizlendi_kisisel",
-        "gizlendi_serit"
+        "gizlendi_serit",
+        "gizlendi_anlam"
       ],
       "note": "Çıkış kartı. norm: görev normu (K14); model: tur modeli (K17); tekrar: kullanıcı düzeltme istedi ama cevap öncekinin neredeyse aynısı. elle: kullanıcı araç çubuğu penceresindeki 'Bu sohbet' bölümünden açtı. gizlendi_serit: aynı turda şerit gösterildi, kart en erken sonraki turda gelebilir (bir turda tek müdahale)."
     },
@@ -287,6 +290,18 @@
         "kural_hatirlatildi"
       ],
       "note": "Sohbet sinyalleri (K32), sohbet başına her biri en fazla bir kez. ozur_dongusu: yapay zekanın cevapları üst üste iki kez özürle başladı; cikis: benzer mesaj, özür ya da belirsiz istekten sonra kullanıcı teşekkür etti ya da 'oldu' dedi; konu_kaymasi: sohbet başka bir konuya geçti; belirsiz: üst üste iki kısa ve açıklamasız düzeltme isteği; duzeltme_alinmadi: onarımdan sonra cevap öncekinin neredeyse aynısı; mesaj_kisaldi: döngüde şikayet bir öncekinin yarısından kısa; toparlandi: iki temiz turla sakinleşti; kural_hatirlatildi: kullanıcı bir kuralı yeniden hatırlattı (K48). Metin yok, yalnızca sayı."
+    },
+    "judge": {
+      "dims": [
+        "platform"
+      ],
+      "details": [
+        "soruldu",
+        "dongu_dedi",
+        "hata",
+        "zaman_asimi"
+      ],
+      "note": "Anlam desteği (K51 taslağı; yalnızca kullanıcı izin verdiyse). soruldu: sohbetin son turları sunucuya gönderildi; dongu_dedi: değerlendirici döngü dedi; hata ve zaman_asimi: karar gelmedi, eklenti bugünkü kurallarla devam etti. Metin değil yalnızca sayı."
     }
   }
 }

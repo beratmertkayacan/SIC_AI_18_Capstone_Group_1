@@ -35,6 +35,7 @@ export class ExitCardPolicy {
   private suggestTurn = -1;
   private apologyTurn = -1;
   private ignoredRepairTurn = -1;
+  private judgeTurn = -1;
   /** Tur modeli bu sohbette en az bir tahmin yaptı mı? */
   private modelSeen = false;
 
@@ -66,6 +67,7 @@ export class ExitCardPolicy {
     this.repeats = 0;
     this.apologyTurn = -1;
     this.ignoredRepairTurn = -1;
+    this.judgeTurn = -1;
     this.suggestTurn = -1;
   }
 
@@ -77,6 +79,11 @@ export class ExitCardPolicy {
   /** Bu turda kullanıcı düzeltme istedi ama cevap öncekinin neredeyse aynısı (kaynak "tekrar"). */
   noteIgnoredRepair(turns: number): void {
     this.ignoredRepairTurn = turns;
+  }
+
+  /** Anlam desteği (K51 taslağı) bu turda yüksek güvenle döngü dedi (src/core/judge.ts). */
+  noteJudge(turns: number): void {
+    this.judgeTurn = turns;
   }
 
   /** Tur modelinin bu turdaki tahmini. Yalnızca "yuksek" seviye kartı açabilir. */
@@ -96,10 +103,11 @@ export class ExitCardPolicy {
    * Model yolu önce gelir, çünkü gerekçe gösterebilir. Sayaçlar "tetiklendi" ile "gösterildi"
    * arasındaki farkı (bekleme, ayar, sayım modu) bu sayede ayırabiliyor.
    */
-  triggerSource(turns: number): "norm" | "model" | "ozur" | "tekrar" | null {
+  triggerSource(turns: number): "norm" | "model" | "ozur" | "tekrar" | "anlam" | null {
     if (this.highRiskTurn === turns) return "model";
     if (this.apologyTurn === turns) return "ozur";
     if (this.ignoredRepairTurn === turns) return "tekrar";
+    if (this.judgeTurn === turns) return "anlam";
     if (this.longAndLooping(turns)) return "norm";
     return null;
   }
@@ -134,7 +142,11 @@ export class ExitCardPolicy {
   shouldShow(turns: number): boolean {
     if (turns < this.quietUntilTurn) return false;
     return (
-      this.longAndLooping(turns) || this.highRiskTurn === turns || this.apologyTurn === turns || this.ignoredRepairTurn === turns
+      this.longAndLooping(turns) ||
+      this.highRiskTurn === turns ||
+      this.apologyTurn === turns ||
+      this.ignoredRepairTurn === turns ||
+      this.judgeTurn === turns
     );
   }
 
@@ -151,6 +163,7 @@ export class ExitCardPolicy {
     this.suggestTurn = -1;
     this.apologyTurn = -1;
     this.ignoredRepairTurn = -1;
+    this.judgeTurn = -1;
     this.modelSeen = false;
     this.stripTurn = -1;
   }
