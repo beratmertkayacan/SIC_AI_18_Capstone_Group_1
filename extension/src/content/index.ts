@@ -43,7 +43,19 @@ import {
 import { taskNorm, taskType, type TaskType } from "../core/tasks";
 import { EXACT_REPEAT_THRESHOLD, turnFeatures } from "../core/turn-features";
 import { MODEL_MIN_TURN, predict, reasonByKey, type Prediction, type Reason } from "../core/turn-model";
-import { buildJudgeTurns, confirmsLoop, JUDGE, JUDGE_MESSAGE, judgeAction, needsConfirm, parseVerdict, shouldAsk, type JudgeReply } from "../core/judge";
+import {
+  buildJudgeTurns,
+  confirmsLoop,
+  JUDGE,
+  JUDGE_MESSAGE,
+  judgeAction,
+  needsConfirm,
+  parseVerdict,
+  shouldAsk,
+  userMessageNumber,
+  type JudgeReply,
+  type JudgeTurn,
+} from "../core/judge";
 import { JUDGE_REASON, JUDGE_REPEAT_ANSWERED, JUDGE_REPEAT_TEXT, JUDGE_REPEAT_UNMET } from "../ui/exit-card";
 import { copyToClipboard } from "../ui/clipboard";
 import { ExitCard } from "../ui/exit-card";
@@ -130,10 +142,17 @@ function main(): boolean {
   let judgeSettledTurn = -1;
   let judgeConfirmed = true;
   let cardWaitingTurn = -1;
-  /** Aynı istek kartı bu sohbette tetiklendi mi (sohbet başına bir kez; sonraki tekrarlar döngü kartına kalır). */
-  let repeatCardDecided = false;
+  /**
+   * Aynı istek kartı: aynı önceki soru için bir kez (kullanıcının kaçıncı mesajı olduğu saklanır); farklı bir
+   * soruya dönüş, son karttan en az repeat_cooldown_turns tur sonra yeniden kart açabilir.
+   */
+  const repeatSeen = new Set<number>();
+  let lastRepeatTurn = -100;
+  /** Açık kart bir aynı istek kartı mı (kapanınca kısa bekleme süresi uygulanır). */
+  let shownCardIsRepeat = false;
   const resetJudge = () => {
-    repeatCardDecided = false;
+    repeatSeen.clear();
+    lastRepeatTurn = -100;
     judgeSettledTurn = -1;
     judgeConfirmed = true;
     cardWaitingTurn = -1;
@@ -244,6 +263,7 @@ function main(): boolean {
     const turn = session.turns;
     record("judge", "soruldu");
     const request = { type: JUDGE_MESSAGE, turlar: buildJudgeTurns(userTexts, answers) };
+    const userCount = userTexts.length;
     sendToBackground(request).then(
       (reply: JudgeReply | undefined) => {
         if (seq !== judgeSeq || session.turns !== turn || !active()) return;
@@ -254,7 +274,7 @@ function main(): boolean {
           settleJudge(turn, true);
           return;
         }
-        applyJudge(parseVerdict(reply.data), turn, reply.ms);
+        applyJudge(parseVerdict(reply.data), turn, reply.ms, request.turlar, userCount);
       },
       () => {
         record("judge", "hata");
@@ -276,7 +296,7 @@ function main(): boolean {
     }
   };
 
-  const applyJudge = (verdict: ReturnType<typeof parseVerdict>, turn: number, ms: number) => {
+  const applyJudge = (verdict: ReturnType<typeof parseVerdict>, turn: number, ms: number, sentTurns: JudgeTurn[], sentUserCount: number) => {
     if (!verdict) {
       record("judge", "hata");
       console.log("[KafiAI] anlam: karar okunamadı");
@@ -298,14 +318,20 @@ function main(): boolean {
       judgeReason = { key: JUDGE_REASON, short: "Anlam desteği", why: verdict.gerekce, tip: verdict.oneri };
       policy.noteJudge(turn);
     }
-    // Aynı istek kartı: ikinci soruşta, cevaptan sonra "Bunu az önce de sormuştun" (sohbet başına bir kez).
-    const repeatCard = action.repeat !== null && !repeatCardDecided;
+    // Aynı istek kartı: ikinci soruşta ya da araya başka sorular girdikten sonra, cevaptan sonra.
+    const msgNo = userMessageNumber(sentTurns, verdict.oncekiTur, sentUserCount);
+    const repeatCard =
+      action.repeat !== null && (msgNo === null || !repeatSeen.has(msgNo)) && turn - lastRepeatTurn >= JUDGE.repeat_cooldown_turns;
     if (repeatCard) {
-      repeatCardDecided = true;
+      if (msgNo !== null) repeatSeen.add(msgNo);
+      lastRepeatTurn = turn;
       const key = action.repeat === "cevaplanmis" ? JUDGE_REPEAT_ANSWERED : JUDGE_REPEAT_UNMET;
       judgeReason = { key, short: "Aynı istek", ...JUDGE_REPEAT_TEXT[key] };
       policy.noteJudge(turn);
-      console.log(`[KafiAI] anlam: aynı istek (önceki cevap ${action.repeat === "cevaplanmis" ? "karşılamış" : "karşılamamış"}), kart denenecek`);
+      console.log(
+        `[KafiAI] anlam: aynı istek (önceki mesaj ${msgNo ?? "bilinmiyor"}, önceki cevap ${action.repeat === "cevaplanmis" ? "karşılamış" : "karşılamamış"}, ` +
+          `aynı bilgiye dönüş ${verdict.ayniBilgiyeDonus ? "evet" : "hayır"}, son cevap yeni bilgi ${verdict.sonCevapYeniBilgi ? "evet" : "hayır"}), kart denenecek`,
+      );
     }
     updateRing();
     const waiting = cardWaitingTurn === turn;
@@ -366,6 +392,7 @@ function main(): boolean {
   /** Çıkış kartını gösterir: kendiliğinden (norm, model) ya da pencereden istenince (elle). */
   const showCard = (source: "norm" | "model" | "ozur" | "tekrar" | "anlam" | "elle", reason: Prediction["reasons"][number] | null, anchor: Element) => {
     console.log(`[KafiAI] çıkış kartı gösterildi (tur ${session.turns}, ${source}${reason ? `: ${reason.key}` : ""})`);
+    shownCardIsRepeat = reason?.key === JUDGE_REPEAT_ANSWERED || reason?.key === JUDGE_REPEAT_UNMET;
     record("card", `gosterildi_${source}`);
     ring.hide();
     exitCard.show(
@@ -404,7 +431,7 @@ function main(): boolean {
           void store.update({ exitCardEnabled: false });
         },
         onDismiss: (kind) => {
-          policy.dismissed(session.turns);
+          policy.dismissed(session.turns, shownCardIsRepeat ? JUDGE.repeat_cooldown_turns : undefined);
           if (kind !== "taze") adapter.focusComposer(); // kart kapanınca odak mesaj kutusuna döner
           // Yalnızca ara ve kapat burada sayılır: taze_baslat, yerinde_degil ve bir_daha_gosterme kendi
           // işleyicilerinde bir kez sayıldı; kapanışları ek bir "kapat" değildir.
@@ -823,7 +850,7 @@ function main(): boolean {
         // ekranıdır: üstünden gönderim ek bir "kapat" sayılmaz.
         if (!exitCard.ended) record("card_action", "kapat"); // kartı yok sayıp yazmaya devam etti
         exitCard.hide();
-        policy.dismissed(n);
+        policy.dismissed(n, shownCardIsRepeat ? JUDGE.repeat_cooldown_turns : undefined);
       }
       const check = detector.check(text);
       detector.remember(text);

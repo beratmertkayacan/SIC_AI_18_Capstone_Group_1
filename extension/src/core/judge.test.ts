@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import actionFixture from "../../../tests/fixtures/judge_action_parity.json";
 import { buildJudgeTurns, confirmsLoop, JUDGE, judgeAction, needsConfirm, parseVerdict, shouldAsk, type GateState } from "./judge";
 
 const gate = (o: Partial<GateState> = {}): GateState => ({
@@ -61,7 +62,8 @@ describe("judgeAction", () => {
   });
   it("orta güven yalnızca halkayı bir seviye yükseltir", () => {
     const g = (JUDGE.ring_threshold + JUDGE.card_threshold) / 2;
-    expect(judgeAction(parseVerdict(sonuc({ guven: g })))).toEqual({ card: false, ring: 1, sameRequest: false, repeat: "karsilanmamis" });
+    // Kanıtsız döngü (tıkanma ve özür yok): orta güven kart açmaz.
+    expect(judgeAction(parseVerdict(sonuc({ guven: g, tikanma: false })))).toEqual({ card: false, ring: 1, sameRequest: false, repeat: "karsilanmamis" });
   });
   it("metni boş gelen kart gösterilmez", () => {
     expect(judgeAction(parseVerdict(sonuc({ oneri: "  " }))).card).toBe(false);
@@ -111,5 +113,12 @@ describe("anlam desteği modları", () => {
     } finally {
       JUDGE.mode = eski;
     }
+  });
+});
+
+describe("kart kuralı Python ikiziyle aynı (tests/fixtures/judge_action_parity.json)", () => {
+  it.each(actionFixture.ornekler)("$ad", (o) => {
+    const a = judgeAction(parseVerdict({ sonuc: { tur: "yok", ...o.sonuc } }));
+    expect({ card: a.card, repeat: a.repeat }).toEqual(o.beklenen);
   });
 });

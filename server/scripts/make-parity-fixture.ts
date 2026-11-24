@@ -8,7 +8,7 @@ const govdeler: unknown[] = [
   { turlar: [{ rol: "k", metin: "Türkiye'nin başkenti neresi?" }] },
   { turlar: [{ rol: "k", metin: "bir" }, { rol: "a", metin: "iki" }, { rol: "k", metin: "üç" }, { rol: "a", metin: "dört" }] },
   { turlar: [{ rol: "k", metin: uzun }, { rol: "a", metin: uzun }] },
-  { turlar: Array.from({ length: 13 }, (_, i) => ({ rol: i % 2 ? "a" : "k", metin: `${i}. mesaj` })) },
+  { turlar: Array.from({ length: 18 }, (_, i) => ({ rol: i % 2 ? "a" : "k", metin: `${i}. mesaj` })) },
   { turlar: [{ rol: "a", metin: "yalnız asistan" }] },
   { turlar: [{ rol: "k", metin: 5 }] },
   { yok: true },

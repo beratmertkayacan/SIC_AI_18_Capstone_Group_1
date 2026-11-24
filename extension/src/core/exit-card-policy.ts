@@ -150,9 +150,12 @@ export class ExitCardPolicy {
     );
   }
 
-  /** Kart kapatıldı ya da yok sayıldı: bir süre tekrar çıkmasın. */
-  dismissed(turns: number): void {
-    this.quietUntilTurn = turns + EXIT_CARD_COOLDOWN_TURNS;
+  /**
+   * Kart kapatıldı ya da yok sayıldı: bir süre tekrar çıkmasın. Aynı istek kartı (K51 taslağı) daha kısa
+   * bekleme kullanır; 2-3 soru sonra başka bir soruya dönüş de yakalanabilsin.
+   */
+  dismissed(turns: number, cooldown: number = EXIT_CARD_COOLDOWN_TURNS): void {
+    this.quietUntilTurn = turns + cooldown;
   }
 
   reset(): void {

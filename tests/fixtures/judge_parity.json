@@ -138,14 +138,30 @@
      {
       "rol": "k",
       "metin": "12. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "13. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "14. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "15. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "16. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "17. mesaj"
      }
     ]
    },
    "turlar": [
-    {
-     "rol": "a",
-     "metin": "1. mesaj"
-    },
     {
      "rol": "k",
      "metin": "2. mesaj"
@@ -189,9 +205,29 @@
     {
      "rol": "k",
      "metin": "12. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "13. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "14. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "15. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "16. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "17. mesaj"
     }
    ],
-   "metin": "<sohbet>\n[Tur 1] Asistan:\n1. mesaj\n\n[Tur 2] Kullanıcı:\n2. mesaj\n\n[Tur 3] Asistan:\n3. mesaj\n\n[Tur 4] Kullanıcı:\n4. mesaj\n\n[Tur 5] Asistan:\n5. mesaj\n\n[Tur 6] Kullanıcı:\n6. mesaj\n\n[Tur 7] Asistan:\n7. mesaj\n\n[Tur 8] Kullanıcı:\n8. mesaj\n\n[Tur 9] Asistan:\n9. mesaj\n\n[Tur 10] Kullanıcı:\n10. mesaj\n\n[Tur 11] Asistan:\n11. mesaj\n\n[Tur 12] SON kullanıcı mesajı:\n12. mesaj\n</sohbet>"
+   "metin": "<sohbet>\n[Tur 1] Kullanıcı:\n2. mesaj\n\n[Tur 2] Asistan:\n3. mesaj\n\n[Tur 3] Kullanıcı:\n4. mesaj\n\n[Tur 4] Asistan:\n5. mesaj\n\n[Tur 5] Kullanıcı:\n6. mesaj\n\n[Tur 6] Asistan:\n7. mesaj\n\n[Tur 7] Kullanıcı:\n8. mesaj\n\n[Tur 8] Asistan:\n9. mesaj\n\n[Tur 9] Kullanıcı:\n10. mesaj\n\n[Tur 10] Asistan:\n11. mesaj\n\n[Tur 11] Kullanıcı:\n12. mesaj\n\n[Tur 12] Asistan:\n13. mesaj\n\n[Tur 13] Kullanıcı:\n14. mesaj\n\n[Tur 14] Asistan:\n15. mesaj\n\n[Tur 15] SON kullanıcı mesajı:\n16. mesaj\n\n[Tur 16] Asistan:\n17. mesaj\n</sohbet>"
   },
   {
    "girdi": {

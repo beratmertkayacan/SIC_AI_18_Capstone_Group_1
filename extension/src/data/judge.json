@@ -4,10 +4,12 @@
   "token": "",
   "mode": "ikisi",
   "min_turn": 2,
-  "max_turns": 12,
+  "max_turns": 16,
   "user_chars": 1000,
   "timeout_ms": 4000,
   "card_threshold": 0.85,
   "ring_threshold": 0.6,
-  "confirm_threshold": 0.7
+  "confirm_threshold": 0.7,
+  "repeat_cooldown_turns": 2,
+  "card_threshold_evidence": 0.6
 }

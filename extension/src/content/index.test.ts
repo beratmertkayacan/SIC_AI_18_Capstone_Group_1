@@ -336,3 +336,71 @@ describe("içerik betiği: aynı istek kartı (anlam desteği, K51 taslağı)", 
     expect(s.visible("exit-card")).toBe(false);
   });
 });
+
+describe("içerik betiği: aynı bilgiye dönüş ve araya sorular girdikten sonra dönüş (davranış tanımı)", () => {
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+  /** Son kullanıcı mesajına göre sahte karar; onceki: dönülen kullanıcı mesajının listedeki tur numarası. */
+  const judgeBy = (table: Record<string, { donus: boolean; yeni: boolean; onceki?: number }>) => (turlar: { rol: "k" | "a"; metin: string }[]) => {
+    const son = [...turlar].reverse().find((t) => t.rol === "k")!.metin;
+    const e = table[son] ?? { donus: false, yeni: true };
+    const idx = e.onceki ?? -1;
+    return {
+      sonuc: {
+        ayni_istek: false, onceki_istek_turu: idx, onceki_cevap_karsiladi: "evet", tikanma: false, ozur_dongusu: false,
+        son_cevap_yeni_bilgi: e.yeni, ayni_bilgiye_donus: e.donus, tur: "yok", dongu: false, guven: 0.6, gerekce: "", oneri: "",
+      },
+    };
+  };
+
+  it("farklı görünen soru aynı bilgiye dönünce kart açar; yeni bilgi isteyen soru açmaz", async () => {
+    const s = await bootScenario({ semanticEnabled: true }, "/c/abcdef123456", judgeBy({
+      "yeşilay ne zaman faaliyete başladı": { donus: true, yeni: false, onceki: 1 },
+    }));
+    s.send("yeşilay ne zaman kuruldu");
+    s.respond("Yeşilay, 5 Mart 1920'de kuruldu.");
+    s.send("kurucusu kim");
+    s.respond("Dr. Mazhar Osman ve arkadaşları.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(false);
+    s.send("yeşilay ne zaman faaliyete başladı");
+    s.respond("Yeşilay, 5 Mart 1920'de kuruldu ve aynı tarihte faaliyete başladı.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(true);
+    expect(s.text("exit-card")).toContain("Bunu az önce de sormuştun");
+  });
+
+  it("A, A' (kart), B, C, B' (yeni kart), A'' (aynı soruya ikinci kart yok)", async () => {
+    // Listede tur numaraları: A=1, B=5, C=7 (kullanıcı ve asistan birlikte, 1 tabanlı).
+    const s = await bootScenario({ semanticEnabled: true }, "/c/abcdef123456", judgeBy({
+      "A tekrar": { donus: true, yeni: false, onceki: 1 },
+      "B tekrar": { donus: true, yeni: false, onceki: 5 },
+      "A yine": { donus: true, yeni: false, onceki: 1 },
+    }));
+    s.send("A sorusu nedir acaba");
+    s.respond("A cevabı.");
+    s.send("A tekrar");
+    s.respond("A cevabı yine.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(true);
+    expect(s.click("exit-card", "Kapat")).toBe(true);
+    s.send("B sorusu nedir acaba");
+    s.respond("B cevabı.");
+    s.send("C sorusu nedir acaba");
+    s.respond("C cevabı.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(false);
+    s.send("B tekrar");
+    s.respond("B cevabı yine.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(true);
+    expect(s.click("exit-card", "Kapat")).toBe(true);
+    s.send("ara mesaj bir");
+    s.respond("cevap.");
+    s.send("A yine");
+    s.respond("A cevabı bir kez daha.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(false);
+    await s.end();
+    expect(s.counts()["card|gosterildi_anlam"]).toBe(2);
+  });
+});

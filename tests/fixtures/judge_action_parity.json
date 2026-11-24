@@ -1,0 +1,176 @@
+{
+ "not": "Kart kuralının iki dilde aynı olduğunun kanıtı: tests/test_judge.py ve extension/src/core/judge.test.ts aynı dosyayı okur. Ayar: extension/src/data/judge.json (mode ikisi, card_threshold 0.85).",
+ "ornekler": [
+  {
+   "ad": "yesilay_faaliyet",
+   "sonuc": {
+    "ayni_istek": false,
+    "ayni_bilgiye_donus": true,
+    "son_cevap_yeni_bilgi": false,
+    "onceki_cevap_karsiladi": "evet",
+    "dongu": false,
+    "guven": 0.6,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repeat": "cevaplanmis"
+   }
+  },
+  {
+   "ad": "tavuk",
+   "sonuc": {
+    "ayni_istek": true,
+    "ayni_bilgiye_donus": true,
+    "son_cevap_yeni_bilgi": false,
+    "onceki_cevap_karsiladi": "evet",
+    "dongu": false,
+    "guven": 0.6,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repeat": "cevaplanmis"
+   }
+  },
+  {
+   "ad": "ayni_konu_yeni_bilgi",
+   "sonuc": {
+    "ayni_istek": false,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": true,
+    "onceki_cevap_karsiladi": "evet",
+    "dongu": false,
+    "guven": 0.2,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "ayni_istek_ama_yeni_bilgi",
+   "sonuc": {
+    "ayni_istek": true,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": true,
+    "onceki_cevap_karsiladi": "evet",
+    "dongu": false,
+    "guven": 0.5,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "glutensiz_demistim",
+   "sonuc": {
+    "ayni_istek": true,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": true,
+    "onceki_cevap_karsiladi": "hayir",
+    "dongu": false,
+    "guven": 0.4,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repeat": "karsilanmamis"
+   }
+  },
+  {
+   "ad": "dongu_yuksek",
+   "sonuc": {
+    "ayni_istek": true,
+    "ayni_bilgiye_donus": true,
+    "son_cevap_yeni_bilgi": false,
+    "onceki_cevap_karsiladi": "hayir",
+    "dongu": true,
+    "guven": 0.9,
+    "gerekce": "Aynı hata üçüncü kez geldi.",
+    "oneri": "İstersen hata metninin tamamını paylaş.",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": true,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "dongu_dusuk_guven",
+   "sonuc": {
+    "ayni_istek": true,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": false,
+    "onceki_cevap_karsiladi": "belirsiz",
+    "dongu": true,
+    "guven": 0.6,
+    "gerekce": "x",
+    "oneri": "y",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repeat": "cevaplanmis"
+   }
+  },
+  {
+   "ad": "dongu_metinsiz",
+   "sonuc": {
+    "ayni_istek": false,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": false,
+    "onceki_cevap_karsiladi": "hayir",
+    "dongu": true,
+    "guven": 0.95,
+    "gerekce": " ",
+    "oneri": "y",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "dongu_kanitli_orta_guven",
+   "sonuc": {
+    "ayni_istek": true,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": false,
+    "onceki_cevap_karsiladi": "hayir",
+    "tikanma": true,
+    "ozur_dongusu": false,
+    "dongu": true,
+    "guven": 0.7,
+    "gerekce": "Aynı hata sürüyor.",
+    "oneri": "İstersen hatanın tamamını paylaş."
+   },
+   "beklenen": {
+    "card": true,
+    "repeat": null
+   }
+  }
+ ]
+}

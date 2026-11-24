@@ -28,3 +28,11 @@ def test_sema_istemle_uyumlu():
     assert alanlar == set(SPEC["sema"]["required"])
     for alan in alanlar:
         assert f"- {alan}:" in SPEC["sistem"], alan
+
+
+def test_kart_kurali_eklentiyle_ayni():
+    from kafiai.judge import kart_eylemi
+
+    fx = json.loads((Path(__file__).parent / "fixtures" / "judge_action_parity.json").read_text(encoding="utf-8"))
+    for o in fx["ornekler"]:
+        assert kart_eylemi(o["sonuc"]) == o["beklenen"], o["ad"]

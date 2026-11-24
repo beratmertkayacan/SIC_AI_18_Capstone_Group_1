@@ -66,3 +66,34 @@ def _js_slice(s: str, n: int) -> str:
     if len(b) <= 2 * n:
         return s
     return b[: 2 * n].decode("utf-16-le", errors="ignore")
+
+
+# --- Kartın kuralı (eklentide extension/src/core/judge.ts: judgeAction ve repeatKind) ---------------------
+# Eşikler ve mod eklentinin ayar dosyasından okunur; değerlendirme betiği kartları bu işlevle hesaplar,
+# böylece ölçülen kural eklentide çalışan kuralla aynıdır (parite: tests/fixtures/judge_action_parity.json).
+EKLENTI_AYAR = json.loads((Path(__file__).resolve().parents[2] / "extension" / "src" / "data" / "judge.json").read_text(encoding="utf-8"))
+
+
+def tekrar_turu(k: dict) -> str | None:
+    """Aynı istek kartı: aynı istek ya da aynı bilgiye dönüş VE son cevap yeni bilgi vermedi; önceki cevap
+    açıkça karşılamadıysa her durumda. Döner: "cevaplanmis", "karsilanmamis" ya da None."""
+    if not (k.get("ayni_istek") is True or k.get("ayni_bilgiye_donus") is True):
+        return None
+    if k.get("onceki_cevap_karsiladi") == "hayir":
+        return "karsilanmamis"
+    return None if k.get("son_cevap_yeni_bilgi") is True else "cevaplanmis"
+
+
+def kart_eylemi(k: dict | None, ayar: dict | None = None) -> dict:
+    """judgeAction'ın kart kısmı: döngü kartı (card) ve aynı istek kartı (repeat)."""
+    a = ayar or EKLENTI_AYAR
+    if k is None:
+        return {"card": False, "repeat": None}
+    mod = a["mode"] if a["mode"] in ("onay", "ikisi") else "ek_kart"
+    gerekce = k.get("gerekce", "").strip() if k.get("dongu") is True else ""
+    oneri = k.get("oneri", "").strip() if k.get("dongu") is True else ""
+    guven = k.get("guven", 0)
+    esik = a["card_threshold_evidence"] if (k.get("tikanma") is True or k.get("ozur_dongusu") is True) else a["card_threshold"]
+    card = mod != "onay" and k.get("dongu") is True and guven >= esik and gerekce != "" and oneri != ""
+    repeat = None if card or mod == "onay" else tekrar_turu(k)
+    return {"card": card, "repeat": repeat}

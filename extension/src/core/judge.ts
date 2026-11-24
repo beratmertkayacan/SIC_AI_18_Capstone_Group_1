@@ -37,8 +37,16 @@ export interface JudgeTurn {
 export type JudgeKind = "ayni_istek_yeniden" | "karsilanmayan_engel" | "ozur_dongusu" | "konu_kaymasi" | "yok";
 export interface JudgeVerdict {
   ayniIstek: boolean;
+  /** Asistan üst üste özür dileyip aynı hatayı mı tekrarlıyor */
+  ozurDongusu: boolean;
   /** Son mesajdan önceki cevap o anki isteği karşıladı mı (aynı istek kartının metni buna göre değişir) */
   karsiladi: "evet" | "hayir" | "belirsiz";
+  /** Aynı isteğin sorulduğu tur (gönderilen listede, 1 tabanlı); yoksa -1 */
+  oncekiTur: number;
+  /** Son asistan cevabı önceki cevaplarda olmayan, istenen yeni bir bilgi verdi mi */
+  sonCevapYeniBilgi: boolean;
+  /** Kullanıcı farklı sözcüklerle ya da farklı görünen bir soruyla aynı bilgiye mi döndü */
+  ayniBilgiyeDonus: boolean;
   tikanma: boolean;
   tur: JudgeKind;
   dongu: boolean;
@@ -92,7 +100,11 @@ export function parseVerdict(raw: unknown): JudgeVerdict | null {
   const text = (v: unknown, n: number) => (typeof v === "string" ? v.trim().slice(0, n) : "");
   return {
     ayniIstek: r.ayni_istek === true,
+    ozurDongusu: r.ozur_dongusu === true,
     karsiladi: r.onceki_cevap_karsiladi === "evet" || r.onceki_cevap_karsiladi === "hayir" ? r.onceki_cevap_karsiladi : "belirsiz",
+    oncekiTur: typeof r.onceki_istek_turu === "number" && Number.isInteger(r.onceki_istek_turu) ? r.onceki_istek_turu : -1,
+    sonCevapYeniBilgi: r.son_cevap_yeni_bilgi === true,
+    ayniBilgiyeDonus: r.ayni_bilgiye_donus === true,
     tikanma: r.tikanma === true,
     tur,
     dongu: r.dongu,
@@ -120,12 +132,39 @@ export interface JudgeAction {
 /** Kararın ürüne etkisi. Döngü yoksa hiçbir şey değişmez; eşikler src/data/judge.json'da. */
 export function judgeAction(v: JudgeVerdict | null): JudgeAction {
   if (!v) return { card: false, ring: 0, sameRequest: false, repeat: null };
-  const card = judgeMode() !== "onay" && v.dongu && v.guven >= JUDGE.card_threshold && v.gerekce !== "" && v.oneri !== "";
+  // Döngü kartı: kanıtlı döngüde (tıkanma ya da özür döngüsü; Türkçe davranış setinde güven 0,7-0,8) düşük eşik,
+  // kanıtsız döngüde yüksek eşik (WildFeedback'te seçildi).
+  const threshold = v.tikanma || v.ozurDongusu ? JUDGE.card_threshold_evidence : JUDGE.card_threshold;
+  const card = judgeMode() !== "onay" && v.dongu && v.guven >= threshold && v.gerekce !== "" && v.oneri !== "";
   const ring = card || (v.dongu && v.guven >= JUDGE.card_threshold) ? 2 : v.dongu && v.guven >= JUDGE.ring_threshold ? 1 : 0;
   // Yeniden yazım sayacı yalnızca karşılanmamış bir isteğin yeniden sorulmasında; doğru cevaptan sonra
   // aynı soruyu başka dilde sormak döngü değildir (açık prova P1a).
   const sameRequest = v.ayniIstek && v.tur === "ayni_istek_yeniden";
   // Aynı istek kartı döngü kartının yerini almaz; onay modunda (yeni kart açılmaz) çıkmaz.
-  const repeat = !card && judgeMode() !== "onay" && v.ayniIstek ? (v.karsiladi === "evet" ? "cevaplanmis" : "karsilanmamis") : null;
+  const repeat = card || judgeMode() === "onay" ? null : repeatKind(v);
   return { card, ring, sameRequest, repeat };
+}
+
+/**
+ * Aynı istek kartının kuralı (davranış tanımı, K51 taslağı; Python ikizi src/kafiai/judge.py tekrar_turu):
+ * kullanıcı aynı isteği ya da aynı bilgiyi yeniden sordu VE son cevap yeni bilgi vermedi. Önceki cevap açıkça
+ * karşılamadıysa son cevap ne getirirse getirsin kart çıkar ("glutensiz demiştim"). Araya başka sorular girmiş
+ * olabilir (A, B, C, sonra yine A).
+ */
+export function repeatKind(v: JudgeVerdict): "cevaplanmis" | "karsilanmamis" | null {
+  if (!v.ayniIstek && !v.ayniBilgiyeDonus) return null;
+  if (v.karsiladi === "hayir") return "karsilanmamis";
+  return v.sonCevapYeniBilgi ? null : "cevaplanmis";
+}
+
+/**
+ * Değerlendiricinin tur numarasını (gönderilen listede, kullanıcı ve asistan birlikte, 1 tabanlı) kullanıcının
+ * kaçıncı mesajı olduğuna çevirir. Liste baştan kesildiyse kesilen mesajlar eklenir. Kullanıcı mesajı değilse null.
+ */
+export function userMessageNumber(turns: readonly JudgeTurn[], tur: number, totalUserTexts: number): number | null {
+  const t = turns[tur - 1];
+  if (!Number.isInteger(tur) || tur < 1 || !t || t.rol !== "k") return null;
+  const inList = turns.filter((x) => x.rol === "k").length;
+  const before = turns.slice(0, tur).filter((x) => x.rol === "k").length;
+  return totalUserTexts - inList + before;
 }
