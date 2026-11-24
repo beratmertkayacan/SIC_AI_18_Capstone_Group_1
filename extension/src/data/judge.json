@@ -1,9 +1,9 @@
 {
-  "note": "Anlam desteği (K51 taslağı). mode: ek_kart = değerlendirici yeni kart açabilir (card_threshold); onay = kurallardan gelen kart ancak değerlendirici döngüyü confirm_threshold güvenle onaylarsa çıkar; ikisi = ikisi birden. Eşikler WildFeedback seçim örnekleminde seçildi (outputs/judge_replay_secim_acik.json). endpoint depoda boş; boşken hiçbir istek gönderilmez (yerel deneme: KAFI_JUDGE_URL ile derle).",
+  "note": "Anlam desteği (K51 taslağı). mode: ek_kart = değerlendirici yeni kart açabilir (card_threshold); onay = kurallardan gelen kart ancak değerlendirici döngüyü confirm_threshold güvenle onaylarsa çıkar; ikisi = ikisi birden. Eşikler WildFeedback seçim örnekleminde seçildi (outputs/judge_replay_secim_acik.json). min_turn 2: aynı isteğin ikinci soruşu cevaptan sonra yakalanır. endpoint depoda boş; boşken hiçbir istek gönderilmez (yerel deneme: KAFI_JUDGE_URL ile derle).",
   "endpoint": "",
   "token": "",
   "mode": "ikisi",
-  "min_turn": 3,
+  "min_turn": 2,
   "max_turns": 12,
   "user_chars": 1000,
   "timeout_ms": 4000,

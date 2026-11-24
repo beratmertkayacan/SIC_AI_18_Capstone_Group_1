@@ -285,3 +285,54 @@ describe("içerik betiği: eklenti yeniden yüklendi, sekme yenilenmedi", () => 
     log.mockRestore();
   });
 });
+
+describe("içerik betiği: aynı istek kartı (anlam desteği, K51 taslağı)", () => {
+  const verdict = (ayni: boolean, karsiladi: "evet" | "hayir") => ({
+    sonuc: {
+      ayni_istek: ayni, onceki_istek_turu: ayni ? 1 : -1, onceki_cevap_karsiladi: karsiladi, tikanma: false, ozur_dongusu: false,
+      tur: ayni ? "ayni_istek_yeniden" : "yok", dongu: false, guven: 0.6, gerekce: "", oneri: "",
+    },
+  });
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+
+  it("ikinci soruşta, cevaptan sonra 'Bunu az önce de sormuştun' kartı çıkar; Netleştir kalıbı ekler; sohbette bir kez", async () => {
+    const s = await bootScenario({ semanticEnabled: true }, "/c/abcdef123456", (turlar) =>
+      verdict(turlar.filter((t) => t.rol === "k").length >= 2, "evet"),
+    );
+    s.send("yeşilayın kuruluş yılı nedir");
+    s.respond("Yeşilay, 5 Mart 1920 tarihinde İstanbul'da kurulmuştur.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(false);
+    s.send("yeşilay ne zaman kuruldu");
+    s.respond("Yeşilay, 5 Mart 1920 tarihinde kurulmuştur.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(true);
+    expect(s.text("exit-card")).toContain("Bunu az önce de sormuştun");
+    expect(s.text("exit-card")).toContain("Önceki cevaptan farklı olarak ne arıyorsun?");
+    expect(s.click("exit-card", "Netleştir")).toBe(true);
+    expect(s.visible("exit-card")).toBe(false);
+    // Üçüncü soruşta ikinci kez çıkmaz (sohbet başına bir kez).
+    s.send("yeşilayın ilk günü ne zaman");
+    s.respond("Yeşilay'ın kuruluş günü 5 Mart 1920'dir.");
+    await flush();
+    expect(s.visible("exit-card")).toBe(false);
+    await s.end();
+    expect(s.counts()["card|gosterildi_anlam"]).toBe(1);
+    expect(s.counts()["card_action|netlestir"]).toBe(1);
+  });
+
+  it("anlam desteği kapalıyken değerlendiriciye sorulmaz ve kart çıkmaz", async () => {
+    let asked = 0;
+    const s = await bootScenario({ semanticEnabled: false }, "/c/abcdef123456", () => {
+      asked += 1;
+      return verdict(true, "evet");
+    });
+    s.send("tavuk kaç bacaklıdır");
+    s.respond("Tavuk 2 bacaklıdır.");
+    s.send("tavuğun bacak sayısı?");
+    s.respond("Tavuğun 2 bacağı vardır.");
+    await flush();
+    expect(asked).toBe(0);
+    expect(s.visible("exit-card")).toBe(false);
+  });
+});

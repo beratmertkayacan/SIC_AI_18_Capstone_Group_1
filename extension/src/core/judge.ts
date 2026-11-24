@@ -37,6 +37,8 @@ export interface JudgeTurn {
 export type JudgeKind = "ayni_istek_yeniden" | "karsilanmayan_engel" | "ozur_dongusu" | "konu_kaymasi" | "yok";
 export interface JudgeVerdict {
   ayniIstek: boolean;
+  /** Son mesajdan önceki cevap o anki isteği karşıladı mı (aynı istek kartının metni buna göre değişir) */
+  karsiladi: "evet" | "hayir" | "belirsiz";
   tikanma: boolean;
   tur: JudgeKind;
   dongu: boolean;
@@ -90,6 +92,7 @@ export function parseVerdict(raw: unknown): JudgeVerdict | null {
   const text = (v: unknown, n: number) => (typeof v === "string" ? v.trim().slice(0, n) : "");
   return {
     ayniIstek: r.ayni_istek === true,
+    karsiladi: r.onceki_cevap_karsiladi === "evet" || r.onceki_cevap_karsiladi === "hayir" ? r.onceki_cevap_karsiladi : "belirsiz",
     tikanma: r.tikanma === true,
     tur,
     dongu: r.dongu,
@@ -106,15 +109,23 @@ export interface JudgeAction {
   ring: 0 | 1 | 2;
   /** Son mesaj, 3-gram'ın kaçırmış olabileceği bir yeniden yazım: benzer mesaj sayacına eklenir */
   sameRequest: boolean;
+  /**
+   * Aynı istek kartı: son mesaj daha önce sorulmuş bir isteğin yeniden sorulması, ama henüz döngü değil.
+   * Cevaptan sonra "Bunu az önce de sormuştun" kartı çıkar (ikinci soruşta). Önceki cevap karşıladıysa
+   * "cevaplanmis", karşılamadıysa ya da belli değilse "karsilanmamis". Döngü kartı varsa null.
+   */
+  repeat: "cevaplanmis" | "karsilanmamis" | null;
 }
 
 /** Kararın ürüne etkisi. Döngü yoksa hiçbir şey değişmez; eşikler src/data/judge.json'da. */
 export function judgeAction(v: JudgeVerdict | null): JudgeAction {
-  if (!v) return { card: false, ring: 0, sameRequest: false };
+  if (!v) return { card: false, ring: 0, sameRequest: false, repeat: null };
   const card = judgeMode() !== "onay" && v.dongu && v.guven >= JUDGE.card_threshold && v.gerekce !== "" && v.oneri !== "";
   const ring = card || (v.dongu && v.guven >= JUDGE.card_threshold) ? 2 : v.dongu && v.guven >= JUDGE.ring_threshold ? 1 : 0;
   // Yeniden yazım sayacı yalnızca karşılanmamış bir isteğin yeniden sorulmasında; doğru cevaptan sonra
   // aynı soruyu başka dilde sormak döngü değildir (açık prova P1a).
   const sameRequest = v.ayniIstek && v.tur === "ayni_istek_yeniden";
-  return { card, ring, sameRequest };
+  // Aynı istek kartı döngü kartının yerini almaz; onay modunda (yeni kart açılmaz) çıkmaz.
+  const repeat = !card && judgeMode() !== "onay" && v.ayniIstek ? (v.karsiladi === "evet" ? "cevaplanmis" : "karsilanmamis") : null;
+  return { card, ring, sameRequest, repeat };
 }

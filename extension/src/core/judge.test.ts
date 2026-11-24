@@ -57,21 +57,36 @@ describe("parseVerdict", () => {
 
 describe("judgeAction", () => {
   it("yüksek güvenli döngü kartı açar ve halkayı koyulaştırır", () => {
-    expect(judgeAction(parseVerdict(sonuc()))).toEqual({ card: true, ring: 2, sameRequest: false });
+    expect(judgeAction(parseVerdict(sonuc()))).toEqual({ card: true, ring: 2, sameRequest: false, repeat: null });
   });
   it("orta güven yalnızca halkayı bir seviye yükseltir", () => {
     const g = (JUDGE.ring_threshold + JUDGE.card_threshold) / 2;
-    expect(judgeAction(parseVerdict(sonuc({ guven: g })))).toEqual({ card: false, ring: 1, sameRequest: false });
+    expect(judgeAction(parseVerdict(sonuc({ guven: g })))).toEqual({ card: false, ring: 1, sameRequest: false, repeat: "karsilanmamis" });
   });
   it("metni boş gelen kart gösterilmez", () => {
     expect(judgeAction(parseVerdict(sonuc({ oneri: "  " }))).card).toBe(false);
   });
-  it("karşılanmamış isteğin ilk yeniden yazımı benzer mesaj sayılır ama kart açmaz", () => {
+  it("karşılanmamış isteğin ilk yeniden yazımı benzer mesaj sayılır; döngü kartı değil aynı istek kartı açar", () => {
     const a = judgeAction(parseVerdict(sonuc({ dongu: false, guven: 0.3, tur: "ayni_istek_yeniden" })));
-    expect(a).toEqual({ card: false, ring: 0, sameRequest: true });
+    expect(a).toEqual({ card: false, ring: 0, sameRequest: true, repeat: "karsilanmamis" });
+  });
+  it("cevaplanmış soruyu yeniden sorma (Yeşilay, tavuk) ikinci soruşta aynı istek kartı açar", () => {
+    const a = judgeAction(parseVerdict(sonuc({ dongu: false, guven: 0.6, tikanma: false, onceki_cevap_karsiladi: "evet", tur: "ayni_istek_yeniden" })));
+    expect(a.repeat).toBe("cevaplanmis");
+    expect(a.card).toBe(false);
+  });
+  it("aynı istek değilse ya da onay modundaysa aynı istek kartı yok", () => {
+    expect(judgeAction(parseVerdict(sonuc({ ayni_istek: false, dongu: false }))).repeat).toBeNull();
+    const eski = JUDGE.mode;
+    try {
+      JUDGE.mode = "onay";
+      expect(judgeAction(parseVerdict(sonuc({ dongu: false }))).repeat).toBeNull();
+    } finally {
+      JUDGE.mode = eski;
+    }
   });
   it("karar yoksa hiçbir şey değişmez", () => {
-    expect(judgeAction(null)).toEqual({ card: false, ring: 0, sameRequest: false });
+    expect(judgeAction(null)).toEqual({ card: false, ring: 0, sameRequest: false, repeat: null });
   });
 });
 

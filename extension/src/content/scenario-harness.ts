@@ -59,7 +59,17 @@ export async function teardownScenario(): Promise<void> {
   teardownPrevious = null;
 }
 
-export async function bootScenario(settings: Partial<typeof SETTINGS> = {}, path = "/c/abcdef123456"): Promise<Scenario> {
+/**
+ * Sahte değerlendirici (anlam desteği, K51 taslağı): verilirse sunucu adresi dolu sayılır ve arka plan
+ * çalışanına giden her istek bu işleve gider; dönen değer sunucunun JSON cevabıdır. Ağ yok.
+ */
+export type FakeJudge = (turlar: { rol: "k" | "a"; metin: string }[]) => unknown;
+
+export async function bootScenario(
+  settings: Partial<typeof SETTINGS> & { semanticEnabled?: boolean } = {},
+  path = "/c/abcdef123456",
+  judge?: FakeJudge,
+): Promise<Scenario> {
   await teardownScenario();
   vi.resetModules();
   document.body.innerHTML = "";
@@ -84,8 +94,17 @@ export async function bootScenario(settings: Partial<typeof SETTINGS> = {}, path
       onChanged: { addListener: (f: (changes: Record<string, unknown>, area: string) => void) => changed.push(f) },
     },
     // runtime.id gerçek eklentide her zaman dolu; boşalması eklentinin yeniden yüklendiği anlamına gelir (extension-context.ts).
-    runtime: { id: "kafi-test", onMessage: { addListener: () => {}, removeListener: () => {} } },
+    runtime: {
+      id: "kafi-test",
+      onMessage: { addListener: () => {}, removeListener: () => {} },
+      sendMessage: async (msg: { turlar: { rol: "k" | "a"; metin: string }[] }) =>
+        judge ? { ok: true, data: judge(msg.turlar), ms: 5 } : { ok: false, hata: "adres_yok", ms: 0 },
+    },
   };
+  if (judge) {
+    const real = (await import("../data/judge.json")).default;
+    vi.doMock(here("../data/judge.json"), () => ({ default: { ...real, endpoint: "https://degerlendirici.invalid/api/judge" } }));
+  }
 
   const state = { response: null as string | null };
   const calls = { submitHeld: 0, focusComposer: 0 };

@@ -4,7 +4,7 @@
  * Cümleler iki türlüdür: iki nokta ile bitenler kullanıcının devam etmesini bekler.
  */
 export interface Repair {
-  id: "format" | "info" | "shorter" | "longer" | "error" | "expected" | "wrong_part" | "continue_what" | "continue_how" | "summary" | "next_step" | "clarify_loop";
+  id: "format" | "info" | "shorter" | "longer" | "error" | "expected" | "wrong_part" | "continue_what" | "continue_how" | "summary" | "next_step" | "clarify_loop" | "clarify_answered" | "clarify_unmet";
   label: string;
   sentence: string;
 }
@@ -71,4 +71,16 @@ export const CLARIFY_LOOP: Repair = {
   id: "clarify_loop",
   label: "İsteği netleştir",
   sentence: "Şu ana kadarki cevaplar işime yaramadı. Asıl istediğim şu: ",
+};
+
+/** Aynı istek kartında Netleştir: önceki cevap karşıladıysa ve karşılamadıysa ayrı boş kalıplar. */
+export const CLARIFY_ANSWERED: Repair = {
+  id: "clarify_answered",
+  label: "Netleştir",
+  sentence: "Önceki cevaptan farklı olarak şunu öğrenmek istiyorum: ",
+};
+export const CLARIFY_UNMET: Repair = {
+  id: "clarify_unmet",
+  label: "Netleştir",
+  sentence: "Önceki cevapta eksik kalan şu: ",
 };

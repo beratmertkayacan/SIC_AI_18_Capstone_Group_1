@@ -2,7 +2,7 @@ import type { TaskNorm } from "../core/tasks";
 import type { Reason } from "../core/turn-model";
 import { BRAND_NAME } from "../brand";
 import { header, mountCard } from "./theme";
-import { CLARIFY_LOOP } from "../core/repairs";
+import { CLARIFY_ANSWERED, CLARIFY_LOOP, CLARIFY_UNMET } from "../core/repairs";
 
 /**
  * Çıkış kartı: sohbet uzayıp tekrar denemeleri olduysa, cevap bittikten sonra mesaj kutusunun
@@ -79,7 +79,10 @@ export class ExitCard {
     const { host, box } = mountCard("exit-card", anchor);
     const apology = reason?.key === APOLOGY_REASON;
     const ignored = reason?.key === IGNORED_REPAIR_REASON;
-    const judged = reason?.key === JUDGE_REASON;
+    const repeat = reason?.key === JUDGE_REPEAT_ANSWERED || reason?.key === JUDGE_REPEAT_UNMET;
+    const judged = reason?.key === JUDGE_REASON || repeat;
+    // Aynı istek kartında henüz döngü yok: ana eylem isteği netleştirmek, kalıp önceki cevaba göre değişir.
+    const clarify = reason?.key === JUDGE_REPEAT_ANSWERED ? CLARIFY_ANSWERED : reason?.key === JUDGE_REPEAT_UNMET ? CLARIFY_UNMET : CLARIFY_LOOP;
     // Elle açılan kısa sohbette "uzun sohbet" demek yanlış olur: tur sayısı normun altındaysa ya da norm
     // bilinmiyorsa kart yalnızca yeni sohbetin neden hızlı olduğunu söyler; mola önerisi de anlamsızdır.
     const manualShort = reason === null && options.manual === true && (norm === null || turns <= norm.p75_turns);
@@ -88,9 +91,11 @@ export class ExitCard {
         ? "Aynı yerde dönüyor"
         : ignored
           ? "Düzeltme alınmadı"
-          : judged
-            ? JUDGE_CHIP
-            : MODEL_CHIP
+          : repeat
+            ? JUDGE_REPEAT_CHIP
+            : judged
+              ? JUDGE_CHIP
+              : MODEL_CHIP
       : manualShort
         ? "Yeni sohbet"
         : "Uzun sohbet";
@@ -123,7 +128,13 @@ export class ExitCard {
     };
 
     const showMain = () => {
-      const fresh = button("Taze başlat", "", showDraft);
+      const clarifyButton =
+        reason && actions.onClarify
+          ? button(clarify.label, repeat ? "" : "secondary", () => {
+              if (actions.onClarify?.(clarify.sentence)) dismiss("netlestir");
+            })
+          : null;
+      const fresh = button("Taze başlat", repeat && clarifyButton ? "secondary" : "", showDraft);
       const notRelevant =
         reason && actions.onNotRelevant
           ? [button("Yerinde değildi", "link", () => {
@@ -137,21 +148,17 @@ export class ExitCard {
         ...(actions.ruleRestated?.() ? [el("p", RULE_RESTATED_NOTE, "body")] : []),
         ...(reason ? [el("p", apology ? APOLOGY_NOTE : ignored ? IGNORED_REPAIR_NOTE : judged ? JUDGE_NOTE : MODEL_NOTE, "note")] : []),
         row(
-          fresh,
           // Yön değiştirmek için Taze başlat; aynı sohbette kalıp düzeltmek için isteği netleştirme kalıbı.
-          ...(reason && actions.onClarify
-            ? [button(CLARIFY_LOOP.label, "secondary", () => {
-                if (actions.onClarify?.(CLARIFY_LOOP.sentence)) dismiss("netlestir");
-              })]
-            : []),
-          ...(manualShort ? [] : [button("Kısa ara ver", "secondary", showBreak)]),
+          // Aynı istek kartında netleştirme önde, mola önerisi yok (henüz döngü değil).
+          ...(repeat && clarifyButton ? [clarifyButton, fresh] : [fresh, ...(clarifyButton ? [clarifyButton] : [])]),
+          ...(manualShort || repeat ? [] : [button("Kısa ara ver", "secondary", showBreak)]),
           spacer(),
           ...notRelevant,
           ...(actions.onNever ? [button("Bir daha gösterme", "link", showNever)] : []),
           button("Kapat", "link", () => dismiss("kapat")),
         ),
       );
-      fresh.focus();
+      (repeat && clarifyButton ? clarifyButton : fresh).focus();
     };
 
     const showNever = () => {
@@ -262,6 +269,24 @@ export const NEVER_MESSAGE = `Tamam, yeni sohbet önerisi bir daha gösterilmeye
 /** Anlam desteği kartının gerekçe anahtarı (K51 taslağı); metin değerlendiriciden gelir. */
 export const JUDGE_REASON = "anlam";
 export const JUDGE_CHIP = "Anlam desteği";
+/**
+ * Aynı istek kartı (K51 taslağı): değerlendirici son mesajı daha önce sorulmuş bir isteğin yeniden sorulması
+ * saydı ama henüz döngü yok. İkinci soruşta, cevaptan sonra; sohbet başına bir kez.
+ */
+export const JUDGE_REPEAT_ANSWERED = "anlam_tekrar_cevaplanmis";
+export const JUDGE_REPEAT_UNMET = "anlam_tekrar_karsilanmamis";
+export const JUDGE_REPEAT_CHIP = "Aynı istek";
+/** Aynı istek kartının metni: durum ve bir soru; cevabı kullanıcı Netleştir kalıbıyla yazar. */
+export const JUDGE_REPEAT_TEXT = {
+  [JUDGE_REPEAT_ANSWERED]: {
+    why: "Bunu az önce de sormuştun; önceki mesajınla aynı istek ve cevabı yukarıda duruyor.",
+    tip: "Önceki cevaptan farklı olarak ne arıyorsun? Bunu yazmak daha hızlı sonuç verir.",
+  },
+  [JUDGE_REPEAT_UNMET]: {
+    why: "Bunu az önce de sormuştun; önceki mesajınla aynı istek ve önceki cevap işini görmemiş olabilir.",
+    tip: "Tam olarak ne eksik kaldı? Bunu yazmak aynı cevabın yeniden gelmesini önler.",
+  },
+} as const;
 /** Anlam desteği kartında, önerinin nereden geldiğini dürüstçe söyleyen not. */
 export const JUDGE_NOTE =
   `Bu öneri, açtığın anlam desteğinden geliyor: son mesajlarının kısa bir bölümü değerlendirilmek için ${BRAND_NAME} sunucusuna gönderildi ve saklanmadı. Pencereden kapatabilirsin.`;
@@ -293,7 +318,9 @@ export const FRESH_START_TIP = "İstersen isteklerini tek taslakta toplayıp yen
 /** Model kaynaklı kartın ana cümlesi: durum ve yeni sohbete uyan somut öneri. */
 export function modelCardMessage(reason: Reason): string {
   // Anlam desteğinin önerisi bu sohbete özgü ve en değerli kısmı; sabit cümleyle değiştirilmez.
-  if (reason.key === JUDGE_REASON) return `${reason.why} ${reason.tip}`;
+  if (reason.key === JUDGE_REASON || reason.key === JUDGE_REPEAT_ANSWERED || reason.key === JUDGE_REPEAT_UNMET) {
+    return `${reason.why} ${reason.tip}`;
+  }
   const tip = FRESH_START_REASONS.includes(reason.key) ? reason.tip : FRESH_START_TIP;
   return `${reason.why} ${tip}`;
 }

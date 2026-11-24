@@ -44,7 +44,7 @@ import { taskNorm, taskType, type TaskType } from "../core/tasks";
 import { EXACT_REPEAT_THRESHOLD, turnFeatures } from "../core/turn-features";
 import { MODEL_MIN_TURN, predict, reasonByKey, type Prediction, type Reason } from "../core/turn-model";
 import { buildJudgeTurns, confirmsLoop, JUDGE, JUDGE_MESSAGE, judgeAction, needsConfirm, parseVerdict, shouldAsk, type JudgeReply } from "../core/judge";
-import { JUDGE_REASON } from "../ui/exit-card";
+import { JUDGE_REASON, JUDGE_REPEAT_ANSWERED, JUDGE_REPEAT_TEXT, JUDGE_REPEAT_UNMET } from "../ui/exit-card";
 import { copyToClipboard } from "../ui/clipboard";
 import { ExitCard } from "../ui/exit-card";
 import { Ring } from "../ui/ring";
@@ -130,7 +130,10 @@ function main(): boolean {
   let judgeSettledTurn = -1;
   let judgeConfirmed = true;
   let cardWaitingTurn = -1;
+  /** Aynı istek kartı bu sohbette tetiklendi mi (sohbet başına bir kez; sonraki tekrarlar döngü kartına kalır). */
+  let repeatCardDecided = false;
   const resetJudge = () => {
+    repeatCardDecided = false;
     judgeSettledTurn = -1;
     judgeConfirmed = true;
     cardWaitingTurn = -1;
@@ -295,10 +298,19 @@ function main(): boolean {
       judgeReason = { key: JUDGE_REASON, short: "Anlam desteği", why: verdict.gerekce, tip: verdict.oneri };
       policy.noteJudge(turn);
     }
+    // Aynı istek kartı: ikinci soruşta, cevaptan sonra "Bunu az önce de sormuştun" (sohbet başına bir kez).
+    const repeatCard = action.repeat !== null && !repeatCardDecided;
+    if (repeatCard) {
+      repeatCardDecided = true;
+      const key = action.repeat === "cevaplanmis" ? JUDGE_REPEAT_ANSWERED : JUDGE_REPEAT_UNMET;
+      judgeReason = { key, short: "Aynı istek", ...JUDGE_REPEAT_TEXT[key] };
+      policy.noteJudge(turn);
+      console.log(`[KafiAI] anlam: aynı istek (önceki cevap ${action.repeat === "cevaplanmis" ? "karşılamış" : "karşılamamış"}), kart denenecek`);
+    }
     updateRing();
     const waiting = cardWaitingTurn === turn;
     settleJudge(turn, confirmsLoop(verdict));
-    if (action.card && !waiting) maybeShowExitCard();
+    if ((action.card || repeatCard) && !waiting) maybeShowExitCard();
   };
 
   /** Cevap bitti: kart koşulu sağlanıyorsa, kullanıcı yazmaya başlamadan çıkış kartını göster. */
