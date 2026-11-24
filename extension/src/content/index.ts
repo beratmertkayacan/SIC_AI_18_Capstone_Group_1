@@ -3,6 +3,7 @@ import { BLANK_AFTER_SEND_MS, BLANK_TICKS, experimentOn, NAV_POLL_MS, POLL_MS } 
 import { ConstraintProbe } from "../core/constraint-probe";
 import { ConstraintNote } from "../ui/constraint-note";
 import { chromeStorage } from "../core/chrome-storage";
+import { extensionAlive } from "../core/extension-context";
 import {
   CounterStore,
   firstLenBucket,
@@ -143,7 +144,30 @@ function main(): boolean {
 
   // Ayarlar yüklenene kadar (null) eklenti hiçbir şey yapmaz.
   let settings: Settings | null = null;
-  const active = () => settings?.enabled === true;
+  /**
+   * Eklenti yeniden yüklendiyse bu sekmedeki betik eski sürümdür ve eklentiyle bağı kopmuştur. Çökmek yerine
+   * bir kez söyler, açık öneriyi kapatır ve hiçbir şey yapmaz; sekme yenilenince yeni sürüm çalışır.
+   */
+  let contextLost = false;
+  const alive = () => {
+    if (contextLost) return false;
+    if (extensionAlive()) return true;
+    contextLost = true;
+    console.log("[KafiAI] eklenti yeniden yüklendi ya da güncellendi; bu sekme eski sürümle kaldı. Sekmeyi yenilediğinde Kâfi yeniden çalışır.");
+    strip.hide();
+    exitCard.hide();
+    ring.hide();
+    return false;
+  };
+  const active = () => settings?.enabled === true && alive();
+  /** Arka plan çalışanına mesaj: bağ koptuysa sendMessage eşzamanlı hata fırlatır; reddedilmiş söze çevrilir. */
+  const sendToBackground = (msg: unknown): Promise<JudgeReply | undefined> => {
+    try {
+      return chrome.runtime.sendMessage(msg) as Promise<JudgeReply | undefined>;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
   /** Öneri gösterme açık mı? Kapalıyken ("yalnızca say") hiçbir şey bekletilmez ya da gösterilmez. */
   const suggesting = () => active() && settings?.suggestionsEnabled === true;
   /** Bu platformda öneri gösterilebilir mi (platform kaydı, K19)? */
@@ -217,7 +241,7 @@ function main(): boolean {
     const turn = session.turns;
     record("judge", "soruldu");
     const request = { type: JUDGE_MESSAGE, turlar: buildJudgeTurns(userTexts, answers) };
-    chrome.runtime.sendMessage(request).then(
+    sendToBackground(request).then(
       (reply: JudgeReply | undefined) => {
         if (seq !== judgeSeq || session.turns !== turn || !active()) return;
         if (!reply?.ok) {
@@ -379,6 +403,12 @@ function main(): boolean {
         onNotRelevant: () => {
           console.log("[KafiAI] kullanıcı model önerisi için 'Yerinde değildi' dedi");
           record("card_action", "yerinde_degil");
+        },
+        onClarify: (sentence) => {
+          const ok = adapter.insertText(sentence);
+          if (ok) record("card_action", "netlestir");
+          console.log(`[KafiAI] karttan netleştirme kalıbı eklendi: ${ok ? "evet" : "HAYIR (eklenemedi)"}`);
+          return ok;
         },
       },
       reason,

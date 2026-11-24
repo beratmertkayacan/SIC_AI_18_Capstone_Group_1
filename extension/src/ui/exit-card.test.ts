@@ -229,6 +229,25 @@ describe("ExitCard model gerekçesiyle", () => {
     card.show(document.body, 7, null, { ...actions(), onNotRelevant: vi.fn() });
     expect(buttonByText("Yerinde değildi")).toBeUndefined();
   });
+
+  it("'İsteği netleştir' boş bir kalıp ekler ve kartı kendi türüyle kapatır (K51 taslağı)", () => {
+    const a = { ...actions(), onClarify: vi.fn(() => true) };
+    card.show(document.body, 3, null, a, reason);
+    buttonByText("İsteği netleştir").click();
+    expect(a.onClarify).toHaveBeenCalledWith(expect.stringMatching(/: $/));
+    expect(a.onDismiss.mock.calls).toEqual([["netlestir"]]);
+    expect(card.visible).toBe(false);
+  });
+
+  it("kalıp eklenemezse kart açık kalır; gerekçesiz kartta düğme çıkmaz", () => {
+    const a = { ...actions(), onClarify: vi.fn(() => false) };
+    card.show(document.body, 3, null, a, reason);
+    buttonByText("İsteği netleştir").click();
+    expect(card.visible).toBe(true);
+    card.hide();
+    card.show(document.body, 7, null, { ...actions(), onClarify: vi.fn(() => true) });
+    expect(buttonByText("İsteği netleştir")).toBeUndefined();
+  });
 });
 
 describe("ExitCard: sohbet sinyalleri (K32)", () => {

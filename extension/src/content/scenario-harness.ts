@@ -83,7 +83,8 @@ export async function bootScenario(settings: Partial<typeof SETTINGS> = {}, path
       },
       onChanged: { addListener: (f: (changes: Record<string, unknown>, area: string) => void) => changed.push(f) },
     },
-    runtime: { onMessage: { addListener: () => {}, removeListener: () => {} } },
+    // runtime.id gerçek eklentide her zaman dolu; boşalması eklentinin yeniden yüklendiği anlamına gelir (extension-context.ts).
+    runtime: { id: "kafi-test", onMessage: { addListener: () => {}, removeListener: () => {} } },
   };
 
   const state = { response: null as string | null };

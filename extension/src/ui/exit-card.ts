@@ -2,6 +2,7 @@ import type { TaskNorm } from "../core/tasks";
 import type { Reason } from "../core/turn-model";
 import { BRAND_NAME } from "../brand";
 import { header, mountCard } from "./theme";
+import { CLARIFY_LOOP } from "../core/repairs";
 
 /**
  * Çıkış kartı: sohbet uzayıp tekrar denemeleri olduysa, cevap bittikten sonra mesaj kutusunun
@@ -14,7 +15,7 @@ import { header, mountCard } from "./theme";
  * kopyalandıktan sonra; yerinde_degil: "Yerinde değildi" (geri bildirimi onNotRelevant sayar, ayrıca
  * "kapat" sayılmasın diye ayrı tür); gosterme: "Bir daha gösterme" onayından sonra kapandı.
  */
-export type ExitDismissal = "kapat" | "ara" | "taze" | "yerinde_degil" | "gosterme";
+export type ExitDismissal = "kapat" | "ara" | "taze" | "yerinde_degil" | "gosterme" | "netlestir";
 
 /** Kartın nereden açıldığına bağlı seçenekler. */
 export interface ExitCardOptions {
@@ -37,6 +38,11 @@ export interface ExitCardActions {
   focusedDraft?(): boolean;
   /** Kullanıcı bu konuda bir kuralı yeniden hatırlattıysa true: kartta not çıkar, taslak kuralı başa koyar (K48). */
   ruleRestated?(): boolean;
+  /**
+   * "İsteği netleştir" (K51 taslağı): aynı sohbette kalıp isteği netleştirmek için mesaj kutusuna boş bir kalıp
+   * eklenir. Verilirse ve kart bir gerekçeyle açıldıysa düğme gösterilir. Kalıp eklendiyse true döner.
+   */
+  onClarify?(sentence: string): boolean;
 }
 
 
@@ -132,6 +138,12 @@ export class ExitCard {
         ...(reason ? [el("p", apology ? APOLOGY_NOTE : ignored ? IGNORED_REPAIR_NOTE : judged ? JUDGE_NOTE : MODEL_NOTE, "note")] : []),
         row(
           fresh,
+          // Yön değiştirmek için Taze başlat; aynı sohbette kalıp düzeltmek için isteği netleştirme kalıbı.
+          ...(reason && actions.onClarify
+            ? [button(CLARIFY_LOOP.label, "secondary", () => {
+                if (actions.onClarify?.(CLARIFY_LOOP.sentence)) dismiss("netlestir");
+              })]
+            : []),
           ...(manualShort ? [] : [button("Kısa ara ver", "secondary", showBreak)]),
           spacer(),
           ...notRelevant,

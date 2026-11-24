@@ -4,7 +4,7 @@
  * ve sayaçların her kararı tam bir kez saydığı denetlenir. Haftalık özet ve öneriler bu sayılardan
  * hesaplandığı için çift sayım ya da eksik "tetiklendi" doğrudan yanlış bir özete dönüşür.
  */
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { bootScenario, teardownScenario, type Scenario } from "./scenario-harness";
 
 const Q = "Bu fonksiyonu Python ile yazar mısın lütfen bana, liste sıralasın";
@@ -264,4 +264,24 @@ describe("içerik betiği: sohbet sonu", () => {
     expect(total(c, "loop_end")).toBe(1);
     expect(total(c, "conversation")).toBe(1);
   }, 10000);
+});
+
+describe("içerik betiği: eklenti yeniden yüklendi, sekme yenilenmedi", () => {
+  it("çökmez: açık öneri kapanır, bir kez 'sekmeyi yenile' der, sonra hiçbir şey bekletmez", async () => {
+    const s = await bootScenario();
+    s.send(Q);
+    s.respond("Tamam, işte kod.");
+    expect(s.send(Q)).toBe(true);
+    expect(s.visible("strip")).toBe(true);
+    const log = vi.spyOn(console, "log");
+    // Eklenti yeniden yüklenince eski sekmede chrome.runtime.id boşalır.
+    delete (globalThis as unknown as { chrome: { runtime: { id?: string } } }).chrome.runtime.id;
+    expect(() => s.send("Bu sefer sıralamayı tersten yap ve açıklama ekle lütfen")).not.toThrow();
+    expect(s.visible("strip")).toBe(false);
+    expect(s.send(Q)).toBe(false);
+    expect(() => s.respond("Tamam.")).not.toThrow();
+    const lines = log.mock.calls.map((c) => String(c[0])).filter((l) => l.includes("Sekmeyi yenilediğinde"));
+    expect(lines).toHaveLength(1);
+    log.mockRestore();
+  });
 });
