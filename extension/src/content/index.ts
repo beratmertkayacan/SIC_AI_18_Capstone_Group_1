@@ -103,7 +103,13 @@ function main(): boolean {
   let shortRepeatOffered = false;
   /** Kısa onarım şeridinin en son çıktığı tur; art arda iki turda çıkmasın diye. */
   let lastShortStripTurn = -1;
-  let affirmHintShown = false;
+  /**
+   * Onay zinciri önerisi bu sohbette karara bağlandı mı (gösterildi ya da kalıcı bir nedenle gizlendi)?
+   * Sohbet başına bir kez: sayım modunda da "tetiklendi" bir kez sayılsın ki iki mod karşılaştırılabilsin.
+   */
+  let affirmHintDecided = false;
+  /** Şu an açık şeridin beklettiği mesaj; aynı mesaj için tekrar Enter'da şerit ikinci kez sayılmasın. */
+  let heldText: string | null = null;
   /** Konsola yazılan son halka seviyesi; elle doğrulamada seviye değişimini tek satırda görmek için */
   let ringLogged = 0;
 
@@ -247,7 +253,8 @@ function main(): boolean {
         onDismiss: (kind) => {
           policy.dismissed(session.turns);
           if (kind !== "taze") adapter.focusComposer(); // kart kapanınca odak mesaj kutusuna döner
-          // "taze": kopyalama başarılıyken zaten sayıldı; ikinci kez sayılmaz.
+          // Yalnızca ara ve kapat burada sayılır: taze_baslat, yerinde_degil ve bir_daha_gosterme kendi
+          // işleyicilerinde bir kez sayıldı; kapanışları ek bir "kapat" değildir.
           if (kind === "ara") record("card_action", "ara");
           else if (kind === "kapat") record("card_action", "kapat");
           console.log(`[KafiAI] çıkış kartı kapandı (${kind})`);
@@ -258,6 +265,7 @@ function main(): boolean {
         },
       },
       reason,
+      { manual: source === "elle" },
     );
   };
 
@@ -266,12 +274,25 @@ function main(): boolean {
    * verdi. Cevabın altında çıkar, gönderimi bekletmez, odağı almaz; sohbet başına bir kez.
    */
   const maybeShowAffirmHint = () => {
-    if (affirmHintShown || signals.affirmStreak < AFFIRM_STREAK) return;
-    if (strip.visible || exitCard.visible || policy.stripShownThisTurn(session.turns)) return;
-    if (!suggesting() || !intervening() || personal) return;
+    if (affirmHintDecided || signals.affirmStreak < AFFIRM_STREAK) return;
     const composer = adapter.composer();
-    if (!composer) return;
-    affirmHintShown = true;
+    if (!composer) return; // sayfa hazır değil; karar sonraki cevaba kalır
+    // Karşı-olgusal sayım (şerit ve kartla aynı desen): koşul sağlandı, ardından gösterildi ya da gizlendi.
+    record("hint", "tetiklendi");
+    const hide = (why: "platform" | "kisisel" | "sayim" | "serit" | "kart", final: boolean) => {
+      // Kalıcı nedenler (platform, kişisel sohbet, yalnızca say) bu sohbette değişmez: bir kez sayılır.
+      // Geçici nedenlerde (aynı turda şerit ya da kart) öneri sonraki onayda yeniden denenebilir.
+      if (final) affirmHintDecided = true;
+      record("hint", `gizlendi_${why}`);
+      console.log(`[KafiAI] onay zinciri önerisi gösterilmedi (${why})`);
+    };
+    if (!intervening()) return hide("platform", true);
+    if (personal) return hide("kisisel", true);
+    if (!suggesting()) return hide("sayim", true);
+    if (exitCard.visible) return hide("kart", false);
+    if (strip.visible || policy.stripShownThisTurn(session.turns)) return hide("serit", false);
+    affirmHintDecided = true;
+    heldText = null; // bu şerit bir mesajı bekletmiyor
     record("hint", "gosterildi");
     console.log(`[KafiAI] onay zinciri önerisi gösterildi (üst üste ${signals.affirmStreak} kısa onay)`);
     ring.hide();
@@ -520,6 +541,9 @@ function main(): boolean {
   const stop = adapter.start({
     onBeforeSend: ({ text, anchor }) => {
       if (!active()) return false;
+      // Şerit açıkken aynı mesaj için yeniden Enter: şerit görünür kalır, gönderim beklemede kalır ve
+      // tetiklendi/gosterildi ikinci kez sayılmaz (tek karar, tek sayım).
+      if (strip.visible && heldText !== null && heldText === text) return true;
       const check = detector.check(text);
       // Kısa onarım ("olmadı", "yanlış"): tekrar değil ama neyin olmadığını söylemiyor.
       // İlk mesajda anlamı yok; önce bir cevap gelmiş olmalı.
@@ -528,7 +552,9 @@ function main(): boolean {
         !check.similar && session.turns > 0 && isShortRepair(text) && !isOfferDecline(text, signals.lastAnswerAskedQuestion);
       // Art arda iki turda kısa onarım şeridi çıkmaz: "try again" üst üste yazılınca şerit her turda
       // çıkıp çıkış kartını sürekli ertelemesin (bir turda tek müdahale kuralı). Halka yine sayar.
-      const shortRepair = shortRepairMsg && lastShortStripTurn !== session.turns;
+      // lastShortStripTurn, şeridin ait olduğu mesajın tur numarasıdır (şimdiki turdan bir fazla): aynı
+      // turda "Kapat" (düzenlemeye dönüş) sonrası yeniden gönderimde de, bir sonraki turda da şerit yeniden çıkmaz.
+      const shortRepair = shortRepairMsg && lastShortStripTurn < session.turns;
       // Aynı kısa mesaj ("devam") üçüncü kez: neyle ve nasıl devam edeceğini yazmayı öner (sohbet başına bir kez).
       const shortRepeat =
         !check.similar && !shortRepairMsg && !shortRepeatOffered && signals.previewShortRepeat(text) === SHORT_REPEAT_STREAK;
@@ -570,6 +596,7 @@ function main(): boolean {
       if (kind === "short_repair") lastShortStripTurn = session.turns + 1; // mesaj gönderilince bu tur numarasını alacak
       policy.noteStrip(session.turns + 1); // mesaj gönderilince bu tur numarasını alacak
       exitCard.hide();
+      heldText = text;
       const task = currentTask();
       const stripContext = {
         // Kısa onarımda önceki denemeler, tekrarda yalnızca bu mesajın kendi tekrarları sayılır.
@@ -619,10 +646,13 @@ function main(): boolean {
       const n = session.recordSend();
       sentThisVisit = true;
       if (n === 1) policy.setTask(taskType(text));
+      heldText = null;
       if (exitCard.visible) {
-        exitCard.hide(); // kartı yok sayıp yazmaya devam etti
+        // Kalıcı bir seçimden sonra (taze başlat kopyalandı, bir daha gösterme) kart yalnızca onay
+        // ekranıdır: üstünden gönderim ek bir "kapat" sayılmaz.
+        if (!exitCard.ended) record("card_action", "kapat"); // kartı yok sayıp yazmaya devam etti
+        exitCard.hide();
         policy.dismissed(n);
-        record("card_action", "kapat");
       }
       const check = detector.check(text);
       detector.remember(text);
@@ -728,7 +758,8 @@ function main(): boolean {
     ringExplained = false;
     shortRepeatOffered = false;
     lastShortStripTurn = -1;
-    affirmHintShown = false;
+    affirmHintDecided = false;
+    heldText = null;
     ringLogged = 0;
     policy.reset();
     userTexts = [];

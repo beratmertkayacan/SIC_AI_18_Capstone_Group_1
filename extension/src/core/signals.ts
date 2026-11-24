@@ -204,6 +204,10 @@ export class ConversationSignals {
     const key = shortRepeatKey(text);
     if (isExitMessage(text) || key === null) return 0;
     if (this.turns > 0 && isShortRepair(text) && !isOfferDecline(text, this.answerAskedQuestion)) return 0;
+    // Soruyla biten cevaba verilen kısa onay ("evet", "tamam") bir teklife cevaptır, yönsüz tekrar değil:
+    // "Kısa devam" şeridi çıkmasın, onay zinciri önerisi ("Yön sende") kendi yolundan gelsin.
+    // Yalnızca gönderim öncesi önizleme değişir; noteUser'daki sayım Python ikiziyle aynı kalır.
+    if (this.answerAskedQuestion && isAffirmation(text)) return 0;
     return key === this.lastShortKey ? this.shortRepeatRun + 1 : 1;
   }
 

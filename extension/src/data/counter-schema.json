@@ -249,9 +249,15 @@
         "ozetlet",
         "adim_yaz",
         "yerinde_degil",
-        "kapat"
+        "kapat",
+        "tetiklendi",
+        "gizlendi_platform",
+        "gizlendi_kisisel",
+        "gizlendi_sayim",
+        "gizlendi_serit",
+        "gizlendi_kart"
       ],
-      "note": "Onay zinciri önerisi: kullanıcı modelin soruyla biten cevaplarına üst üste kısa onaylarla karşılık verdi; cevabın altında, gönderimi bekletmeden, sohbet başına bir kez. ozetlet: modelden şu ana kadar anladığını özetlemesini isteyen cümle mesaj kutusuna eklendi; adim_yaz: 'Teklif sorma, bir sonraki adımı ben belirliyorum: ' başlangıcı eklendi."
+      "note": "Onay zinciri önerisi: kullanıcı modelin soruyla biten cevaplarına üst üste kısa onaylarla karşılık verdi; cevabın altında, gönderimi bekletmeden, sohbet başına bir kez. tetiklendi: koşul sağlandı; ardından gosterildi ya da gizlendi (nedeniyle) sayılır, şerit ve kartla aynı desen. gizlendi_platform, gizlendi_kisisel ve gizlendi_sayim kalıcı nedenlerdir, sohbet başına bir kez sayılır; gizlendi_serit ve gizlendi_kart aynı turda şerit ya da çıkış kartı açıktı, öneri sonraki onayda yeniden denenebilir. 24 Kasım 2026 öncesinde tetiklendi ve gizlendi_* sayılmıyordu. ozetlet: modelden şu ana kadar anladığını özetlemesini isteyen cümle mesaj kutusuna eklendi; adim_yaz: 'Teklif sorma, bir sonraki adımı ben belirliyorum: ' başlangıcı eklendi."
     },
     "ring": {
       "dims": [

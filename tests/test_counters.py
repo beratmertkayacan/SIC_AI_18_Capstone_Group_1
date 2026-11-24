@@ -49,3 +49,10 @@ def test_unknown_values_rejected():
     assert is_valid_cell_key("send|na|na|na|na|kisa")
     assert not is_valid_cell_key("send|chatgpt|18-24|kod|4-6|merhaba")
     assert not is_valid_cell_key("bilinmeyen_olay|-")
+
+
+def test_hint_counterfactual_keys():
+    """'Yön sende' önerisi de şerit ve kart gibi tetiklendi/gizlendi_* sayar; Python doğrulaması bu anahtarları tanır."""
+    for detail in ["tetiklendi", "gizlendi_platform", "gizlendi_kisisel", "gizlendi_sayim", "gizlendi_serit", "gizlendi_kart"]:
+        assert is_valid_cell_key(f"hint|chatgpt|kod|{detail}"), detail
+    assert not is_valid_cell_key("hint|chatgpt|kod|gizlendi_bilinmeyen")

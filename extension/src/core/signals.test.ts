@@ -178,4 +178,26 @@ describe("kısa onay zinciri ve kısa tekrar önizlemesi", () => {
     expect(s.previewShortRepeat("devam")).toBe(SHORT_REPEAT_STREAK); // değişmedi
     expect(s.previewShortRepeat("olmadı")).toBe(0); // kısa onarım kendi şeridini alır
   });
+
+  it("soruyla biten cevaba verilen aynı kısa onay kısa tekrar sayılmaz, onay zinciri sayılır (H1)", () => {
+    const s = new ConversationSignals();
+    s.noteUser("Bu fonksiyonu Python ile yazar mısın, liste sıralasın", { similar: false });
+    s.noteAnswer("İşte kod. Test de ekleyeyim mi?");
+    s.noteUser("evet", { similar: false });
+    s.noteAnswer("Ekledim. Belge de yazayım mı?");
+    s.noteUser("evet", { similar: false });
+    s.noteAnswer("Yazdım. Örnek de ekleyeyim mi?");
+    expect(s.previewShortRepeat("evet")).toBe(0); // şerit yok
+    s.noteUser("evet", { similar: false });
+    expect(s.affirmStreak).toBe(3); // "Yön sende" önerisi bu zincirden çıkar
+    // Cevap soruyla bitmediyse aynı kısa mesaj yine kısa tekrar sayılır.
+    const t = new ConversationSignals();
+    t.noteUser("Bu fonksiyonu Python ile yazar mısın, liste sıralasın", { similar: false });
+    t.noteAnswer("İşte kod.");
+    t.noteUser("tamam", { similar: false });
+    t.noteAnswer("Peki.");
+    t.noteUser("tamam", { similar: false });
+    t.noteAnswer("Peki.");
+    expect(t.previewShortRepeat("tamam")).toBe(SHORT_REPEAT_STREAK);
+  });
 });
