@@ -16,7 +16,7 @@ export interface StripActions {
   onClose(): void;
   /** Kullanıcı bir onarım seçti; mesaj kutusuna eklenecek cümle. */
   onRepair(sentence: string, id: Repair["id"]): void;
-  /** "Yerinde değildi": uyarı gereksizdi. Verilirse düğme gösterilir. */
+  /** "Yerinde değildi": şerit gereksizdi; bekletilen mesaj gönderilir (affirm_hint hariç). Verilirse düğme gösterilir. */
   onNotRelevant?(): void;
   /** "Yeni sohbete geç": çıkış kartını açar. Verilirse ve birkaç deneme olduysa düğme gösterilir. */
   onFreshStart?(): void;
@@ -55,7 +55,7 @@ export function stripMessage(ctx: StripContext): { title: string; body: string; 
   if (ctx.kind === "short_repeat") {
     return {
       title: "Üst üste üçüncü kez kısa bir mesajla devam ediyorsun.",
-      body: "Model neyle ve nasıl devam edeceğini tahmin ediyor. Bunu bir cümleyle sen belirlersen döngüde kalmazsın.",
+      body: "Model neyle ve nasıl devam edeceğini tahmin ediyor. Bunu bir cümleyle sen belirlersen modelin tahmin etmesi gerekmez.",
       hint: null,
     };
   }
@@ -140,6 +140,22 @@ export class Strip {
       this.hide();
       actions.onClose();
     };
+    /** Satır sonundaki bağlantı düğmeleri tek grupta durur: satır kırılırsa birlikte alt satıra iner,
+     *  "Kapat" tek başına bir satırda kalmaz. */
+    const linkGroup = (onNotRelevantLabel: string) => {
+      const g = document.createElement("span");
+      g.className = "links";
+      if (actions.onNotRelevant) {
+        g.append(
+          button(onNotRelevantLabel, "link", () => {
+            this.hide();
+            actions.onNotRelevant?.();
+          }),
+        );
+      }
+      g.append(button("Kapat", "link", close));
+      return g;
+    };
     const msg = stripMessage(ctx);
     const chip =
       ctx.kind === "short_repair"
@@ -166,21 +182,13 @@ export class Strip {
         );
       }
       row.append(
-        button("Olduğu gibi gönder", "secondary", () => {
+        button("Yine de gönder", "secondary", () => {
           this.hide();
           actions.onSendAnyway();
         }),
         spacer(),
       );
-      if (actions.onNotRelevant) {
-        row.append(
-          button("Yerinde değildi", "link", () => {
-            this.hide();
-            actions.onNotRelevant?.();
-          }),
-        );
-      }
-      row.append(button("Kapat", "link", close));
+      row.append(linkGroup("Yerinde değildi, gönder"));
       box.replaceChildren(header(chip), paragraph(msg.title, "title"), paragraph(msg.body, "body"), row);
       (row.firstElementChild as HTMLButtonElement | null)?.focus();
     };
@@ -204,15 +212,7 @@ export class Strip {
         }),
         spacer(),
       );
-      if (actions.onNotRelevant) {
-        row.append(
-          button("Yerinde değildi", "link", () => {
-            this.hide();
-            actions.onNotRelevant?.();
-          }),
-        );
-      }
-      row.append(button("Kapat", "link", close));
+      row.append(linkGroup("Yerinde değildi, gönder"));
       box.replaceChildren(
         header(chip),
         paragraph(msg.title, "title"),
@@ -254,15 +254,7 @@ export class Strip {
         }),
         spacer(),
       );
-      if (actions.onNotRelevant) {
-        row.append(
-          button("Yerinde değildi", "link", () => {
-            this.hide();
-            actions.onNotRelevant?.();
-          }),
-        );
-      }
-      row.append(button("Kapat", "link", close));
+      row.append(linkGroup("Yerinde değildi"));
       box.replaceChildren(header(chip), paragraph(msg.title, "title"), paragraph(msg.body, "body"), row);
     };
 

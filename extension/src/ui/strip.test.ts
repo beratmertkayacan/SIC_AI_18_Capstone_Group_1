@@ -84,7 +84,7 @@ describe("Strip", () => {
   it("yargılayıcı söz içermez", () => {
     strip.show(document.body, actions());
     const text = shadowOf().textContent!.toLowerCase();
-    for (const bad of ["bağımlı", "risk", "tehlike", "uyarı"]) expect(text).not.toContain(bad);
+    for (const bad of ["bağımlı", "risk", "tehlike", "uyarı", "olduğu gibi gönder"]) expect(text).not.toContain(bad);
   });
 });
 
@@ -94,14 +94,15 @@ describe("Strip: Yerinde değildi", () => {
 
   it("işlev verilmezse düğme gösterilmez", () => {
     strip.show(document.body, actions());
-    expect(Array.from(shadowOf().querySelectorAll("button")).some((b) => b.textContent === "Yerinde değildi")).toBe(false);
+    expect(Array.from(shadowOf().querySelectorAll("button")).some((b) => b.textContent?.startsWith("Yerinde değildi"))).toBe(false);
   });
 
-  it("işlev verilirse düğme çıkar, tıklanınca çağrılır ve şerit kapanır", () => {
+  it("işlev verilirse düğme çıkar; bekletilen mesajı gönderdiğini adında söyler, tıklanınca çağrılır ve şerit kapanır", () => {
     const onNotRelevant = vi.fn();
     const a = { ...actions(), onNotRelevant };
     strip.show(document.body, a);
-    buttonByText("Yerinde değildi").click();
+    expect(buttonByText("Yerinde değildi")).toBeUndefined();
+    buttonByText("Yerinde değildi, gönder").click();
     expect(onNotRelevant).toHaveBeenCalledTimes(1);
     expect(a.onSendAnyway).not.toHaveBeenCalled();
     expect(a.onClose).not.toHaveBeenCalled();
@@ -153,7 +154,7 @@ describe("şerit metni duruma göre değişir", () => {
         for (const task of ["kod", "ceviri", "ozet", "yazma", "soru", "diger", null]) {
           const m = stripMessage({ attempt, exact, task });
           const text = `${m.title} ${m.body} ${m.hint ?? ""}`.toLowerCase();
-          for (const bad of ["bağımlı", "risk", "irade", "tehlike", "başarısız", "%"]) expect(text).not.toContain(bad);
+          for (const bad of ["bağımlı", "risk", "irade", "tehlike", "başarısız", "%", "uyarı"]) expect(text).not.toContain(bad);
         }
       }
     }
@@ -174,13 +175,14 @@ describe("kısa onarım şeridi", () => {
     expect(strip.visible).toBe(false);
   });
 
-  it("kod dışı istekte yanlış olan kısım sorulur; 'Olduğu gibi gönder' mesajı gönderir", () => {
+  it("kod dışı istekte yanlış olan kısım sorulur; 'Yine de gönder' mesajı gönderir", () => {
     const a = actions();
     strip.show(document.body, a, { attempt: 1, exact: false, task: "yazma", kind: "short_repair" });
     expect(buttonByText("Hata mesajını ekle")).toBeUndefined();
     expect(buttonByText("Neyin yanlış olduğunu yaz")).toBeTruthy();
     expect(buttonByText("Beklediğimi yaz")).toBeTruthy();
-    buttonByText("Olduğu gibi gönder").click();
+    expect(buttonByText("Olduğu gibi gönder")).toBeUndefined();
+    buttonByText("Yine de gönder").click();
     expect(a.onSendAnyway).toHaveBeenCalledTimes(1);
   });
 });
@@ -193,6 +195,9 @@ describe("kısa tekrar şeridi ve onay zinciri önerisi", () => {
     const a = actions();
     strip.show(document.body, a, { attempt: 1, exact: true, task: "kod", kind: "short_repeat" });
     expect(shadowOf().textContent).toContain("Üst üste üçüncü kez kısa bir mesajla devam ediyorsun.");
+    expect(shadowOf().textContent).toContain("modelin tahmin etmesi gerekmez");
+    expect(shadowOf().textContent).not.toContain("döngüde kalmazsın");
+    expect(buttonByText("Yine de gönder")).toBeTruthy();
     buttonByText("Neyle devam etsin, yaz").click();
     expect(a.onRepair).toHaveBeenCalledWith("Şununla devam et: ", "continue_what");
     expect(strip.visible).toBe(false);
@@ -210,6 +215,17 @@ describe("kısa tekrar şeridi ve onay zinciri önerisi", () => {
     buttonByText("Özetlet").click();
     expect(a.onRepair).toHaveBeenCalledWith(expect.stringContaining("üç maddede özetle"), "summary");
     input.remove();
+  });
+
+  it("onay zinciri önerisi mesaj bekletmediği için 'Yerinde değildi' gönder demez", () => {
+    strip.show(document.body, { ...actions(), onNotRelevant: vi.fn() }, { attempt: 1, exact: false, task: null, kind: "affirm_hint" });
+    expect(buttonByText("Yerinde değildi")).toBeTruthy();
+    expect(buttonByText("Yerinde değildi, gönder")).toBeUndefined();
+  });
+
+  it("kısa şeritlerde 'Yerinde değildi, gönder' çıkar", () => {
+    strip.show(document.body, { ...actions(), onNotRelevant: vi.fn() }, { attempt: 1, exact: false, task: "kod", kind: "short_repair" });
+    expect(buttonByText("Yerinde değildi, gönder")).toBeTruthy();
   });
 
   it("onay zinciri önerisinde 'Adımı ben yazayım' yönü kullanıcıya veren başlangıcı ekler", () => {
