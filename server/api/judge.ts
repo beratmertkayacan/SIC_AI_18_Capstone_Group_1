@@ -57,7 +57,11 @@ export async function POST(request: Request): Promise<Response> {
   if (!turlar) return done(400, { hata: "gecersiz" });
 
   try {
-    const response = await client.messages.create({
+    // Sonnet 5.5 (davranış setinde seçildi). Güvenlik sınıflandırıcısı nadiren reddederse aynı istek sunucu
+    // tarafında yedek modelde yeniden çalışır; karar boş dönmez.
+    const response = await client.beta.messages.create({
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
       model: SPEC.model,
       max_tokens: SPEC.max_tokens,
       // Düşünme açıkken düşünme tokenları da çıktı sınırından düşer; ayar judge-spec.json'da ölçülerek seçilir.

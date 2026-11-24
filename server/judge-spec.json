@@ -1,6 +1,6 @@
 {
   "surum": "0.7",
-  "model": "claude-haiku-5-5",
+  "model": "claude-sonnet-5-5",
   "effort": "low",
   "max_tokens": 1500,
   "sinirlar": {
