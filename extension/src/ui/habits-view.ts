@@ -13,7 +13,10 @@ export function habitRows(h: HabitSummary, opts: { compact?: boolean } = {}): HT
   if (opts.compact) {
     if (h.loops) {
       const g = el("div", "hab-group");
-      g.append(el("h3", "hab-label", h.loops.intro));
+      // Döngü cümlesi bir başlık değil, bir cümle: görünüşü aynı kalır, anlamı paragraf.
+      const lead = el("p", "hab-label");
+      lead.append(el("strong", undefined, h.loops.intro));
+      g.append(lead);
       if (h.loops.rows.length > 0) g.append(loopList(h.loops.rows));
       out.push(g);
     }

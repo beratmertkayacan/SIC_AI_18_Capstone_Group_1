@@ -2,9 +2,9 @@ import { BRAND_NAME } from "../brand";
 import schema from "../data/counter-schema.json";
 import config from "../data/insights-config.json";
 import { CONTINUE_REPAIRS, REPAIRS, shortRepairs } from "../core/repairs";
-import { CounterStore } from "../core/counters";
+import { CounterStore, type CountsV2 } from "../core/counters";
 import { SettingsStore, type Settings } from "../core/settings";
-import { shiftWeek, weekReport, weekStart, type WeekReport } from "../core/week-report";
+import { shiftWeek, weekDays, weekReport, weekStart, type WeekReport } from "../core/week-report";
 import { habitSummary, muteTip, pickTip, type Tip } from "../popup/habits-text";
 import { copyToClipboard } from "../ui/clipboard";
 import { habitRows, tipRow } from "../ui/habits-view";
@@ -64,7 +64,7 @@ function barRow(name: string, sub: string | null, ratio: number, value: string, 
 }
 
 function tasksBlock(r: WeekReport): HTMLElement {
-  // "tasks": sağdaki alt satır ("6 sohbet · 3'ünde aynı yerde döndün") uzun; iki satıra kırılabilir.
+  // "tasks": sağdaki alt satır ("6 sohbet · 3'ü aynı yerde döndü") uzun; iki satıra kırılabilir.
   const list = el("ul", "brows tasks");
   const byTask = new Map(r.tasks.map((t) => [t.task, t]));
   for (const { task, examples } of TASK_ROWS) {
@@ -73,7 +73,7 @@ function tasksBlock(r: WeekReport): HTMLElement {
       `${t.conversations} sohbet`, taskMeta(t.conversations, t.loop_ends)));
   }
   return block("Ne tür işler", "Sohbetlerinin konusuna göre dağılımı",
-    "Sohbetin türü ilk mesajındaki sözcüklerden tahmin edilir. Emin olunamayan sohbetler “Diğer” sayılır. “Aynı yerde döndün”, o sohbette aynı isteği tekrar tekrar yazmaya başladığını söyler; genel görünümdeki “Takılınca nasıl bitti” ile aynı sayıdır.",
+    "Sohbetin türü ilk mesajındaki sözcüklerden tahmin edilir. Emin olunamayan sohbetler “Diğer” sayılır. “Aynı yerde döndü”, o sohbetin aynı istek etrafında dönmeye başladığını söyler; genel görünümdeki “Takılınca nasıl bitti” ile aynı sayıdır.",
     list);
 }
 
@@ -81,7 +81,8 @@ const ACTION_ROWS: [keyof WeekReport["strip_actions"] | "repairs", string][] = [
   ["yine_de_gonder", "Yine de gönderdin"],
   ["duzenle", "Mesajını düzenledin"],
   ["repairs", "Bir düzeltme cümlesi ekledin"],
-  ["yeni_sohbet", "Yeni sohbete geçtin"],
+  // Genel görünümdeki döngü sonucuyla ("Yeni sohbete geçtin") karışmasın diye kaynağı açıkça söylenir.
+  ["yeni_sohbet", "Şeritten yeni sohbete geçtin"],
   ["yerinde_degil", "“Yerinde değildi” dedin"],
 ];
 
@@ -163,7 +164,8 @@ function timeBlock(r: WeekReport): HTMLElement {
       const td = el("td");
       const cell = el("span", `cell l${level}`);
       cell.title = `${DAY_LONG[di]}, ${(SLOT_NAMES[slot]?.name ?? slot).toLocaleLowerCase("tr")}: ${n} mesaj`;
-      cell.append(el("span", "sr-only", `${n}`));
+      // Renk tek başına anlam taşımaz: sıfırdan büyük hücrede sayı görünür; sıfırda yalnızca ekran okuyucu için.
+      cell.append(n > 0 ? el("span", "cell-num", `${n}`) : el("span", "sr-only", `${n}`));
       td.append(cell);
       tr.append(td);
     });
@@ -200,7 +202,7 @@ function freshBlock(r: WeekReport): HTMLElement {
   if (line) body.push(el("p", "block-strong", line));
   body.push(el("p", "block-note divided",
     "Taze başlat, sohbette istediklerini tek bir taslakta toplar ve yeni bir sohbet açar. Taslağın sonundaki “Beklediğim sonuç” satırını doldurmak yeni sohbete baştan yön verir."));
-  return block("Ne işe yaradı", sub, info, ...body);
+  return block("Taze başlattan sonra", sub, info, ...body);
 }
 
 function lengthBlock(r: WeekReport): HTMLElement {
@@ -229,7 +231,7 @@ function trendBlock(r: WeekReport): HTMLElement {
   r.days.forEach((d, i) => {
     const li = el("li", "col");
     // Ekran okuyucu her sütunu tek cümle olarak okur; görsel parçalar ondan gizlenir.
-    const loopsSr = d.loop_ends > 0 ? `, ${d.loop_ends} tanesinde aynı yerde dönmeye başladın` : "";
+    const loopsSr = d.loop_ends > 0 ? `, ${d.loop_ends} tanesi aynı yerde dönmeye başladı` : "";
     li.append(el("span", "sr-only", `${DAY_LONG[i]}: ${d.conversations} sohbet${loopsSr}`));
     const plot = el("div", "col-plot");
     plot.setAttribute("aria-hidden", "true");
@@ -237,6 +239,11 @@ function trendBlock(r: WeekReport): HTMLElement {
     all.style.height = `${(d.conversations / max) * 100}%`;
     const loops = el("span", "col-loop");
     loops.style.height = d.conversations ? `${Math.min(1, d.loop_ends / d.conversations) * 100}%` : "0";
+    // Döngü diliminin sayısı da görünür; renk tek başına anlam taşımasın.
+    if (d.loop_ends > 0) {
+      loops.classList.add("has-num");
+      loops.append(el("span", "col-loop-num", String(d.loop_ends)));
+    }
     all.append(loops);
     if (d.conversations > 0) all.append(el("span", "col-num", String(d.conversations)));
     plot.append(all);
@@ -247,7 +254,7 @@ function trendBlock(r: WeekReport): HTMLElement {
   });
   const legend = el("div", "legend");
   legend.setAttribute("aria-hidden", "true");
-  legend.append(el("span", "lg all", "Tüm sohbetler"), el("span", "lg loop", "Aynı yerde dönmeye başladıkların"));
+  legend.append(el("span", "lg all", "Tüm sohbetler"), el("span", "lg loop", "Aynı yerde dönmeye başlayanlar"));
   const card = block("Haftanın gidişi", "Günlere göre biten sohbet sayısı", null, chart);
   card.querySelector(".card-head")?.append(legend);
   card.classList.add("wide");
@@ -258,7 +265,7 @@ function trendBlock(r: WeekReport): HTMLElement {
  * Genel görünüm: penceredeki "Bu hafta" ile aynı satırlar, altında haftanın tek önerisi (varsa).
  * comparable: bir önceki hafta saklama süresinin içinde mi (en eski haftada değil).
  */
-function overview(r: WeekReport, comparable: boolean, tip: HTMLElement | null): HTMLElement {
+function overview(r: WeekReport, comparable: boolean, tip: HTMLElement | null, countOnlyNote: string | null): HTMLElement {
   const sec = el("section", "overview");
   sec.setAttribute("aria-labelledby", "ov-title");
   const h = el("h2", "section-title", "Genel görünüm");
@@ -268,6 +275,7 @@ function overview(r: WeekReport, comparable: boolean, tip: HTMLElement | null): 
   h.dataset.focus = "overview";
   const card = el("div", "card habits");
   card.append(...habitRows(habitSummary(r, { comparable })));
+  if (countOnlyNote) card.append(el("p", "hab-group hab-line hab-quiet count-only", countOnlyNote));
   if (tip) card.append(tip);
   sec.append(h, card);
   return sec;
@@ -291,12 +299,23 @@ function pausedState(enabled: boolean): HTMLElement {
   icon.setAttribute("aria-hidden", "true");
   card.append(
     icon,
-    el("h2", "state-title", enabled ? "Uyarılar ve öneriler kapalı." : `${BRAND_NAME} şu an kapalı.`),
+    el("h2", "state-title", enabled ? "Öneriler kapalı." : `${BRAND_NAME} şu an kapalı.`),
     el("p", "state-body", enabled
-      ? "Bu sırada yalnızca günlük sayılar tutulur. Özet, araç çubuğu penceresindeki Ayarlar'dan uyarılar ve öneriler açılınca burada görünür."
+      ? "Bu sırada yalnızca günlük sayılar tutulur. Özet, araç çubuğu penceresindeki Ayarlar'dan öneriler açılınca burada görünür."
       : "Kapalıyken hiçbir şey yapmaz. Araç çubuğu penceresinden yeniden açabilirsin."),
   );
   return card;
+}
+
+/**
+ * Haftanın kaç günü "yalnızca say" modundaydı (gün kaydının fazı "sayim": o gün hiçbir öneri gösterilmedi).
+ * WeekReport faz taşımaz; bu yüzden doğrudan günlük kayıtların fazına bakılır. "Özeti bugünden başlat"
+ * öncesindeki günler sayılmaz. Hiç yoksa null.
+ */
+export function countOnlyNote(counts: CountsV2, start: string, from: string | null, back: number): string | null {
+  const n = weekDays(start).filter((d) => (from === null || d >= from) && counts.days[d]?.phase === "sayim").length;
+  if (n === 0) return null;
+  return `${back === 0 ? "Bu" : "O"} haftanın ${n} günü yalnızca sayıldı; o günlerde öneri gösterilmedi.`;
 }
 
 export interface WeeklyDeps {
@@ -385,11 +404,13 @@ export function mountWeekly(root: HTMLElement, deps: WeeklyDeps): void {
     main.append(title);
     if (!suggesting) main.append(pausedState(settings.enabled));
     else if (r.conversations === 0) main.append(emptyState());
-    else if (!r.enough) main.append(overview(r, false, null));
+    else if (!r.enough) main.append(overview(r, false, null, countOnlyNote(counts, start, settings.habitsFrom, back)));
     else {
       const grid = el("div", "blocks");
       grid.append(tasksBlock(r), actionsBlock(r), timeBlock(r), freshBlock(r), lengthBlock(r), platformBlock(r), trendBlock(r));
-      main.append(overview(r, back < WEEKS_BACK, tipFor(settings, r)), grid);
+      // Öneri yalnızca bu hafta için: geçmiş bir haftaya öneri vermek (ve onu susturmak) anlamsız.
+      const tip = back === 0 ? tipFor(settings, r) : null;
+      main.append(overview(r, back < WEEKS_BACK, tip, countOnlyNote(counts, start, settings.habitsFrom, back)), grid);
       if (!seen) {
         seen = true;
         deps.counters.record("insight", {}, "ayrinti", "oneri");

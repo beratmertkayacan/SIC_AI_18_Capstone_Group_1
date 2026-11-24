@@ -34,7 +34,7 @@ const SUMMARY_NAMES: [keyof Settings, string][] = [
 /** Ayarlar satırının alt yazısı: "Açık: öneriler, halka, yeni sohbet önerisi". */
 export function settingsSummary(s: Settings): string {
   if (!s.enabled) return `${BRAND_NAME} kapalı`;
-  if (!s.suggestionsEnabled) return "Açık; uyarılar ve öneriler kapalı";
+  if (!s.suggestionsEnabled) return "Açık; öneriler kapalı";
   return `Açık: ${SUMMARY_NAMES.filter(([k]) => s[k] === true).map(([, n]) => n).join(", ")}`;
 }
 
@@ -197,6 +197,11 @@ export function mountPopup(
     link.href = "welcome.html";
     link.target = "_blank";
     link.rel = "noopener";
+    // Haftalık özetle aynı yol: sayfa eklentinin kendi sekmesinde açılır ve pencere kapanır.
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      openPage("welcome.html");
+    });
     help.append(link);
     return [el("hr"), row, el("hr"), help];
   };
@@ -219,7 +224,7 @@ export function mountPopup(
         const sec = el("section", "week");
         sec.append(
           el("h2", "sec-title", "Bu hafta"),
-          el("p", "line muted", "Uyarılar ve öneriler kapalı; şu an yalnızca günlük sayılar tutuluyor. Özet, öneriler açılınca burada görünür."),
+          el("p", "line muted", "Öneriler kapalı; şu an yalnızca günlük sayılar tutuluyor. Özet, öneriler açılınca burada görünür."),
         );
         parts.push(sec);
       }
@@ -249,7 +254,7 @@ export function mountPopup(
     const toggle = (key: Toggle) => (v: boolean) => update({ [key]: v } as Partial<Settings>, key);
     const rows = [
       switchRow(`${BRAND_NAME} açık`, "Kapalıyken hiçbir şey yapmaz.", settings.enabled, false, toggle("enabled")),
-      switchRow("Uyarılar ve öneriler", "Kapalıyken hiçbir şey gösterilmez ve mesajlar bekletilmez; yalnızca günlük sayılar tutulur.",
+      switchRow("Öneriler", "Kapalıyken hiçbir şey gösterilmez ve mesajlar bekletilmez; yalnızca günlük sayılar tutulur.",
         settings.suggestionsEnabled, !settings.enabled, toggle("suggestionsEnabled")),
       switchRow("Halka", "Mesaj kutusunun kenarında sohbetin gidişini sakin bir tonla gösterir.", settings.ringEnabled, sub, toggle("ringEnabled")),
       switchRow("Yeni sohbet önerisi", "Uzayan sohbette yeni sohbet önerir.", settings.exitCardEnabled, sub, toggle("exitCardEnabled")),

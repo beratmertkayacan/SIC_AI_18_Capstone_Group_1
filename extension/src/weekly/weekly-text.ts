@@ -2,7 +2,6 @@ import config from "../data/insights-config.json";
 import taskRules from "../data/task-rules.json";
 import { BRAND_NAME } from "../brand";
 import type { WeekReport } from "../core/week-report";
-import { numberIn } from "../popup/insight-text";
 
 /**
  * Haftalık özet sayfasının cümleleri. Her cümle WeekReport'taki bir sayıdan gelir; sayacı olmayan
@@ -91,11 +90,11 @@ export function weekLabel(start: string, end: string): string {
 }
 
 /**
- * Bir görev satırının sağ alt cümlesi: "2'sinde aynı yerde döndün" (sohbet sayısı hemen üstünde yazar).
+ * Bir görev satırının sağ alt cümlesi: "2'si aynı yerde döndü" (sohbet sayısı hemen üstünde yazar). Özne sohbettir, kullanıcı değil.
  * Döngü sayısı loop_end'den gelir; genel görünümdeki "Takılınca nasıl bitti" ile aynı tanım.
  */
 export function taskMeta(conversations: number, loopEnds: number): string | null {
-  return conversations > 0 && loopEnds > 0 ? `${numberIn(loopEnds)} aynı yerde döndün` : null;
+  return conversations > 0 && loopEnds > 0 ? `${numberOf(loopEnds)} aynı yerde döndü` : null;
 }
 
 /** Ne Zaman: benzer mesajların en yoğun olduğu saat dilimi; az veriyle bir şey söylenmez. */

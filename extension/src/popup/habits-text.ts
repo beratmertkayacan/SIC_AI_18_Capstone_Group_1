@@ -11,7 +11,7 @@ import { numberIn } from "./insight-text";
  *
  * İlke: her cümle tek bir sayaçtan gelir, yalnızca sayı ve sabit sözcük içerir. Yüzde, yön ("daha
  * az", "daha çok"), puan ya da seri yok. Kullanıcıya gösterilen tek döngü tanımı loop_end'dir
- * ("aynı yerde dönmeye başladın"); sohbet sonundaki `dongu` kararı burada hiç kullanılmaz.
+ * ("aynı yerde dönmeye başladı"; döngü kullanıcıya yüklenmez, sohbete aittir); sohbet sonundaki `dongu` kararı burada hiç kullanılmaz.
  */
 
 const MIN = config.min_conversations; // 5: öneri ve ayrıntı için gereken en az sohbet
@@ -69,7 +69,7 @@ function loopsBlock(r: WeekReport): HabitSummary["loops"] {
   const e = r.loop_ends;
   const total = e.toparlandi + e.yeni_sohbet + e.birakildi;
   if (total === 0) return null;
-  const intro = `${total} sohbette aynı yerde dönmeye başladın.`;
+  const intro = `${total} sohbet aynı yerde dönmeye başladı.`;
   if (total < MIN_DETAIL) return { intro, rows: [] };
   const rows: HabitRow[] = [
     { label: "Aynı sohbette yolunu buldun", n: e.toparlandi, quiet: false },

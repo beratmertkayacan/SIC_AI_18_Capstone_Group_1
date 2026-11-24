@@ -23,11 +23,12 @@
   --ok: #6f8f5b;
   --selection: rgba(201, 168, 117, .38);
   --shadow: 0 1px 2px rgba(68, 50, 27, .06), 0 8px 24px -12px rgba(68, 50, 27, .25);
-  /* Grafik adımları: tek sıcak aileden üç ayrışan ton (dataviz denetleyicisinde komşu çiftler ΔE 20 üstü).
+  /* Grafik adımları: tek sıcak aileden üç ton. En açığı (c-3) bile kart zemininde 3:1 üstünde kalır
+     (#ab8a62, #fffcf7 üstünde 3,1:1); c-2 onunla ayrışsın diye toprak mürekkebi tonundadır.
      Kimlik hiçbir zaman yalnızca renkle verilmez; her işaretin yanında adı ve sayısı yazar. */
   --c-1: #44321b;
-  --c-2: #9c7a52;
-  --c-3: #dcc49c;
+  --c-2: #7a5c3a;
+  --c-3: #ab8a62;
   --c-track: #efe5d6;  /* çubuğun boş kısmı ve ısı haritasında "yok" */
   --tip-bg: #44321b;   /* bilgi kutusu */
   --tip-fg: #f7efe3;
@@ -52,7 +53,7 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -12px rgba(0, 0, 0, .7);
     --c-1: #f0dcb8;
     --c-2: #b08c5e;
-    --c-3: #6b5238;
+    --c-3: #8a6c48;  /* koyu kartta 3,3:1 */
     --c-track: #3a2c1d;
     --tip-bg: #f0e5d5;
     --tip-fg: #2a1f14;
@@ -167,6 +168,7 @@ h1.brand-name { margin: 0; font-size: inherit; }
 .hab-note { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
 .hab-group { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--line); }
 .hab-label { margin: 0 0 3px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.hab-label strong { font-weight: inherit; }
 .hab-line { margin: 0; font-size: 12.5px; line-height: 1.5; }
 .hab-quiet { color: var(--muted); }
 .hab-rows { list-style: none; margin: 6px 0 0; padding: 0; }

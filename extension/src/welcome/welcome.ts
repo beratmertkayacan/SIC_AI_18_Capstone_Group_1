@@ -1,4 +1,4 @@
-import { BRAND_NAME, BRAND_TAGLINE, sitesList } from "../brand";
+import { BRAND_NAME, BRAND_TAGLINE, logoMark, sitesList } from "../brand";
 import { el, logo } from "../ui/page-kit";
 
 /**
@@ -16,11 +16,11 @@ export interface WelcomeSection {
 export const WELCOME_TITLE = `${BRAND_NAME}'a hoş geldin`;
 
 export const WELCOME_LEAD =
-  `${BRAND_NAME}, yapay zeka sohbetlerinde aynı yerde dönmeye başladığını fark eder ve oradan çıkmanın kolay bir yolunu sunar. ` +
+  `${BRAND_NAME}, yapay zeka sohbetlerinde aynı yerde dönmeye başladığında bunu fark etmene yardım eder ve oradan çıkmanın kolay bir yolunu sunar. ` +
   `Harcadığın süreye değil, yapay zekayı nasıl kullandığına bakar. Şu an ${sitesList()} üzerinde çalışır.`;
 
 export const SEE_INTRO =
-  "Çoğu zaman hiçbir şey. Aynı isteği yeniden gönderirken küçük bir uyarı, ya da sohbet uzayıp aynı yerde dönerken küçük bir kart çıkar.";
+  "Çoğu zaman hiçbir şey. Aynı isteği yeniden gönderirken küçük bir şerit, ya da sohbet uzayıp aynı yerde dönerken küçük bir kart çıkar.";
 export const SEE_OUTRO = "Hiçbiri seni engellemez. Her birinde “Yine de gönder” ya da “Kapat” gibi bir çıkış vardır.";
 
 /** Gizlilik satırları. Cevabın başı ve sonu özür, düzeltme alınmadı ve teklif sorusu kuralları için okunur (K32, K40, K44). */
@@ -35,8 +35,8 @@ export const PRIVACY: WelcomeSection[] = [
   {
     title: "Neye bakmaz",
     lines: [
-      `Yazdığın tuşları kaydetmez; ${sitesList()} dışındaki sitelere ve kişisel bilgilerine bakmaz.`,
-      "Kişisel ve duygusal konuşmalarda hiçbir öneri göstermez.",
+      "Yazdığın tuşları kaydetmez; desteklenen sohbet siteleri dışında çalışmaz.",
+      "Kişisel ya da duygusal görünen konuşmalarda öneri göstermez.",
     ],
   },
   {
@@ -44,7 +44,7 @@ export const PRIVACY: WelcomeSection[] = [
     lines: [
       "Hiçbir mesaj cihazından çıkmaz. Eklentide internete istek gönderen kod yoktur.",
       "Mesaj metni kaydedilmez; yalnızca sekme açıkken bellekte durur ve sekme kapanınca silinir.",
-      `Kalıcı olarak yalnızca ayarların ve günlük sayılar (kaç kez uyarı gösterildi gibi) tutulur. Sayılar 90 gün sonra silinir; istersen ${BRAND_NAME} penceresinden hemen silebilirsin.`,
+      `Kalıcı olarak yalnızca ayarların ve günlük sayılar (kaç kez şerit ya da kart gösterildi gibi) tutulur. Sayılar 90 gün sonra silinir; istersen ${BRAND_NAME} penceresinden hemen silebilirsin.`,
     ],
   },
 ];
@@ -71,16 +71,21 @@ export const STEPS: WelcomeSection[] = [
 function ringArt(): HTMLElement {
   const art = el("div", "art");
   const box = el("div", "mini-composer");
-  box.append(el("span", "mini-text", "Bunu daha kısa yaz"), el("span", "mini-ring"), el("span", "mini-send"));
-  art.append(box, el("div", "mini-hint", "Son üç mesajın çok benziyor."));
+  // Halka gerçekte logodaki üç yaylı işarettir (LOGO_PATHS); burada orta seviyede çizilir.
+  const ring = el("span", "mini-ring");
+  ring.append(logoMark(18));
+  box.append(el("span", "mini-text", "Bunu daha kısa yaz"), ring, el("span", "mini-send"));
+  // İpucu, gerçek halkanın yazdığı cümlenin biçiminde (core/ring.ts ringText).
+  art.append(box, el("div", "mini-hint", "Son mesajlarından 2 tanesi öncekilere çok benziyor."));
   return art;
 }
 
 function stripArt(): HTMLElement {
   const art = el("div", "art");
   const card = el("div", "mini-card");
+  // Şeridin ilk ekranı: ana düğme, "Yine de gönder" ve "Kapat". Onarım cümleleri ancak ana düğmeye basınca açılır.
   const row = el("div", "mini-chips");
-  row.append(el("span", "chip dark", "Yine de gönder"), el("span", "chip", "Biçim yanlış"), el("span", "chip", "Bilgi yanlış"), el("span", "chip", "Fazla uzun"));
+  row.append(el("span", "chip dark", "Neyin eksik olduğunu söyle"), el("span", "chip", "Yine de gönder"), el("span", "chip link", "Kapat"));
   card.append(el("p", "mini-title", "Bunu az önce de sormuştun."), row);
   art.append(card);
   return art;
@@ -101,10 +106,11 @@ function cardArt(): HTMLElement {
   return art;
 }
 
-function feature(kicker: string, name: string, art: HTMLElement, body: string): HTMLElement {
+/** Özellik kartı: başlık özelliğin adıdır; sloganın ilgili adımı üstte küçük bir satır olarak durur. */
+function feature(step: string, name: string, art: HTMLElement, body: string): HTMLElement {
   const card = el("article", "card feature");
   art.setAttribute("aria-hidden", "true");
-  card.append(el("h3", "feature-kicker", kicker), el("p", "feature-name", name), art, el("p", "feature-body", body));
+  card.append(el("p", "feature-step", step), el("h3", "feature-name", name), art, el("p", "feature-body", body));
   return card;
 }
 
@@ -124,10 +130,10 @@ export function mountWelcome(root: HTMLElement, close: () => void): void {
   const features = el("div", "features");
   features.append(
     feature("Fark et.", "Halka", ringArt(), "Mesaj kutusunun kenarında küçük bir halka durur. Sohbet aynı yerde dönmeye başlayınca tonu yavaşça koyulaşır."),
-    feature("Durakla.", "Benzer mesaj uyarısı", stripArt(), "Mesajın öncekine çok benziyorsa, gönderilmeden önce ince bir şerit çıkar. Neyin eksik olduğunu tek dokunuşla ekleyebilirsin."),
-    feature("Yeniden başla.", "Çıkış kartı", cardArt(), "Sohbet uzayınca küçük bir kart çıkar. Taze başlat, isteklerini tek mesajda toplayıp yeni bir sohbet açar."),
+    feature("Durakla.", "Benzer mesaj şeridi", stripArt(), "Mesajın öncekine çok benziyorsa, gönderilmeden önce ince bir şerit çıkar. Neyin eksik olduğunu hazır bir cümleyle ekleyebilirsin."),
+    feature("Yeniden başla.", "Yeni sohbet önerisi", cardArt(), "Sohbet uzayınca küçük bir kart çıkar. Taze başlat, isteklerini tek mesajda toplayıp yeni bir sohbet açar."),
   );
-  const see = section("Ne Göreceksin", el("p", "block-intro", SEE_INTRO), features, el("p", "block-outro", SEE_OUTRO));
+  const see = section("Ne göreceksin", el("p", "block-intro", SEE_INTRO), features, el("p", "block-outro", SEE_OUTRO));
 
   const rows = el("dl", "privacy-rows");
   for (const p of PRIVACY) {
@@ -148,9 +154,14 @@ export function mountWelcome(root: HTMLElement, close: () => void): void {
     el("p", "teaser-title", "Her hafta kısa bir özet"),
     el("p", "teaser-body", `Haftalık özetin araç çubuğundaki ${BRAND_NAME} simgesinden açılır; birkaç sohbetten sonra dolmaya başlar.`),
   );
-  const preview = el("span", "teaser-preview");
+  // Haftalık özetin gerçek "Bu hafta" satırlarından kısa bir örnek: yüzde ya da çubuk yok, yalnızca sayı ve cümle.
+  const preview = el("div", "teaser-preview");
   preview.setAttribute("aria-hidden", "true");
-  preview.append(el("i"), el("i"), el("i"), el("i"));
+  preview.append(
+    el("p", "tp-total", "14 sohbet bitti."),
+    el("p", "tp-line", "4 sohbet aynı yerde dönmeye başladı."),
+    el("p", "tp-line tp-quiet", `${BRAND_NAME} 9 kez araya girdi.`),
+  );
   teaser.append(icon, tText, preview);
 
   const steps = el("ol", "steps");
@@ -159,7 +170,7 @@ export function mountWelcome(root: HTMLElement, close: () => void): void {
     li.append(el("h3", "step-title", s.title), ...s.lines.map((l) => el("p", "step-body", l)));
     steps.append(li);
   }
-  const before = section("Başlamadan Önce", steps);
+  const before = section("Başlamadan önce", steps);
 
   const done = el("button", "primary", "Anladım");
   done.addEventListener("click", close);

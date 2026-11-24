@@ -42,6 +42,7 @@
       .habits .hab-line, .habits .hab-rows li { font-size: 14px; }
       .habits .hab-line { max-width: 60ch; }
       .habits .hab-tip, .habits > p.hab-group { grid-column: 1 / -1; }
+      .habits .count-only { max-width: none; font-size: 13px; }
       .habits .hab-tip-text { font-size: 15px; }
       .habits button.link { font-size: 13px; }
       .block-line b { font-weight: 600; }
@@ -89,11 +90,14 @@
       .heat tbody th { text-align: left; font-weight: 500; font-size: 13px; line-height: 1.25; }
       .slot-name { display: block; }
       .slot-hours { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
-      .cell { display: block; height: 32px; border-radius: 6px; }
+      .cell { display: grid; place-items: center; height: 32px; border-radius: 6px; }
       .cell.l0 { background: var(--c-track); }
       .cell.l1 { background: color-mix(in srgb, var(--c-3) 70%, var(--c-track)); }
       .cell.l2 { background: var(--c-2); }
       .cell.l3 { background: var(--c-1); }
+      /* Hücredeki sayı: açık tonda mürekkep, koyu tonlarda kart rengi (her temada 4,5:1 üstü). */
+      .cell-num { font-size: 12px; font-weight: 600; line-height: 1; color: var(--fg); }
+      .cell.l2 .cell-num, .cell.l3 .cell-num { color: var(--card); }
       .heat-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
       .heat-foot .block-line { margin: 0; }
       .heat-legend { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11.5px; }
@@ -120,7 +124,10 @@
       .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
       .col-plot { position: relative; width: 100%; height: 160px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid var(--line); }
       .col-all { position: relative; width: min(56px, 70%); background: var(--c-3); border-radius: 4px 4px 0 0; display: flex; align-items: flex-end; }
-      .col-loop { display: block; width: 100%; background: var(--c-2); border-top: 2px solid var(--card); }
+      .col-loop { display: grid; place-items: center; width: 100%; background: var(--c-2); border-top: 2px solid var(--card); box-sizing: content-box; }
+      /* Döngü diliminin sayısı: dilim çok inceyse sayı okunabilsin diye en az 16px. */
+      .col-loop.has-num { min-height: 16px; }
+      .col-loop-num { font-size: 11px; font-weight: 600; line-height: 1; color: var(--card); }
       .col-num { position: absolute; top: -20px; left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 600; }
       .col-day { color: var(--muted); font-size: 12px; }
 

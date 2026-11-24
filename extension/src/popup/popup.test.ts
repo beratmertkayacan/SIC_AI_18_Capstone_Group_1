@@ -85,6 +85,9 @@ describe("popup", () => {
     const link = root.querySelector("a")!;
     expect(link.getAttribute("href")).toBe("welcome.html");
     expect(link.getAttribute("target")).toBe("_blank");
+    // Haftalık özetle aynı yol: openPage ile açılır.
+    link.click();
+    expect(opened).toEqual(["welcome.html"]);
   });
 
   it("Bu hafta takvim haftasını sayar: Pazartesiden önceki günler girmez; kutu ve yüzde yok", async () => {
@@ -134,7 +137,10 @@ describe("popup", () => {
     await record("strip", "gosterildi", NOW, { platform: "chatgpt", task: "kod" });
     await record("strip_action", "yerinde_degil");
     await open();
-    expect(week()).toContain("3 sohbette aynı yerde dönmeye başladın.");
+    expect(week()).toContain("3 sohbet aynı yerde dönmeye başladı.");
+    expect(week()).not.toContain("başladın");
+    // Döngü cümlesi bir başlık değil: pencerede "Bu hafta"nın altında h3 yok.
+    expect(root.querySelector("section.week h3")).toBeNull();
     const rows = Array.from(root.querySelectorAll(".hab-rows li")).map((li) => [li.querySelector(".hab-row-label")?.textContent, li.querySelector(".hab-row-num")?.textContent, li.className]);
     expect(rows).toEqual([["Aynı sohbette yolunu buldun", "2", ""], ["Sohbetten çıktın", "1", "quiet"]]);
     expect(week()).toContain("1 kez eksik olanı bir cümleyle ekledin.");
@@ -165,7 +171,7 @@ describe("popup", () => {
     settingsButton().click();
     await flush();
     await flush();
-    for (const l of ["Kâfi AI açık", "Uyarılar ve öneriler", "Halka", "Yeni sohbet önerisi", "Haftalık özet"]) expect(checkbox(l).checked).toBe(true);
+    for (const l of ["Kâfi AI açık", "Öneriler", "Halka", "Yeni sohbet önerisi", "Haftalık özet"]) expect(checkbox(l).checked).toBe(true);
     expect(document.activeElement?.textContent).toBe("Ayarlar");
     (root.querySelector("button.back") as HTMLButtonElement).click();
     await flush();
@@ -180,7 +186,7 @@ describe("popup", () => {
     const base = { ...DEFAULT_SETTINGS };
     expect(settingsSummary({ ...base, ringEnabled: false })).toBe("Açık: öneriler, yeni sohbet önerisi, haftalık özet");
     expect(settingsSummary({ ...base, habitsEnabled: false })).toBe("Açık: öneriler, halka, yeni sohbet önerisi");
-    expect(settingsSummary({ ...base, suggestionsEnabled: false })).toBe("Açık; uyarılar ve öneriler kapalı");
+    expect(settingsSummary({ ...base, suggestionsEnabled: false })).toBe("Açık; öneriler kapalı");
     expect(settingsSummary({ ...base, enabled: false })).toBe("Kâfi AI kapalı");
   });
 
@@ -219,7 +225,7 @@ describe("popup", () => {
     await flush();
     await flush();
     expect(await store.load()).toEqual({ ...DEFAULT_SETTINGS, enabled: false });
-    expect(checkbox("Uyarılar ve öneriler").disabled).toBe(true);
+    expect(checkbox("Öneriler").disabled).toBe(true);
     expect(checkbox("Yeni sohbet önerisi").disabled).toBe(true);
     (root.querySelector("button.back") as HTMLButtonElement).click();
     await flush();
@@ -235,7 +241,7 @@ describe("popup", () => {
     await open(fakeTab(snap()).tab);
     settingsButton().click();
     await flush();
-    checkbox("Uyarılar ve öneriler").click();
+    checkbox("Öneriler").click();
     await flush();
     await flush();
     expect((await store.load()).suggestionsEnabled).toBe(false);
@@ -369,7 +375,7 @@ describe("popup", () => {
     await open(fakeTab(snap()).tab);
     expect(tipText()).not.toBeNull();
     const text = (root.textContent ?? "").toLowerCase();
-    for (const bad of ["bağımlı", "risk", "tehlike", "rozet", "puan", "seri", "ödül", "sıralama", "%"]) expect(text).not.toContain(bad);
+    for (const bad of ["bağımlı", "risk", "tehlike", "rozet", "puan", "seri", "ödül", "sıralama", "%", "uyarı"]) expect(text).not.toContain(bad);
   });
 
   it("Haftalık özet kapatılınca bölüm çizilmez ama sayılar tutulmaya devam eder", async () => {

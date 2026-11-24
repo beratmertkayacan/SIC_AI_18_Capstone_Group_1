@@ -23,9 +23,9 @@ let root: HTMLElement;
 let storage: ReturnType<typeof memoryStorage>;
 let settings: SettingsStore;
 
-async function record(event: EventName, detail: string, when: Date, dims: Dims, n = 1) {
+async function record(event: EventName, detail: string, when: Date, dims: Dims, n = 1, phase: "oneri" | "sayim" = "oneri") {
   const c = new CounterStore(storage, { flushDelayMs: 0, now: () => when });
-  for (let i = 0; i < n; i++) c.record(event, dims, detail, "oneri");
+  for (let i = 0; i < n; i++) c.record(event, dims, detail, phase);
   await c.flush();
 }
 const conv = (when: Date, task: string, len: string, outcome = "normal", platform = "chatgpt", n = 1) =>
@@ -98,7 +98,7 @@ describe("haftalık özet sayfası", () => {
     expect(root.querySelector(".stat-num")).toBeNull();
     expect(ov.textContent).not.toContain("%");
     expect(ov.textContent).toContain("6 sohbet bitti.");
-    expect(ov.textContent).toContain("1 sohbette aynı yerde dönmeye başladın.");
+    expect(ov.textContent).toContain("1 sohbet aynı yerde dönmeye başladı.");
     expect(ov.textContent).toContain("1 kez eksik olanı bir cümleyle ekledin, 1 kez Taze başlat'ı kullandın.");
     expect(ov.textContent).toContain("Kâfi AI 4 kez araya girdi.");
     expect(ov.textContent).toContain("Geçen hafta 5 sohbet bitmişti.");
@@ -108,9 +108,10 @@ describe("haftalık özet sayfası", () => {
     expect(text()).toContain("3 benzer mesajın 3'ü akşam (18.00–24.00) geldi.");
     // Dağılımlarda yüzde yok, ana bilgi sayı; başlıklar cümle düzeninde, "uyarı" sözcüğü yok.
     expect(text()).not.toContain("%");
-    expect(text()).toContain("2 sohbet1'inde aynı yerde döndün");
+    expect(text()).toContain("2 sohbet1'i aynı yerde döndü");
+    expect(text()).not.toMatch(/döndün|başladın\b/);
     expect(Array.from(root.querySelectorAll("h1, h2")).map((h) => h.textContent)).toEqual(expect.arrayContaining([
-      "Haftalık özet", "Genel görünüm", "Ne tür işler", "Önerilere ne yaptın", "Ne zaman", "Ne işe yaradı", "Sohbetlerin ne kadar sürdü", "Hangi araçlarda", "Haftanın gidişi",
+      "Haftalık özet", "Genel görünüm", "Ne tür işler", "Önerilere ne yaptın", "Ne zaman", "Taze başlattan sonra", "Sohbetlerin ne kadar sürdü", "Hangi araçlarda", "Haftanın gidişi",
     ]));
     expect(text().toLocaleLowerCase("tr")).not.toContain("uyarı");
     expect(text()).toContain("Yeni açtığın sohbetlerin 1'i 3 mesaj içinde bitti.");
@@ -119,6 +120,12 @@ describe("haftalık özet sayfası", () => {
     // ısı haritası: Çarşamba akşam hücresi en koyu ton
     const cell = root.querySelector('.heat tbody tr:nth-child(4) td:nth-child(4) .cell');
     expect(cell?.className).toBe("cell l3");
+    // Renk tek başına anlam taşımaz: sıfırdan büyük hücrede sayı görünür, sıfırda görünmez.
+    expect(cell?.querySelector(".cell-num")?.textContent).toBe("3");
+    expect(root.querySelector('.heat tbody tr:nth-child(1) td:nth-child(2) .cell .cell-num')).toBeNull();
+    // Haftanın gidişinde döngü diliminin sayısı da görünür (Pazartesi: 1 loop_end).
+    expect(root.querySelector(".cols li:nth-child(1) .col-loop-num")?.textContent).toBe("1");
+    expect(text()).toContain("Şeritten yeni sohbete geçtin");
     // Öneri: benzer mesaj şeridi en çok kod sohbetinde çıktı (3 kez) → kod ipucu, tek öneri.
     expect(ov.querySelector(".hab-tip-text")?.textContent).toBe("İstersen ilk mesaja hata çıktısını, kullandığın dili ve beklediğin sonucu birlikte yaz.");
     expect(root.querySelectorAll(".hab-tip").length).toBe(1);
@@ -155,7 +162,8 @@ describe("haftalık özet sayfası", () => {
     await conv(day(17), "kod", "1-3", "normal", "chatgpt", 6);
     await settings.update({ suggestionsEnabled: false });
     await open();
-    expect(text()).toContain("Uyarılar ve öneriler kapalı.");
+    expect(text()).toContain("Öneriler kapalı.");
+    expect(text().toLocaleLowerCase("tr")).not.toContain("uyarı");
     expect(root.querySelector(".stats")).toBeNull();
   });
 
@@ -250,6 +258,31 @@ describe("haftalık özet sayfası", () => {
     expect(json.days[dayOf(NOW)].c["insight|na|oneri_yerinde_degil"]).toBe(1);
   });
 
+  it("geçmiş haftada öneri gösterilmez", async () => {
+    await conv(day(10), "kod", "1-3", "normal", "chatgpt", 6);
+    await record("strip", "gosterildi_kisa", day(10), { platform: "chatgpt", task: "kod" }, 3);
+    await conv(day(17), "kod", "1-3", "normal", "chatgpt", 6);
+    await record("strip", "gosterildi_kisa", day(17), { platform: "chatgpt", task: "kod" }, 3);
+    await open();
+    expect(root.querySelector(".hab-tip")).not.toBeNull();
+    root.querySelector<HTMLButtonElement>(".icon-btn.prev")!.click();
+    await flush();
+    await flush();
+    expect(root.querySelector(".week-label")?.textContent).toBe("9–15 Kasım 2026");
+    expect(text()).toContain("6 sohbet bitti.");
+    expect(root.querySelector(".hab-tip")).toBeNull();
+  });
+
+  it("yalnızca say günleri: haftalık sayfada sade bir not; hiç yoksa not yok", async () => {
+    await conv(day(17), "kod", "1-3", "normal", "chatgpt", 6);
+    await open();
+    expect(root.querySelector(".count-only")).toBeNull();
+    await record("conversation", "normal", day(18), { platform: "chatgpt", task: "kod", len: "1-3", first_len: "orta" }, 1, "sayim");
+    await record("conversation", "normal", day(19), { platform: "chatgpt", task: "kod", len: "1-3", first_len: "orta" }, 1, "sayim");
+    await open();
+    expect(root.querySelector(".count-only")?.textContent).toBe("Bu haftanın 2 günü yalnızca sayıldı; o günlerde öneri gösterilmedi.");
+  });
+
   it("silme satır içinde onay ister; onaylanınca her şey silinir", async () => {
     await conv(day(17), "kod", "1-3", "normal", "chatgpt", 6);
     await open();
@@ -267,7 +300,7 @@ describe("haftalık özet sayfası", () => {
     await conv(day(17), "kod", "1-3", "dongu", "chatgpt", 6);
     await open();
     const t = text().toLowerCase();
-    for (const bad of ["bağımlı", "risk", "tehlike", "rozet", "puan", "seri", "ödül", "sıralama", "%"]) expect(t).not.toContain(bad);
+    for (const bad of ["bağımlı", "risk", "tehlike", "rozet", "puan", "seri", "ödül", "sıralama", "%", "uyarı", "ne işe yaradı"]) expect(t).not.toContain(bad);
     expect(root.querySelectorAll("script").length).toBe(0);
     vi.restoreAllMocks();
   });

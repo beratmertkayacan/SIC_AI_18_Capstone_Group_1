@@ -167,7 +167,7 @@ describe("habitSummary", () => {
       "card_action|chatgpt|yerinde_degil": 1,
     }));
     expect(h.loops).toEqual({
-      intro: "4 sohbette aynı yerde dönmeye başladın.",
+      intro: "4 sohbet aynı yerde dönmeye başladı.",
       rows: [
         { label: "Aynı sohbette yolunu buldun", n: 2, quiet: false },
         { label: "Yeni sohbete geçtin", n: 1, quiet: false },
@@ -180,7 +180,7 @@ describe("habitSummary", () => {
 
   it("3'ten az döngüde yalnızca tek cümle; sıfır olan hamle yazılmaz", () => {
     const h = habitSummary(report({ ...FIVE, "loop_end|chatgpt|kod|4-6|birakildi": 2, "strip_action|chatgpt|duzenle": 1 }));
-    expect(h.loops).toEqual({ intro: "2 sohbette aynı yerde dönmeye başladın.", rows: [] });
+    expect(h.loops).toEqual({ intro: "2 sohbet aynı yerde dönmeye başladı.", rows: [] });
     expect(h.moves).toBe("1 kez mesajını düzenledin.");
     expect(habitSummary(report(FIVE)).moves).toBeNull();
     expect(habitSummary(report(FIVE)).loops).toBeNull();
@@ -200,6 +200,6 @@ describe("habitSummary", () => {
   it("hiçbir cümlede yüzde, yön ya da puan sözcüğü yok", () => {
     const h = habitSummary(report({ ...FIVE, "loop_end|chatgpt|kod|4-6|toparlandi": 5, "strip|chatgpt|kod|gosterildi": 3 }));
     const all = JSON.stringify(h).toLowerCase();
-    for (const bad of ["%", "puan", "seri", "rozet", "ödül", "sıralama", "daha az", "daha çok", "risk", "bağımlı"]) expect(all).not.toContain(bad);
+    for (const bad of ["%", "puan", "seri", "rozet", "ödül", "sıralama", "daha az", "daha çok", "risk", "bağımlı", "uyarı", "dönmeye başladın"]) expect(all).not.toContain(bad);
   });
 });

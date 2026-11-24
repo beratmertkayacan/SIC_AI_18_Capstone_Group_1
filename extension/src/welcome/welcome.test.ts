@@ -14,8 +14,10 @@ describe("karşılama ekranı", () => {
     expect(root.querySelector("h1")?.textContent).toBe(WELCOME_TITLE);
     expect(root.querySelector(".tagline")?.textContent).toBe("Fark et. Durakla. Yeniden başla.");
     expect(root.querySelector(".lead")?.textContent).toBe(WELCOME_LEAD);
-    expect(Array.from(root.querySelectorAll("h2")).map((h) => h.textContent)).toEqual(["Ne Göreceksin", "Gizliliğin", "Başlamadan Önce"]);
-    expect(Array.from(root.querySelectorAll(".feature-kicker")).map((h) => h.textContent)).toEqual(["Fark et.", "Durakla.", "Yeniden başla."]);
+    expect(Array.from(root.querySelectorAll("h2")).map((h) => h.textContent)).toEqual(["Ne göreceksin", "Gizliliğin", "Başlamadan önce"]);
+    // Özellik kartlarında başlık özelliğin adıdır; sloganın adımı üstte küçük satırdır.
+    expect(Array.from(root.querySelectorAll(".feature h3")).map((h) => h.textContent)).toEqual(["Halka", "Benzer mesaj şeridi", "Yeni sohbet önerisi"]);
+    expect(Array.from(root.querySelectorAll(".feature-step")).map((h) => h.textContent)).toEqual(["Fark et.", "Durakla.", "Yeniden başla."]);
     expect(Array.from(root.querySelectorAll(".privacy-row dt")).map((h) => h.textContent)).toEqual(PRIVACY.map((p) => p.title));
     expect(root.querySelectorAll(".steps li").length).toBe(3);
     expect(root.querySelector("button")?.textContent).toBe("Anladım");
@@ -26,11 +28,27 @@ describe("karşılama ekranı", () => {
     const text = root.textContent ?? "";
     expect(text).toContain("Gönder'e bastığın anda");
     expect(text).toContain("Cevabın tamamını okumaz; yalnızca başına ve sonuna bakar");
-    expect(text).toContain("Yazdığın tuşları kaydetmez");
+    expect(text).toContain("Yazdığın tuşları kaydetmez; desteklenen sohbet siteleri dışında çalışmaz.");
+    expect(text).toContain("Kişisel ya da duygusal görünen konuşmalarda öneri göstermez.");
+    expect(text).not.toContain("kişisel bilgilerine bakmaz");
+    expect(WELCOME_LEAD).toContain("bunu fark etmene yardım eder");
     expect(text).not.toContain("Cevabın metnini okumaz");
     expect(text).toContain("Hiçbir mesaj cihazından çıkmaz");
     expect(text).toContain("Mesaj metni kaydedilmez");
     expect(text).toContain("90 gün");
+  });
+
+  it("çizimler gerçek arayüze uyar: şeridin ilk ekranı, logodaki işaret ve halkanın ipucu biçimi", () => {
+    mountWelcome(root, () => {});
+    const arts = Array.from(root.querySelectorAll(".art"));
+    expect(Array.from(arts[1]!.querySelectorAll(".chip")).map((c) => c.textContent)).toEqual(["Neyin eksik olduğunu söyle", "Yine de gönder", "Kapat"]);
+    expect(arts[0]!.querySelectorAll(".mini-ring svg path").length).toBe(3);
+    expect(arts[0]!.querySelector(".mini-hint")?.textContent).toBe("Son mesajlarından 2 tanesi öncekilere çok benziyor.");
+    // Haftalık özet önizlemesi yüzde ya da çubuk değil, "Bu hafta" satırlarından bir örnek.
+    const preview = root.querySelector(".teaser-preview")!;
+    expect(preview.getAttribute("aria-hidden")).toBe("true");
+    expect(preview.querySelectorAll("i").length).toBe(0);
+    expect(preview.textContent).toContain("aynı yerde dönmeye başladı.");
   });
 
   it("çizimler ekran okuyucudan gizlidir", () => {
@@ -50,7 +68,7 @@ describe("karşılama ekranı", () => {
   it("yargılayıcı ya da doğrulanmamış söz içermez", () => {
     mountWelcome(root, () => {});
     const text = (root.textContent ?? "").toLowerCase();
-    for (const bad of ["bağımlı", "risk", "tehlike", "seri", "rozet", "puan"]) expect(text).not.toContain(bad);
+    for (const bad of ["bağımlı", "risk", "tehlike", "seri", "rozet", "puan", "uyarı", "çıkış kartı", "%"]) expect(text).not.toContain(bad);
   });
 
   it("HTML eklenmez: yalnızca eklentinin kendi logosu, betik ya da bağlantı yok", () => {

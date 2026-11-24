@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Kâfi AI",
   "version": "0.1.0",
-  "description": "Fark et. Durakla. Yeniden başla. Yapay zeka sohbetlerinde aynı yerde dönmeye başladığını fark eder ve çıkış yolu sunar; hiçbir mesaj cihazından çıkmaz.",
+  "description": "Fark et. Durakla. Yeniden başla. Yapay zeka sohbetlerinde aynı yerde dönmeyi fark etmene ve oradan çıkmana yardım eder; hiçbir mesaj cihazından çıkmaz.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
