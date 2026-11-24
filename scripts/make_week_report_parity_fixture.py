@@ -20,6 +20,17 @@ E = SCHEMA["events"]
 def random_key(rng):
     kind = rng.random()
     pick = rng.choice
+    # Haftalık özetin yeni alanları (loop_ends, cards_shown, hints, not_helpful) için ek olaylar;
+    # card_action'da yerinde_degil de üretilir (E["card_action"]["details"] içinde).
+    if kind < 0.06:
+        return "|".join(["loop_end", pick(D["platform"]), pick(D["task"]), pick(D["len"]), pick(E["loop_end"]["details"])])
+    if kind < 0.12:
+        return "|".join(["card", pick(D["platform"]), pick(D["task"]), pick(D["len"]), pick(E["card"]["details"])])
+    if kind < 0.17:
+        return "|".join(["hint", pick(D["platform"]), pick(D["task"]), pick(E["hint"]["details"])])
+    if kind < 0.20:
+        return "|".join(["card_action", pick(D["platform"]), "yerinde_degil"])
+    kind = rng.random()
     if kind < 0.3:
         return "|".join(["conversation", pick(D["platform"]), pick(D["task"]), pick(D["len"]), pick(D["first_len"]),
                          pick(["dongu", "normal", "normal"])])
@@ -61,6 +72,10 @@ def main():
         days = random_days(rng, last, n_days, per_day)
         start = week_start(last)
         cases.append({"start": start, "days": days, "expected": week_report(days, start)})
+    # "Özeti bugünden başlat": başlangıç gününden önceki sayılar (bu hafta ve geçen hafta) okunmaz.
+    days = random_days(rng, "2026-11-22", 14, 12)
+    cases.append({"start": "2026-11-16", "from": "2026-11-19", "days": days,
+                  "expected": week_report(days, "2026-11-16", "2026-11-19")})
     out = ROOT / "tests" / "fixtures" / "week_report_parity.json"
     out.write_text(json.dumps(cases, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"{len(cases)} örnek yazıldı: {out.relative_to(ROOT)}")

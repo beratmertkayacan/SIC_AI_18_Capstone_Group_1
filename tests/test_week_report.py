@@ -22,7 +22,31 @@ def test_hafta_pazartesi_baslar_pazar_biter():
 
 def test_fikstur_python_ile_ayni():
     for c in FIXTURE:
-        assert week_report(c["days"], c["start"]) == c["expected"]
+        assert week_report(c["days"], c["start"], c.get("from")) == c["expected"]
+
+
+def test_fikstur_yeni_olaylari_icerir():
+    # Haftalık özetin yeni alanları gerçekten sınanıyor olmalı: hepsi en az bir örnekte sıfırdan büyük.
+    exp = [c["expected"] for c in FIXTURE]
+    assert any(sum(e["loop_ends"].values()) for e in exp)
+    assert any(e["cards_shown"] for e in exp)
+    assert any(sum(e["hints"].values()) for e in exp)
+    assert any(e["not_helpful"]["card"] for e in exp)
+    assert any("from" in c for c in FIXTURE)
+
+
+def test_baslangic_gunu_oncesi_okunmaz():
+    days = {
+        "2026-11-10": {"phase": "oneri", "c": {"conversation|chatgpt|kod|1-3|kisa|normal": 6}},
+        "2026-11-17": {"phase": "oneri", "c": {"conversation|chatgpt|kod|1-3|kisa|normal": 2,
+                                                "loop_end|chatgpt|kod|1-3|birakildi": 1}},
+        "2026-11-19": {"phase": "oneri", "c": {"conversation|chatgpt|kod|1-3|kisa|normal": 3,
+                                                "loop_end|chatgpt|kod|1-3|toparlandi": 2}},
+    }
+    r = week_report(days, "2026-11-16", "2026-11-18")
+    assert r["conversations"] == 3
+    assert r["previous"]["conversations"] == 0
+    assert r["loop_ends"] == {"toparlandi": 2, "yeni_sohbet": 0, "birakildi": 0}
 
 
 def test_toplamlar_birbirini_tutar():
@@ -36,6 +60,9 @@ def test_toplamlar_birbirini_tutar():
         assert sum(d["conversations"] for d in r["days"]) == r["conversations"]
         assert sum(sum(row) for row in r["similar_grid"]) == r["similar_sends"]
         assert all(t["loops"] <= t["conversations"] for t in r["tasks"])
+        assert sum(t["loop_ends"] for t in r["tasks"]) <= sum(r["loop_ends"].values())
+        assert sum(d["loop_ends"] for d in r["days"]) == sum(r["loop_ends"].values())
+        assert sum(r["strips_by_task"].values()) <= r["strips"]["benzer"]
 
 
 def test_hafta_disindaki_gunler_sayilmaz():

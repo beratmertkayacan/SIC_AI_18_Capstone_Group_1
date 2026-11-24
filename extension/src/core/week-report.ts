@@ -16,7 +16,15 @@ import { dayOf, type CountsV2 } from "./counters";
  *   repairs                                                ← repair_button|platform|task|...
  *   fresh_starts                                           ← card_action|platform|taze_baslat
  *   fresh_followups                                        ← fresh_followup|platform|kova
+ *   loop_ends, tasks[].loop_ends, days[].loop_ends         ← loop_end|platform|task|len|toparlandi/yeni_sohbet/birakildi
+ *   cards_shown                                            ← card|platform|task|len|gosterildi_*
+ *   hints                                                  ← hint|platform|task|...
+ *   not_helpful                                            ← strip_action, card_action ve hint içindeki yerinde_degil
+ *   strips_by_task                                         ← strip|platform|task|gosterildi (yalnızca benzer mesaj şeridi)
  * Sohbet, bittiği günün sayacına yazılır; bu yüzden hala açık olan sohbetler henüz sayılmaz.
+ *
+ * `from` (isteğe bağlı, YYYY-MM-DD): kullanıcı "Özeti bugünden başlat" dediyse o günden önceki
+ * sayılar ne bu haftaya ne geçen haftaya girer. Sayılar silinmez, yalnızca okunmaz.
  */
 
 export interface WeekReport {
@@ -25,10 +33,10 @@ export interface WeekReport {
   end: string;
   conversations: number;
   loops: number;
-  /** Pazartesiden Pazara, gün başına biten sohbet ve döngülü sohbet */
-  days: { conversations: number; loops: number }[];
+  /** Pazartesiden Pazara, gün başına biten sohbet, döngülü sohbet ve döngü görülüp biten sohbet (loop_end) */
+  days: { conversations: number; loops: number; loop_ends: number }[];
   /** Şemadaki görev sırasıyla, hepsi (sıfır olanlar dahil) */
-  tasks: { task: string; conversations: number; loops: number }[];
+  tasks: { task: string; conversations: number; loops: number; loop_ends: number }[];
   /** Sohbet uzunluğu kovaları (kullanıcı mesajı sayısı) */
   lengths: { len: string; conversations: number }[];
   /** Şemadaki platform sırasıyla, hepsi */
@@ -46,6 +54,19 @@ export interface WeekReport {
   fresh_starts: number;
   /** "Taze başlat" ile açılan ve biten yeni sohbetler, uzunluk kovasına göre */
   fresh_followups: Record<string, number>;
+  /**
+   * Aynı yerde dönmeye başlayan sohbetler nasıl bitti (loop_end). Kullanıcıya gösterilen tek döngü
+   * tanımı budur; yukarıdaki `loops` (sohbet sonunda metinden verilen karar) yalnızca hesapta kalır.
+   */
+  loop_ends: { toparlandi: number; yeni_sohbet: number; birakildi: number };
+  /** Gösterilen çıkış kartları (tüm gosterildi_* türleri) */
+  cards_shown: number;
+  /** "Yön sende" önerisi: gösterilme ve tepkiler */
+  hints: { gosterildi: number; ozetlet: number; adim_yaz: number; yerinde_degil: number; kapat: number };
+  /** "Yerinde değildi" denen öneriler, yüzeye göre */
+  not_helpful: { strip: number; card: number; hint: number };
+  /** Gösterilen benzer mesaj şeritleri, şemadaki görev sırasıyla */
+  strips_by_task: Record<string, number>;
   /** Bir önceki takvim haftası, karşılaştırma için */
   previous: { conversations: number; loops: number; strips_benzer: number };
   /** Yüzde ve örüntü söylemeye yetecek kadar sohbet var mı? */
@@ -84,12 +105,19 @@ export function shiftWeek(start: string, back: number): string {
 const zeros = (keys: string[]): Record<string, number> => Object.fromEntries(keys.map((k) => [k, 0]));
 
 /** `start` Pazartesisiyle başlayan haftanın raporu. */
-export function weekReport(counts: CountsV2, start: string): WeekReport {
+export function weekReport(counts: CountsV2, start: string, from: string | null = null): WeekReport {
   const days = weekDays(start);
-  const dayIndex = new Map(days.map((d, i) => [d, i]));
-  const perDay = days.map(() => ({ conversations: 0, loops: 0 }));
+  // "Özeti bugünden başlat" sonrası: başlangıçtan önceki günler okunmaz (tarih dizgileri sıralanabilir).
+  const dayIndex = new Map(days.map((d, i) => [d, i] as const).filter(([d]) => from === null || d >= from));
+  const perDay = days.map(() => ({ conversations: 0, loops: 0, loop_ends: 0 }));
   const conv = zeros(TASKS);
   const loops = zeros(TASKS);
+  const taskEnds = zeros(TASKS);
+  const ends = { toparlandi: 0, yeni_sohbet: 0, birakildi: 0 };
+  const hints = { gosterildi: 0, ozetlet: 0, adim_yaz: 0, yerinde_degil: 0, kapat: 0 };
+  const stripTasks = zeros(TASKS);
+  let cards = 0;
+  let cardNotHelpful = 0;
   const lens = zeros(LENS);
   const plats = zeros(PLATFORMS);
   const grid = SLOTS.map(() => days.map(() => 0));
@@ -123,7 +151,11 @@ export function weekReport(counts: CountsV2, start: string): WeekReport {
         const si = SLOTS.indexOf(p[2] ?? "");
         if (si !== -1) grid[si]![di]! += n;
       } else if (event === "strip") {
-        if (detail === "gosterildi") strips.benzer += n;
+        if (detail === "gosterildi") {
+          strips.benzer += n;
+          const task = p[2] ?? "";
+          if (task in stripTasks) stripTasks[task]! += n;
+        }
         else if (detail === "gosterildi_kisa") strips.kisa += n;
         else if (detail === "gosterildi_tekrar") strips.tekrar += n;
       } else if (event === "strip_action" && detail in actions) {
@@ -132,8 +164,19 @@ export function weekReport(counts: CountsV2, start: string): WeekReport {
         repairs[detail]! += n;
       } else if (event === "card_action" && detail === "taze_baslat") {
         fresh += n;
+      } else if (event === "card_action" && detail === "yerinde_degil") {
+        cardNotHelpful += n;
       } else if (event === "fresh_followup" && detail in follow) {
         follow[detail]! += n;
+      } else if (event === "loop_end" && detail in ends) {
+        ends[detail as keyof typeof ends] += n;
+        perDay[di]!.loop_ends += n;
+        const task = p[2] ?? "";
+        if (task in taskEnds) taskEnds[task]! += n;
+      } else if (event === "card" && detail.startsWith("gosterildi_")) {
+        cards += n;
+      } else if (event === "hint" && detail in hints) {
+        hints[detail as keyof typeof hints] += n;
       }
     }
   }
@@ -145,7 +188,7 @@ export function weekReport(counts: CountsV2, start: string): WeekReport {
     conversations: total,
     loops: perDay.reduce((s, d) => s + d.loops, 0),
     days: perDay,
-    tasks: TASKS.map((task) => ({ task, conversations: conv[task]!, loops: loops[task]! })),
+    tasks: TASKS.map((task) => ({ task, conversations: conv[task]!, loops: loops[task]!, loop_ends: taskEnds[task]! })),
     lengths: LENS.map((len) => ({ len, conversations: lens[len]! })),
     platforms: PLATFORMS.map((platform) => ({ platform, conversations: plats[platform]! })),
     similar_sends: similar,
@@ -155,13 +198,18 @@ export function weekReport(counts: CountsV2, start: string): WeekReport {
     repairs,
     fresh_starts: fresh,
     fresh_followups: follow,
-    previous: previousWeek(counts, shiftWeek(start, 1)),
+    loop_ends: ends,
+    cards_shown: cards,
+    hints,
+    not_helpful: { strip: actions.yerinde_degil, card: cardNotHelpful, hint: hints.yerinde_degil },
+    strips_by_task: stripTasks,
+    previous: previousWeek(counts, shiftWeek(start, 1), from),
     enough: total >= config.min_conversations,
   };
 }
 
-function previousWeek(counts: CountsV2, start: string): WeekReport["previous"] {
-  const wanted = new Set(weekDays(start));
+function previousWeek(counts: CountsV2, start: string, from: string | null): WeekReport["previous"] {
+  const wanted = new Set(weekDays(start).filter((d) => from === null || d >= from));
   const out = { conversations: 0, loops: 0, strips_benzer: 0 };
   for (const [day, rec] of Object.entries(counts.days)) {
     if (!wanted.has(day)) continue;

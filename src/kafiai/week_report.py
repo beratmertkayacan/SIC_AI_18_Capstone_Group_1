@@ -21,6 +21,8 @@ SLOTS = SCHEMA["dimensions"]["slot"]
 REPAIRS = SCHEMA["events"]["repair_button"]["details"]
 STRIP_KINDS = {"gosterildi": "benzer", "gosterildi_kisa": "kisa", "gosterildi_tekrar": "tekrar"}
 ACTIONS = ["yine_de_gonder", "duzenle", "yerinde_degil", "yeni_sohbet"]
+LOOP_ENDS = ["toparlandi", "yeni_sohbet", "birakildi"]
+HINTS = ["gosterildi", "ozetlet", "adim_yaz", "yerinde_degil", "kapat"]
 
 
 def week_start(day):
@@ -38,8 +40,8 @@ def shift_week(start, back):
     return (date.fromisoformat(start) - timedelta(days=7 * back)).isoformat()
 
 
-def _previous(days, start):
-    wanted = set(week_days(start))
+def _previous(days, start, from_day=None):
+    wanted = {d for d in week_days(start) if from_day is None or d >= from_day}
     out = {"conversations": 0, "loops": 0, "strips_benzer": 0}
     for day, rec in days.items():
         if day not in wanted:
@@ -54,13 +56,22 @@ def _previous(days, start):
     return out
 
 
-def week_report(days, start):
-    """`days`: sayaç çıktısındaki days alanı; `start`: haftanın Pazartesisi."""
+def week_report(days, start, from_day=None):
+    """`days`: sayaç çıktısındaki days alanı; `start`: haftanın Pazartesisi.
+
+    `from_day` (YYYY-MM-DD ya da None): "Özeti bugünden başlat" sonrası bu günden önceki sayılar
+    okunmaz (silinmez). Eklentideki weekReport'un `from` parametresiyle aynı.
+    """
     week = week_days(start)
-    index = {d: i for i, d in enumerate(week)}
-    per_day = [{"conversations": 0, "loops": 0} for _ in week]
+    index = {d: i for i, d in enumerate(week) if from_day is None or d >= from_day}
+    per_day = [{"conversations": 0, "loops": 0, "loop_ends": 0} for _ in week]
     conv = dict.fromkeys(TASKS, 0)
     loops = dict.fromkeys(TASKS, 0)
+    task_ends = dict.fromkeys(TASKS, 0)
+    ends = dict.fromkeys(LOOP_ENDS, 0)
+    hints = dict.fromkeys(HINTS, 0)
+    strip_tasks = dict.fromkeys(TASKS, 0)
+    cards = card_not_helpful = 0
     lens = dict.fromkeys(LENS, 0)
     plats = dict.fromkeys(PLATFORMS, 0)
     grid = [[0] * 7 for _ in SLOTS]
@@ -98,14 +109,29 @@ def week_report(days, start):
                     grid[SLOTS.index(slot)][di] += n
             elif event == "strip" and detail in STRIP_KINDS:
                 strips[STRIP_KINDS[detail]] += n
+                task = p[2] if len(p) > 2 else ""
+                if detail == "gosterildi" and task in strip_tasks:
+                    strip_tasks[task] += n
             elif event == "strip_action" and detail in actions:
                 actions[detail] += n
             elif event == "repair_button" and detail in repairs:
                 repairs[detail] += n
             elif event == "card_action" and detail == "taze_baslat":
                 fresh += n
+            elif event == "card_action" and detail == "yerinde_degil":
+                card_not_helpful += n
             elif event == "fresh_followup" and detail in follow:
                 follow[detail] += n
+            elif event == "loop_end" and detail in ends:
+                ends[detail] += n
+                per_day[di]["loop_ends"] += n
+                task = p[2] if len(p) > 2 else ""
+                if task in task_ends:
+                    task_ends[task] += n
+            elif event == "card" and detail.startswith("gosterildi_"):
+                cards += n
+            elif event == "hint" and detail in hints:
+                hints[detail] += n
 
     total = sum(d["conversations"] for d in per_day)
     return {
@@ -114,7 +140,7 @@ def week_report(days, start):
         "conversations": total,
         "loops": sum(d["loops"] for d in per_day),
         "days": per_day,
-        "tasks": [{"task": t, "conversations": conv[t], "loops": loops[t]} for t in TASKS],
+        "tasks": [{"task": t, "conversations": conv[t], "loops": loops[t], "loop_ends": task_ends[t]} for t in TASKS],
         "lengths": [{"len": b, "conversations": lens[b]} for b in LENS],
         "platforms": [{"platform": p, "conversations": plats[p]} for p in PLATFORMS],
         "similar_sends": similar,
@@ -124,6 +150,11 @@ def week_report(days, start):
         "repairs": repairs,
         "fresh_starts": fresh,
         "fresh_followups": follow,
-        "previous": _previous(days, shift_week(start, 1)),
+        "loop_ends": ends,
+        "cards_shown": cards,
+        "hints": hints,
+        "not_helpful": {"strip": actions["yerinde_degil"], "card": card_not_helpful, "hint": hints["yerinde_degil"]},
+        "strips_by_task": strip_tasks,
+        "previous": _previous(days, shift_week(start, 1), from_day),
         "enough": total >= CONFIG["min_conversations"],
     }

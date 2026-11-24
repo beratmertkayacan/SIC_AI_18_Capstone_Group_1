@@ -10,9 +10,38 @@ const at = (day: string) => {
 
 describe("haftalık özet hesabı", () => {
   it("Python ile aynı sonucu verir", () => {
-    for (const c of fixture) {
-      expect(weekReport({ v: 2, days: c.days } as unknown as CountsV2, c.start)).toEqual(c.expected);
+    for (const c of fixture as { start: string; from?: string; days: unknown; expected: unknown }[]) {
+      expect(weekReport({ v: 2, days: c.days } as unknown as CountsV2, c.start, c.from ?? null)).toEqual(c.expected);
     }
+  });
+
+  it("fikstür yeni olayları da içerir: loop_end, kart, Yön sende, kartta yerinde değildi ve başlangıç günü", () => {
+    const all = fixture.map((c) => c.expected as Record<string, unknown> & { loop_ends: Record<string, number>; hints: Record<string, number>; not_helpful: Record<string, number>; cards_shown: number });
+    const sum = (o: Record<string, number>) => Object.values(o).reduce((a, b) => a + b, 0);
+    expect(all.some((e) => sum(e.loop_ends) > 0)).toBe(true);
+    expect(all.some((e) => e.cards_shown > 0)).toBe(true);
+    expect(all.some((e) => sum(e.hints) > 0)).toBe(true);
+    expect(all.some((e) => e.not_helpful.card! > 0)).toBe(true);
+    expect(fixture.some((c) => "from" in c)).toBe(true);
+  });
+
+  it("başlangıç günü verilirse ondan önceki günler bu haftaya da geçen haftaya da girmez", () => {
+    const days = {
+      "2026-11-10": { phase: "oneri", c: { "conversation|chatgpt|kod|1-3|kisa|normal": 6 } },
+      "2026-11-17": { phase: "oneri", c: { "conversation|chatgpt|kod|1-3|kisa|normal": 2, "loop_end|chatgpt|kod|1-3|birakildi": 1 } },
+      "2026-11-19": { phase: "oneri", c: { "conversation|chatgpt|kod|1-3|kisa|normal": 3, "loop_end|chatgpt|kod|1-3|toparlandi": 2 } },
+    };
+    const counts = { v: 2, days } as unknown as CountsV2;
+    const all = weekReport(counts, "2026-11-16");
+    expect(all.conversations).toBe(5);
+    expect(all.previous.conversations).toBe(6);
+    expect(all.loop_ends).toEqual({ toparlandi: 2, yeni_sohbet: 0, birakildi: 1 });
+    const fresh = weekReport(counts, "2026-11-16", "2026-11-18");
+    expect(fresh.conversations).toBe(3);
+    expect(fresh.previous.conversations).toBe(0);
+    expect(fresh.loop_ends).toEqual({ toparlandi: 2, yeni_sohbet: 0, birakildi: 0 });
+    expect(fresh.tasks.find((t) => t.task === "kod")?.loop_ends).toBe(2);
+    expect(fresh.days[3]!.loop_ends).toBe(2);
   });
 
   it("hafta Pazartesi başlar, Pazar biter; ay, yıl ve yaz saati geçişinde de", () => {
