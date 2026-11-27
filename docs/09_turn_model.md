@@ -138,7 +138,7 @@ Kalibrasyon eğitimde görülmeyen veri setlerinde de tutuyor (ECE 0,017 ile 0,0
 
 ## 8. Sınırlar
 
-- Etiket kurallardan gelen bir vekil etiket; elle doğrulanmış bir set yok (K02). Model gerçek memnuniyetsizliği (DSAT) rastgeleden 1,9 kat iyi ayırıyor; bu mütevazı bir oran. Bu yüzden kart engellemiyor ve en isabetli kartlar modelden değil kurallardan geliyor (özür döngüsü %44,5, düzeltme alınmadı %51,4).
+- Etiket kurallardan gelen bir vekil etiket; elle doğrulanmış bir set yok (K02). Model gerçek memnuniyetsizliği (DSAT) rastgeleden 1,9 kat iyi ayırıyor; bu mütevazı bir oran. Bu yüzden kart engellemiyor ve en isabetli kartlar modelden değil kurallardan geliyor (özür döngüsü %45,4, düzeltme alınmadı %50,0).
 - Yüksek güven eşiği isabetle yakalama arasında bir denge; 0,30 seçim örnekleminde seçildi.
 - Model yalnızca kullanıcı mesajlarına bakıyor; asistanın cevaplarını görmüyor. Cevap tarafı bilgisi (özür, aynı cevabın tekrarı, teklif sorusu) modele değil ayrı kurallara giriyor ve yalnızca bellekte okunuyor.
 - Model 6. turdan sonrasını ayrıca öğrenmedi; daha uzun sohbetlerde tur sayısı 6'da sabitleniyor. Modelin daha uzun sohbetlere uzatılması ve gerçek memnuniyetsizlik etiketiyle yeniden eğitilmesi sonraki çalışma (K50).

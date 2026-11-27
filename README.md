@@ -32,14 +32,15 @@ Projenin ilk taslağında ikinci bir gösterge olarak "aşırı güven ve düş�
 |---|---|---|
 | **Halka** | Mesaj kutusunun köşesinde 18 piksellik sessiz gösterge. Döngü sinyalleri arttıkça aynı rengin tonu koyulaşır; kırmızı yok. Üzerine gelince neyi ölçtüğünü tek satırla söyler | Her zaman; üç seviye. İki temiz turdan sonra sakinleşir |
 | **Benzer mesaj şeridi** | Mesaj gönderilmeden önce kısa bir şerit: "Neyin eksik olduğunu söyle" (hazır cümleler: "Biçim yanlış", "Bilgi yanlış", "Fazla uzun", "Fazla kısa"), "Yine de gönder"; üçüncü denemede "Yeni sohbete geç" | Mesaj birebir tekrarsa ya da öncekine çok benzeyip "olmadı" gibi bir onarım ifadesi taşıyorsa. Bilerek yapılan seri istekler ("başka bir slogan öner") ve yeni içerik getiren mesajlar şerit açmaz |
-| **Kısa düzeltme şeridi** | "Olmadı", "yanlış" gibi kısa bir düzeltmede neyin olmadığını eklemeyi önerir: "Hata mesajını ekle", "Beklediğimi yaz" | 12 karakterden kısa onarım ifadesinde; ilk mesajda ve teklif sorusuna verilen yalın "hayır"da çıkmaz |
+| **Kısa düzeltme şeridi** | "Olmadı", "yanlış" gibi kısa bir düzeltmede neyin olmadığını eklemeyi önerir: "Hata mesajını ekle", "Beklediğimi yaz" | 20 karakterden kısa onarım ifadesinde ("olmadi tekrar yap" dahil); ilk mesajda ve teklif sorusuna verilen yalın "hayır"da çıkmaz |
 | **Kısa devam şeridi** | Üçüncü "devam"da yönü sorar: "Neyle devam etsin, yaz", "Nasıl devam etsin, yaz" | Üst üste üçüncü yönsüz devam isteğinde |
-| **Çıkış kartı** | Cevap bittikten sonra çıkar, nedenini ve somut bir öneriyi söyler. "Taze başlat" istekleri tek bir taslakta toplar, panoya kopyalar ve yeni sohbet açar | Dört yoldan biriyle: tur modeli yüksek güvenle döngü tahmin etti; cevaplar üst üste iki kez özürle başladı; kullanıcı düzeltme istedi ama cevap öncekinin neredeyse aynısı; sohbet görev normunu aştı ve döngü işareti var |
+| **Çıkış kartı** | Cevap bittikten sonra çıkar, nedenini ve somut bir öneriyi söyler. "Taze başlat" istekleri tek bir taslakta toplar, panoya kopyalar ve yeni sohbet açar | Dört yoldan biriyle: tur modeli yüksek güvenle döngü tahmin etti; cevaplar üst üste iki kez özürle başladı; kullanıcı düzeltme istedi ama cevap öncekinin neredeyse aynısı; sohbet görev normunu aştı ve döngü işareti var. Anlam desteği açıksa iki yol daha: aynı istek ikinci kez soruldu ya da uzun bir düzeltme mesajında önceki cevap karşılamadı |
 | **Taze başlat taslağı** | Benzer denemeler tek maddeye iner; konu değiştiyse yalnızca son konu girer; sohbette yeniden hatırlatılan kurallar ("söylemiştim, emoji kullanma") en başa konur; sonunda "Beklediğim sonuç:" ve "Önceki denemelerde olmayan kısım:" satırları | Karttan |
 | **Yön sende** | Modelin teklif sorularına üst üste kısa onaylarda ("evet", "tamam") "Özetlet" ya da "Adımı ben yazayım" önerir | Üç kısa onaydan sonra, sohbet başına bir kez |
 | **Araç çubuğu penceresi** | "Bu sohbet" özeti, son 7 günün içgörüleri, ayarlar (eklenti, öneriler, halka, çıkış kartı), "Sayaçlarımı kopyala", "Tüm verilerimi sil" | Her zaman |
 | **Karşılama ekranı** | Neye baktığını, neye bakmadığını ve verinin nerede durduğunu söyler | İlk kurulumda ve "Kâfi AI nasıl çalışır?" bağlantısıyla |
 | **Yalnızca say** | Öneriler kapalıyken hiçbir şey gösterilmez, yalnızca sayılır | Ayarlardan |
+| **Anlam desteği** (isteğe bağlı) | Kelime kurallarının kaçırdığını anlamdan yakalar: başka sözcüklerle ya da başka dilde sorulan aynı istek, uzun bir düzeltme mesajı. Tur modelinin kartını da yalnızca bir sorun belirtisi görürse onaylar | Varsayılanı kapalı; kullanıcı açarsa her cevaptan sonra. Kişisel sohbette çalışmaz |
 
 Kişisel ve duygusal sohbetlerde hiçbir öneri gösterilmez.
 
@@ -53,16 +54,20 @@ Pilot yapılmadı; eklenti WildFeedback'teki 20.000 gerçek sohbet üzerinde tur
 
 | Karar | 100 sohbette | İsabet |
 |---|---|---|
-| Benzer mesaj şeridi | 10,13 | %21,5 |
-| Kısa düzeltme şeridi | 0,91 | %57,7 |
+| Benzer mesaj şeridi | 10,14 | %21,5 |
+| Kısa düzeltme şeridi | 1,88 | %58,4 |
 | Halka, koyu seviye | turların %9,4'ü | %29,9 |
-| Çıkış kartı (tümü) | 19,12 | %31,0 |
-| Çıkış kartı, düzeltme alınmadı | 1,04 | %51,4 |
-| Çıkış kartı, özür döngüsü | 2,43 | %44,5 |
-| Çıkış kartı, tur modeli | 15,51 | %27,7 |
-| Çıkış kartı, uzun sohbet | 0,15 | %13,3 |
+| Çıkış kartı (tümü) | 23,77 | %30,2 |
+| Çıkış kartı, düzeltme alınmadı | 0,97 | %50,0 |
+| Çıkış kartı, özür döngüsü | 2,57 | %45,4 |
+| Çıkış kartı, tur modeli | 20,02 | %27,5 |
+| Çıkış kartı, uzun sohbet | 0,22 | %11,6 |
 
-İsabet: şeritlerde o mesajda, halka ve kartta o turda ya da bir sonrakinde kullanıcının memnuniyetsiz olması. Kullanıcının iki ya da daha fazla kez memnuniyetsiz olduğu sohbetlerin %32,3'ünde kart ikinci şikayetten önce geliyor. Bu sayılar eklentinin her uyarıda haklı olmadığını da gösteriyor; bu yüzden hiçbir uyarı bir şeyi engellemez, hepsi tek tıkla geçilir ve "Yerinde değildi" ile işaretlenebilir.
+İsabet: şeritlerde o mesajda, halka ve kartta o turda ya da bir sonrakinde kullanıcının memnuniyetsiz olması. Kullanıcının iki ya da daha fazla kez memnuniyetsiz olduğu sohbetlerin %31,9'unda kart ikinci şikayetten önce geliyor.
+
+Tüm turlarda memnuniyetsizlik %5,04 olduğu için bu isabetler tabanın 4 ile 12 katı: kısa düzeltme şeridi yaklaşık 11,6 kat, çıkış kartı 6,0 kat. Kart kapandıktan sonra döngü sürerse 3 tur sonra yeniden gelebilir (K53). Tek bir "doğruluk" yüzdesi verilmiyor; döngü turları azınlıkta olduğu için hiçbir şey göstermeyen bir sistem bile %95 doğru görünürdü.
+
+**Anlam desteği açıkken** (K52; önbellekteki değerlendirici kararlarıyla, rapor örnekleminin ilk 2.000 sohbeti): kart isabeti %35,8, yakalama %31,1, isabetsiz kart 100 sohbette 11,05. Aynı alt kümede yalnızca kurallar %30,0 / %31,9 / 13,4. Bu karşılaştırma 5 turluk bekleme süresiyle yapıldı (K53 öncesi). Değerlendirici kararları eski istem ve Haiku ile; üründeki Sonnet ile yeniden ölçüm yapılmadı. Bu sayılar eklentinin her uyarıda haklı olmadığını da gösteriyor; bu yüzden hiçbir uyarı bir şeyi engellemez, hepsi tek tıkla geçilir ve "Yerinde değildi" ile işaretlenebilir.
 
 **Sınırlar.** WildFeedback'in memnuniyetsizlik etiketi bir dil modeliyle üretildi ve çoğunlukla İngilizce; Türkçe kullanım için etiketli veri yok. Yeniden oynatma, kullanıcının bir öneriyi gördükten sonra davranışını değiştirip değiştirmediğini ölçmez. Kısa devam şeridi ve "Yön sende" önerisi bir döngü uyarısı değil, yön önerisi; eski veride seyrek oldukları için etkileri ölçülemedi. Gönderim korumaları ChatGPT'de canlı sitede, diğer dört sitede sayfa görüntüleriyle sınandı.
 
@@ -70,7 +75,8 @@ Pilot yapılmadı; eklenti WildFeedback'teki 20.000 gerçek sohbet üzerinde tur
 
 - Mesaj metni yalnızca sekmenin belleğinde durur; sekme kapanınca ya da sohbet değişince silinir. Cevabın yalnızca başı ve sonu, yalnızca bellekte ve yalnızca birkaç kural için okunur (özürle mi başladı, öncekinin aynısı mı, soruyla mı bitti).
 - `chrome.storage` içinde yalnızca ayarlar ve günlük sayılar (90 gün) tutulur. Sayaç anahtarlarına metin, sohbet kimliği ya da adres giremez. Konsola metin değil, yalnızca `[KafiAI]` önekli sayı ve etiket yazılır.
-- Eklentide ağ isteği yapan kod yoktur. Eklenti sayfaları ve arka plan çalışanı için manifestte `connect-src 'none'` var. İçerik betiği sohbet sitesinin sayfasında çalıştığı için bu kural onu kapsamaz; onun güvencesi [`no-network.test.ts`](extension/src/no-network.test.ts): derlenmiş kodda `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, `EventSource`, `importScripts`, `eval` ve izinsiz bir web adresi geçmediğini her test çalıştırmasında denetler ([K11](docs/05_architecture_decisions.md)).
+- Varsayılan ayarlarla hiçbir mesaj cihazdan çıkmaz. Tek istisna kullanıcının açtığı **anlam desteği**dir: açıkken son turların kısa bir bölümü (kullanıcı mesajı en fazla 1.000, cevabın ilk 600 ve son 200 karakteri) Kâfi sunucusunda Claude ile değerlendirilir ve saklanmaz; kişisel sohbetlerde gönderilmez ([K51](docs/05_architecture_decisions.md), [gizlilik politikası](docs/PRIVACY.md)).
+- Ağ isteği yapan tek kod arka plan çalışanındaki değerlendirici istemcisidir; depodaki ayarda sunucu adresi boştur ve adres boşken hiçbir istek gönderilmez. Eklenti sayfaları ve arka plan çalışanı için manifestte `connect-src 'none'` var (anlam desteğiyle derlenen pakette yalnızca o sunucuya izin verilir). İçerik betiği sohbet sitesinin sayfasında çalıştığı için bu kural onu kapsamaz; onun güvencesi [`no-network.test.ts`](extension/src/no-network.test.ts): derlenmiş kodda arka plandaki tek değerlendirici isteği dışında `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, `EventSource`, `importScripts`, `eval` ve izinsiz bir web adresi geçmediğini her test çalıştırmasında denetler ([K11](docs/05_architecture_decisions.md)).
 - Eklenti yalnızca `storage` ve `clipboardWrite` izni ister ve yalnızca chatgpt.com, chat.openai.com, gemini.google.com, claude.ai, copilot.microsoft.com ve google.com/search (yalnızca AI Modu) adreslerinde çalışır. Yazı tipi dahil hiçbir kaynak ağdan yüklenmez.
 
 ### Kurulum (geliştirici modu)
@@ -78,10 +84,10 @@ Pilot yapılmadı; eklenti WildFeedback'teki 20.000 gerçek sohbet üzerinde tur
 ```bash
 cd extension
 npm ci
-npm run check        # tip kontrolü, 555 test, derleme (çıktı: extension/dist)
+npm run check        # tip kontrolü, 740 test, derleme (çıktı: extension/dist)
 ```
 
-Chrome'da `chrome://extensions` sayfasını aç, **Geliştirici modu**nu aç, **Paketlenmemiş öğe yükle** ile `extension/dist` klasörünü seç. Kurulumdan hemen sonra karşılama ekranı açılır. Açık sohbet sekmesini yenile. Ne olduğunu görmek için sayfada geliştirici konsolunu açıp `[KafiAI]` diye süz. Chrome Web Store yayını planlanan son dağıtım adımı ([Bölüm 10](docs/10_deployment.md)).
+Chrome'da `chrome://extensions` sayfasını aç, **Geliştirici modu**nu aç, **Paketlenmemiş öğe yükle** ile `extension/dist` klasörünü seç. Kurulumdan hemen sonra karşılama ekranı açılır. Açık sohbet sekmesini yenile. Ne olduğunu görmek için sayfada geliştirici konsolunu açıp `[KafiAI]` diye süz. Mağaza paketi: `npm run package` (`extension/kafi-ai-<sürüm>.zip`). Anlam desteğini denemek için sunucu adresiyle derle: `KAFI_JUDGE_URL=https://<alan>/api/judge npm run build`. Sunucu kurulumu, mağaza paketi ve Chrome Web Store adımları: [Bölüm 10](docs/10_deployment.md).
 
 ---
 
@@ -145,7 +151,7 @@ Her sayının yanında, sayının durduğu dosya ve anahtar var. Yöntem ve sın
 SIC_AI_18_Capstone_Group_1/
 ├── README.md, CHANGELOG.md, Makefile
 ├── requirements.txt                Python paketleri (requirements-ci.txt: CI için hafif liste)
-├── docs/                           Rapor bölümleri 01 ile 10, diyagramlar
+├── docs/                           Rapor bölümleri 01 ile 10, gizlilik politikası (PRIVACY.md), diyagramlar
 ├── src/kafiai/                     Python paketi
 │   ├── data.py                     Veri kaynakları ve 6 adımlı temizleme
 │   ├── labels.py, text.py          Döngü etiketi ve güçlü onarım ifadeleri
@@ -159,6 +165,8 @@ SIC_AI_18_Capstone_Group_1/
 │   └── tasks.py, split.py, config.py, external.py
 ├── scripts/                        Veri indirme, analiz, eğitim ve değerlendirme
 ├── tests/                          Python testleri, Türkçe senaryolar, Python ile eklentinin ortak örnekleri
+├── server/                         İsteğe bağlı anlam desteği: Vercel fonksiyonu, istem ve şema (judge-spec.json)
+├── prova/                          Açık etiketleme provası ve Türkçe davranış seti (değerlendirici için)
 ├── extension/                      Chrome eklentisi
 │   ├── src/adapters/               Beş sitenin sayfalarını okuma ve ortak gönderim doğrulaması
 │   ├── src/core/                   Tekrar, onarım, görev türü, sohbet sinyalleri, tur modeli, halka ve kart kuralı
@@ -194,10 +202,10 @@ Ham veri repoya girmez; betikler veriyi `data/processed/` altına indirir.
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-make test            # Python testleri (161) ve eklenti: tip kontrolü, testler (555), derleme
+make test            # Python testleri (195) ve eklenti: tip kontrolü, testler (740), derleme
 ```
 
-Ham veri gerektiren testler veri yoksa açık bir mesajla atlanır (`pytest -rs` nedenini gösterir). GitHub Actions her push ve pull request'te aynı kontrolleri çalıştırır. Ağ denetimi için derlemeden sonra şu komut boş dönmeli:
+Ham veri gerektiren testler veri yoksa açık bir mesajla atlanır (`pytest -rs` nedenini gösterir). GitHub Actions her push ve pull request'te aynı kontrolleri çalıştırır. Ağ denetimi için derlemeden sonra şu komut yalnızca `background.js` içindeki tek değerlendirici isteğini göstermeli (içerik betiği ve pencerede hiçbir sonuç olmamalı):
 
 ```bash
 grep -E "fetch\(|XMLHttpRequest|WebSocket|sendBeacon|EventSource" extension/dist/*.js

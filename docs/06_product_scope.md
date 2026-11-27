@@ -35,12 +35,12 @@ Halkayı tur modeli ve sohbet sinyalleri besler: benzer mesajlar, özürle başl
 | Şerit | Ne zaman | Ne der | Düğmeler |
 |---|---|---|---|
 | Benzer mesaj (K37, K26) | Mesaj son mesajlardan biriyle birebir aynı ya da öncekine çok benziyor ve "olmadı" gibi bir onarım ifadesi taşıyor | "Bunu az önce de sormuştun." İkinci denemede "Aynı isteğe ikinci kez dönüyorsun."; üçüncüde "Birkaç denemedir aynı yerdesin." | "Neyin eksik olduğunu söyle" (hazır cümleler: "Biçim yanlış", "Bilgi yanlış", "Fazla uzun", "Fazla kısa"), "Yine de gönder"; üçüncü denemede önce "Yeni sohbete geç" |
-| Kısa düzeltme (K34, K40) | 12 karakterden kısa bir onarım ifadesi ("olmadı", "yanlış"); ilk mesajda ve soruyla biten bir teklife verilen yalın "hayır"da çıkmaz | "Neyin olmadığını bir cümleyle eklersen cevap daha isabetli olur." | "Hata mesajını ekle" ya da "Neyin yanlış olduğunu yaz", "Beklediğimi yaz", "Olduğu gibi gönder" |
+| Kısa düzeltme (K34, K40, K52) | 20 karakterden kısa bir onarım ifadesi ("olmadı", "yanlış", "olmadi tekrar yap"); ilk mesajda ve soruyla biten bir teklife verilen yalın "hayır"da çıkmaz | "Neyin olmadığını bir cümleyle eklersen cevap daha isabetli olur." | "Hata mesajını ekle" ya da "Neyin yanlış olduğunu yaz", "Beklediğimi yaz", "Olduğu gibi gönder" |
 | Kısa devam (K41, K43) | Üst üste üçüncü yönsüz devam isteği ("devam", "devam et", "continue") | "Üst üste üçüncü kez kısa bir mesajla devam ediyorsun." | "Neyle devam etsin, yaz", "Nasıl devam etsin, yaz", "Olduğu gibi gönder" |
 
 Hazır cümle seçilince mesaj kutusuna eklenir; kullanıcı tamamlayıp kendisi gönderir. Bilerek yapılan seri istekler ("başka bir slogan öner", "sonraki soruyu sor") ve yeni içerik getiren mesajlar ("1. soruyu çöz" / "2. soruyu çöz") şerit açmaz (K20). Her şeritte "Yerinde değildi" ve "Kapat" vardır.
 
-**Çıkış kartı.** Döngü sürerse, yapay zekanın cevabı bittikten sonra ve kullanıcı yazmaya başlamadan önce küçük bir kart görünür. Nedenini ve somut bir öneriyi söyler. Dört yoldan açılır:
+**Çıkış kartı.** Döngü sürerse, yapay zekanın cevabı bittikten sonra ve kullanıcı yazmaya başlamadan önce küçük bir kart görünür. Nedenini ve somut bir öneriyi söyler. Dört yoldan, anlam desteği açıksa iki yoldan daha açılır:
 
 | Kaynak | Ne zaman | Kartın etiketi |
 |---|---|---|
@@ -48,10 +48,14 @@ Hazır cümle seçilince mesaj kutusuna eklenir; kullanıcı tamamlayıp kendisi
 | Özür döngüsü (K32) | Yapay zekanın cevapları üst üste iki kez özürle başladı | "Aynı yerde dönüyor" |
 | Düzeltme alınmadı (K44) | Kullanıcı düzeltme istedi, cevap öncekinin neredeyse aynısı | "Düzeltme alınmadı" |
 | Uzun sohbet (K14, K33) | Sohbet görev türünün normunu aştı, son mesajlarda benzer mesaj var ve model en az öneri seviyesinde | "Uzun sohbet" |
+| Anlam onarımı (K51, K52; yalnızca anlam desteği açıksa) | Kullanıcı uzun bir mesajla düzeltme istedi ve değerlendirici önceki cevabın karşılamadığını söyledi | "Anlam desteği" |
+| Aynı istek (K51; yalnızca anlam desteği açıksa) | Aynı istek ya da aynı bilgi, başka sözcüklerle ya da araya başka sorular girdikten sonra ikinci kez soruldu | "Aynı istek"; önceki cevap karşıladıysa ne farklı arandığını, karşılamadıysa neyin eksik kaldığını sorar |
+
+Anlam desteği açıkken tur modelinden gelen kart, değerlendirici bir sorun belirtisi (döngü, tıkanma ya da "karşılamadı") görmezse çıkmaz (K52).
 
 Kullanıcı sohbette bir kuralı yeniden hatırlatmak zorunda kaldıysa ("söylemiştim, emoji kullanma"), kart ayrıca şunu söyler: "Bu sohbette bir kuralı yeniden hatırlatman gerekti. Taze başlat taslağı bu kuralı en başa koyar; yeni sohbette baştan geçerli olur." (K48)
 
-Kartın düğmeleri: **Taze başlat**, **Kısa ara ver**, **Kapat**; model kaynaklı kartta **Yerinde değildi**; ayrıca **Bir daha gösterme**. Kart kapanınca 5 tur bekleme süresi başlar.
+Kartın düğmeleri: **Taze başlat**, **Kısa ara ver**, **Kapat**; model kaynaklı kartta **Yerinde değildi**; ayrıca **Bir daha gösterme**. Kart kapanınca 3 tur bekleme süresi başlar (K53).
 
 **Taze başlat.** Kullanıcının o sohbette yazdığı istekleri tek bir taslakta toplar: birbirine çok benzeyen denemeler tek maddeye iner, konu değiştiyse yalnızca son konunun istekleri girer (K32), yeniden hatırlatılan kurallar en başa konur (K48). Taslağın sonunda kullanıcının dolduracağı iki satır vardır: "Beklediğim sonuç:" ve "Önceki denemelerde olmayan kısım:". Gerekçe: yeni sohbet tek başına döngüyü çözmüyor, isteğin netleşmesi gerekiyor. Bu işlem cihazda, basit metin birleştirmeyle yapılır; hiçbir model ya da ağ kullanılmaz. Kullanıcı taslağı düzenler; taslak panoya kopyalanır ve yeni bir sohbet açılır.
 
@@ -88,28 +92,30 @@ Kâfi AI bir verimlilik ve farkındalık aracıdır; profesyonel desteğin yerin
 | Karşılama ekranı | Hazır | K21 |
 | Kişisel sohbette öneri yok | Hazır | Kural tabanlı (K23) |
 | Yalnızca say modu | Hazır | Öneriler kapalıyken hiçbir şey gösterilmez, yalnızca sayılır |
-| Ağ isteği yok | Hazır | Eklenti sayfalarında `connect-src 'none'`; içerik betiği için derlenmiş kodu denetleyen test (K11) |
+| Anlam desteği | Hazır, varsayılanı kapalı | İzinle; son turların kısa bir bölümü Kâfi sunucusunda Claude ile değerlendirilir, saklanmaz; kişisel sohbette gönderilmez (K51, K52, `docs/PRIVACY.md`) |
+| Varsayılan olarak ağ isteği yok | Hazır | Anlam desteği adresi boşken `connect-src 'none'`; derlenmiş kodu denetleyen test yalnızca arka plandaki tek değerlendirici isteğine izin verir (K11, K51) |
 | Chrome Web Store yayını | Planlandı | Bölüm 10 |
 
 ## 5. Ürünün yapmayacakları
 
-- Mesaj metnini saklamaz ve hiçbir sunucuya göndermez. Kodda ağ isteği yoktur.
+- Mesaj metnini saklamaz. Anlam desteği kapalıyken (varsayılan) hiçbir mesajı hiçbir sunucuya göndermez; açıkken yalnızca son turların kısa bir bölümü değerlendirilir ve saklanmaz (K51).
 - Klavye tuşlarını izlemez, diğer sitelere bakmaz.
 - Hiçbir şeyi engellemez, süre sınırı koymaz. Bekletilen bir mesaj tek tıkla olduğu gibi gönderilir.
 - "Bağımlısın" demez, puan vermez; seri, rozet ya da oyunlaştırma kullanmaz.
 - Ebeveyn ya da işveren modu yoktur; eklenti yalnızca kullanıcının kendisine konuşur.
 - Kişisel ve duygusal sohbetlerde verimlilik önerisi göstermez.
-- Sohbetin içeriğini anlamaya çalışmaz; özetlemeyi ya da yeniden yazmayı sohbetteki yapay zeka yapar, Kâfi AI yalnızca hazır cümleyi kutuya koyar.
+- Sohbeti kendisi özetlemez ya da yeniden yazmaz; bunu sohbetteki yapay zeka yapar, Kâfi AI yalnızca hazır cümleyi kutuya koyar.
 - Sayfa yapısı değişip emin olamadığında sessizce devre dışı kalır.
 
 ## 6. Arka planda neler çalışıyor?
 
-Eklentinin içinde iki tür karar mekanizması var:
+Eklentinin içinde iki tür karar mekanizması var; anlam desteği açıksa üçüncüsü eklenir:
 
 | Mekanizma | Neye dayanır | Neyi tetikler | Yanılırsa ne olur |
 |---|---|---|---|
-| Ölçülmüş kurallar | Mesaj benzerliği, onarım ifadeleri, kısa mesajlar, cevabın başı ve sonu, görev normları | Şeritler; halkanın çoğu seviyesi; özür, düzeltme alınmadı ve uzun sohbet kartları; Yön sende önerisi | Olmuş bir şeyi ölçtükleri için isabetleri yüksek; en isabetlileri kısa düzeltme şeridi (%57,7) ve düzeltme alınmadı kartı (%51,4) |
-| Tur modeli | Kullanıcının o ana kadarki mesajlarından 22 öznitelik; kalibre edilmiş olasılık | Halkanın öneri seviyesi; yalnızca yüksek güvende ve sohbette en az bir "olmadı" ifadesi varsa gerekçeli çıkış kartı | Kart kapatılabilir ve "Yerinde değildi" ile işaretlenebilir; model kartlarının isabeti %27,7 |
+| Ölçülmüş kurallar | Mesaj benzerliği, onarım ifadeleri, kısa mesajlar, cevabın başı ve sonu, görev normları | Şeritler; halkanın çoğu seviyesi; özür, düzeltme alınmadı ve uzun sohbet kartları; Yön sende önerisi | Olmuş bir şeyi ölçtükleri için isabetleri yüksek; en isabetlileri kısa düzeltme şeridi (%58,4) ve düzeltme alınmadı kartı (%50,0) |
+| Tur modeli | Kullanıcının o ana kadarki mesajlarından 22 öznitelik; kalibre edilmiş olasılık | Halkanın öneri seviyesi; yalnızca yüksek güvende ve sohbette en az bir "olmadı" ifadesi varsa gerekçeli çıkış kartı | Kart kapatılabilir ve "Yerinde değildi" ile işaretlenebilir; model kartlarının isabeti %27,5 |
+| Anlam desteği (isteğe bağlı) | Sohbetin son turlarını okuyan bir dil modeli (Claude); yapılandırılmış karar | Aynı istek ve anlam onarımı kartları; model kartının onayı | Kart kapatılabilir; karar gelmezse eklenti kurallarla devam eder. WildFeedback'te anlam onarımı kartlarının isabeti %58 (K52) |
 
 İsabet sayıları WildFeedback'teki 20.000 gerçek sohbette yeniden oynatmadan (Bölüm 10, 6.3). Hiçbir uyarı her seferinde haklı değil; bu yüzden hiçbiri bir şeyi engellemiyor.
 
@@ -129,8 +135,8 @@ Gerçek kullanımda önerilerin ne sıklıkta çıktığı ve hangi düğmenin s
 
 | Soru | Ölçüt | Bugünkü değer |
 |---|---|---|
-| Uyarılar doğru anda mı çıkıyor? | Uyarı turunda ya da sonrakinde kullanıcının memnuniyetsiz olma oranı, tüm turlardaki orana göre (%5,04) | Kart %31,0, halka koyu seviye %29,9, benzer mesaj şeridi %21,5, kısa düzeltme şeridi %57,7 |
-| Döngüyü kaçırıyor muyuz? | Kullanıcının iki kez şikayet ettiği sohbetlerde kartın ikinci şikayetten önce gelme oranı | %32,3 |
+| Uyarılar doğru anda mı çıkıyor? | Uyarı turunda ya da sonrakinde kullanıcının memnuniyetsiz olma oranı, tüm turlardaki orana göre (%5,04) | Kart %30,2, halka koyu seviye %29,9, benzer mesaj şeridi %21,5, kısa düzeltme şeridi %58,4 |
+| Döngüyü kaçırıyor muyuz? | Kullanıcının iki kez şikayet ettiği sohbetlerde kartın ikinci şikayetten önce gelme oranı | %31,9 (anlam desteği açıkken 2.000 sohbetlik alt kümede %31,1, isabet %35,8; K52) |
 | Rahatsız ediyor mu? | 100 sohbette kaç uyarı | Kart 19,1, şerit 10,1 |
 | Gizlilik vaadi tutuyor mu? | Derlenmiş kodda ağ isteği, `eval` ve izinsiz adres olmadığının her test çalıştırmasında gösterilmesi | Test geçiyor |
 

@@ -58,7 +58,7 @@ Her hedefin yanında nasıl ölçüleceğini yazdık.
 | H2 | Sohbetin ilk turlarına bakarak döngüye girme ihtimalini tahmin eden bir model geliştirmek | Kullanıcı bazlı ayrılmış test setinde PR-AUC değerinin hem rastgele tahminin hem de kural tabanlı yöntemin belirgin şekilde üzerinde olması | Sağlandı. Tur modeli PR-AUC 0,321 (rastgele 0,098), ROC-AUC 0,782, kalibrasyon hatası 0,020 (Bölüm 9) |
 | H3 | Her önerinin gerekçesini kullanıcıya gösterebilmek | Her şerit, kart ve halka açıklamasında kullanıcının anlayacağı dilde tek satırlık bir gerekçe bulunması | Sağlandı. Her yüzey nedenini söylüyor; model kartının gerekçesi modelin en çok etkilenen özniteliğinden |
 | H4 | Her şeyi kullanıcının bilgisayarında çalıştırmak | Tek bir değerlendirmenin 150 ms altında sürmesi; eklentinin hiçbir ağ isteği yapmaması | Sağlandı. Hesap 22 çarpma ve iki sigmoid; derlenmiş kodda ağ API'si olmadığını her test çalıştırması denetliyor |
-| H5 | Eklentiyi gerçek kullanıcılarla denemek | 10 gönüllüyle bir haftalık pilot; kart gösterildikten sonra bir sonraki mesajın tekrar olma oranındaki değişim; "bu öneri yerinde değildi" oranı; kısa kullanıcı anketi | Değiştirildi. Pilot yerine eklentinin karar zinciri WildFeedback'teki 20.000 gerçek sohbette yeniden oynatıldı: kart isabeti %31,0 (taban %5,0), kısa düzeltme şeridi %57,7. ChatGPT'de elle doğrulama yapıldı (K28) |
+| H5 | Eklentiyi gerçek kullanıcılarla denemek | 10 gönüllüyle bir haftalık pilot; kart gösterildikten sonra bir sonraki mesajın tekrar olma oranındaki değişim; "bu öneri yerinde değildi" oranı; kısa kullanıcı anketi | Değiştirildi. Pilot yerine eklentinin karar zinciri WildFeedback'teki 20.000 gerçek sohbette yeniden oynatıldı: kart isabeti %30,2 (taban %5,0), kısa düzeltme şeridi %58,4. ChatGPT'de elle doğrulama yapıldı (K28) |
 
 ## 3. Arka plan (Background)
 
@@ -132,7 +132,7 @@ Yalnızca ilk iki mesaja bakan basit modeller rastgele tahminin yaklaşık 2,8 k
 
 Böylece yanılma ihtimali olan sinyal yalnızca sakin bir göstergeyi etkiliyor; kullanıcının önüne çıkan öneriler ise olmuş bir şeye dayanıyor. Görev normları WildChat'teki talep türlerine göre hesaplanıyor.
 
-**Sonuç.** Model kalibre edilip yüksek güven için kanıt şartı (sohbette en az bir "olmadı" ifadesi) eklenince kartı da açabilir hâle geldi (K17); kart yine engellemiyor ve gerekçesini söylüyor. Yeniden oynatmada en isabetli müdahaleler kurallardan geliyor: kısa düzeltme şeridi %57,7, "düzeltme alınmadı" kartı %51,4, özür kartı %44,5; model kartı %27,7.
+**Sonuç.** Model kalibre edilip yüksek güven için kanıt şartı (sohbette en az bir "olmadı" ifadesi) eklenince kartı da açabilir hâle geldi (K17); kart yine engellemiyor ve gerekçesini söylüyor. Yeniden oynatmada en isabetli müdahaleler kurallardan geliyor: kısa düzeltme şeridi %58,4, "düzeltme alınmadı" kartı %50,0, özür kartı %45,4; model kartı %27,5.
 
 ## 5. Mimari tasarım (Architecture Design Diagram)
 

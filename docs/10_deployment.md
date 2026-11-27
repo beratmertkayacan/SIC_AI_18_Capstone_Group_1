@@ -102,9 +102,31 @@ npm run check    # tip kontrolü, testler, derleme
 
 Ardından Chrome'da `chrome://extensions` sayfasında "Geliştirici modu" açılıyor ve "Paketlenmemiş öğe yükle" ile `extension/dist` klasörü seçiliyor. Eklenti ilk kurulduğunda karşılama sayfası açılıyor.
 
-### 3.4 Sonraki adım: Chrome Web Store
+### 3.4 İsteğe bağlı anlam desteği sunucusu (K51)
 
-Planlanan son dağıtım adımı paketin Chrome Web Store'a gönderilmesi. Bunun için `dist` klasörünün zip olarak paketlenmesi, mağaza açıklaması ve ekran görüntüleri, gizlilik beyanı (veri toplanmadığı) ve izin gerekçeleri hazırlanacak. Mağaza yayınından sonra güncellemeler Chrome'un otomatik güncelleme mekanizmasıyla kullanıcılara ulaşır; bu yüzden model ya da kural güncellemesi de eklentinin yeni bir sürümü olarak dağıtılır.
+Kurallar ve tur modeli cihazda çalışmaya devam ediyor. Kullanıcı izin verirse açılan anlam desteği için tek bir sunucusuz fonksiyon var: `server/api/judge.ts` (Vercel). İstem, şema ve model `server/judge-spec.json` dosyasında; Python ikizi (`src/kafiai/judge.py`) çevrimdışı değerlendirmede aynı metni üretir.
+
+| Adım | Ne yapılır |
+|---|---|
+| Vercel projesi | Kök klasör `server`; Node 22 (`server/package.json` `engines`) |
+| Ortam değişkenleri | `ANTHROPIC_API_KEY` zorunlu; `KAFI_TOKEN` isteğe bağlı. `KAFI_TOKEN` tanımlanırsa eklentinin `src/data/judge.json` `token` alanına aynı değer derlemeden önce yazılmalı, yoksa her istek 401 alır. Belirteç pakette durduğu için gizli değildir; yalnızca rastgele taramayı eler |
+| Kötüye kullanım | Fonksiyondaki oran sınırı yalnızca en iyi çaba (örnek başına bellek). Vercel Firewall'da oran sınırı kuralı ve Anthropic Console'da harcama sınırı kurulmalı |
+| Doğrulama | Yayından sonra tek bir deneme isteğiyle 200 dönüşü ve kararın şemaya uyduğu kontrol edilir |
+
+Sunucu metni diske ya da günlüğe yazmaz; günlüğe yalnızca durum ve süre düşer.
+
+### 3.5 Mağaza paketi ve Chrome Web Store
+
+İki paket türü var. Adres verilmeden derlenen paket hiçbir ağ isteği yapmaz ve manifestte `connect-src 'none'` kalır; anlam desteği anahtarı pencerede devre dışı görünür. Sunucu adresiyle derlenen pakette anahtar açılabilir ve manifest yalnızca o sunucuya bağlantıya izin verir.
+
+```bash
+cd extension
+unset KAFI_JUDGE_URL && npm run package                                  # anlam desteği olmadan
+KAFI_JUDGE_URL=https://<alan>/api/judge npm run package                   # anlam desteğiyle
+grep -r localhost dist || echo "yerel adres yok"                          # yerel deneme adresi pakete girmemeli
+```
+
+`npm run package` paketi derler ve `extension/kafi-ai-<sürüm>.zip` dosyasını kaynak haritaları olmadan üretir (zip git dışında). Mağaza başvurusu için gizlilik politikası `docs/PRIVACY.md` dosyasında; herkese açık bir adreste (örneğin GitHub Pages) yayımlanıp başvuruya eklenir. İzin gerekçeleri politikanın 4. bölümünde. Mağaza açıklaması 132 karakter sınırına uyar. Mağaza yayınından sonra güncellemeler Chrome'un otomatik güncelleme mekanizmasıyla kullanıcılara ulaşır; model ya da kural güncellemesi de eklentinin yeni bir sürümü olarak dağıtılır.
 
 ---
 
@@ -136,13 +158,13 @@ Python ve TypeScript aynı modeli ve aynı kuralları ayrı ayrı çalıştırd�
 
 ## 5. Security Considerations
 
-Kâfi AI'da güvenliğin merkezinde kimlik doğrulama değil, verinin cihazdan çıkmaması var. Sunucu ve kullanıcı hesabı olmadığı için kimlik doğrulama ve yetkilendirme gerekmiyor; korunması gereken şey kullanıcının sohbet metni.
+Kâfi AI'da güvenliğin merkezinde kimlik doğrulama değil, verinin cihazdan çıkmaması var. Kullanıcı hesabı olmadığı için kimlik doğrulama ve yetkilendirme gerekmiyor; korunması gereken şey kullanıcının sohbet metni. Tek istisna, kullanıcının açtığı anlam desteğidir (3.4, K51): o durumda da metin sunucuda saklanmaz.
 
 ### 5.1 Tarayıcı düzeyinde kısıtlar
 
 | Önlem | Ne sağlıyor |
 |---|---|
-| Güvenlik politikası `connect-src 'none'` | Eklenti sayfaları ve arka plan çalışanı hiçbir adrese bağlantı kuramaz |
+| Güvenlik politikası `connect-src 'none'` | Eklenti sayfaları ve arka plan çalışanı hiçbir adrese bağlantı kuramaz; anlam desteğiyle derlenen pakette yalnızca o sunucuya izin verilir |
 | `script-src 'self'` | Yalnızca pakette gelen kod çalışır; uzaktan kod yüklenemez |
 | En az izin | `permissions` altında yalnızca `storage` (ayarlar ve sayılar için) ve `clipboardWrite` (Taze başlat taslağını ve sayaç dökümünü kopyalamak için) |
 | Sınırlı adres erişimi | `host_permissions` ve içerik betiği yalnızca altı adresi kapsar: chatgpt.com, chat.openai.com, gemini.google.com, claude.ai, copilot.microsoft.com ve google.com/search (adaptör yalnızca AI Modu'nda çalışır). Başka sitelerin sayfalarını göremez |
@@ -199,16 +221,16 @@ Pilot yapılmadığı için başarı ölçütümüz WildFeedback üzerinde çevr
 
 | Bileşen | Sıklık | İsabet |
 |---|---|---|
-| Benzer mesaj şeridi | 100 sohbette 10,13 | %21,51 |
-| Kısa onarım şeridi | 100 sohbette 0,91 | %57,69 |
+| Benzer mesaj şeridi | 100 sohbette 10,14 | %21,54 |
+| Kısa onarım şeridi (20 karakter sınırı, K52) | 100 sohbette 1,88 | %58,40 |
 | Kısa devam şeridi | 100 sohbette 0,51 | %5,88 (bir uyarı değil, yön sorusu) |
 | "Yön sende" önerisi | 100 sohbette 0,02 | eski veride ölçülemeyecek kadar seyrek |
-| Halka | turların %21,40'ında 1. seviye ve üstü, %9,42'sinde 2. seviye | 2. seviyede %29,87 |
-| Çıkış kartı (tümü) | 100 sohbette 19,12 | %31,03 |
-| Çıkış kartı, kaynağa göre | model 3.102, özür 485, düzeltme alınmadı 208, uzun sohbet 30 kart | %27,72 · %44,54 · %51,44 · %13,33 |
-| Kural notu taşıyan kart | kartların %1,25'i | %39,58 |
+| Halka | turların %21,47'sinde 1. seviye ve üstü, %9,44'ünde 2. seviye | 2. seviyede %29,87 |
+| Çıkış kartı (tümü, 3 tur bekleme, K53) | 100 sohbette 23,77 | %30,21 |
+| Çıkış kartı, kaynağa göre | model 4.003, özür 513, düzeltme alınmadı 194, uzun sohbet 43 kart | %27,50 · %45,42 · %50,00 · %11,63 |
+| Kural notu taşıyan kart | kartların %1,37'si | %36,92 |
 
-İsabet: şeritlerde o mesajda, halka ve kartta o turda ya da bir sonrakinde kullanıcının memnuniyetsiz olması. Kullanıcının iki ya da daha fazla kez memnuniyetsiz olduğu 1.294 sohbetin %32,3'ünde kart ikinci şikayetten önce geliyor. Sohbetlerin %23,8'inde bir döngü sinyali görülüyor ve bunların %51,4'ü döngü sürerken bitiyor; bu sohbetlerin son iki turunda memnuniyetsizlik %32,9, döngüsü sakinleşerek biten sohbetlerde %17,1.
+İsabet: şeritlerde o mesajda, halka ve kartta o turda ya da bir sonrakinde kullanıcının memnuniyetsiz olması. Kullanıcının iki ya da daha fazla kez memnuniyetsiz olduğu 1.294 sohbetin %31,9'unda kart ikinci şikayetten önce geliyor. Sohbetlerin %24,1'inde bir döngü sinyali görülüyor ve bunların %52,0'si döngü sürerken bitiyor; bu sohbetlerin son iki turunda memnuniyetsizlik %33,1, döngüsü sakinleşerek biten sohbetlerde %16,9. Anlam desteği açıkken ölçülen hibrit sonuçlar Bölüm 5, K52'de.
 
 Tur modelinin kendi test sonuçları (`outputs/turn_model_metrics.json`, eğitimde görülmeyen kullanıcılar): PR-AUC 0,321 (rastgele 0,098), ROC-AUC 0,782, kalibrasyon hatası (ECE) 0,020. Yüksek güven eşiğinde turların %5,07'si işaretleniyor ve bunların %44,57'si gerçekten döngü.
 
