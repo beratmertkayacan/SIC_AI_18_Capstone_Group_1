@@ -51,7 +51,12 @@ export const EXIT_CARD_MIN_REPEATS_NO_MODEL = 2;
  * özürden sonra kullanıcının memnuniyetsizlik oranı %43,8 (tüm turlarda %5,9).
  */
 export const APOLOGY_CARD_STREAK = 2;
-export const EXIT_CARD_COOLDOWN_TURNS = 5; // kapatılınca / yok sayılınca bu kadar tur boyunca tekrar çıkmaz
+/**
+ * Kart kapatılınca ya da yok sayılınca bu kadar tur boyunca yeniden çıkmaz (K53). 5'ten 3'e indi: WildFeedback
+ * yeniden oynatmasında (rapor örneklemi) kart 100 sohbette 19,1'den 23,8'e çıktı, isabet %30,8'den %30,2'ye indi;
+ * eklenen kartların isabeti ortalama kadar (%28). scripts/evaluate_thresholds.py
+ */
+export const EXIT_CARD_COOLDOWN_TURNS = 3;
 export const FRESH_START_MAX_CHARS = 400; // taslakta her istek en fazla bu kadar karakter
 
 // Sayaçların saklama süresi ve kovaları src/data/counter-schema.json içinde (karar K18).
