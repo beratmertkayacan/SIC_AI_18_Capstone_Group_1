@@ -299,10 +299,11 @@
       "details": [
         "soruldu",
         "dongu_dedi",
+        "onarim_dedi",
         "hata",
         "zaman_asimi"
       ],
-      "note": "Anlam desteği (K51 taslağı; yalnızca kullanıcı izin verdiyse). soruldu: sohbetin son turları sunucuya gönderildi; dongu_dedi: değerlendirici döngü dedi; hata ve zaman_asimi: karar gelmedi, eklenti bugünkü kurallarla devam etti. Metin değil yalnızca sayı."
+      "note": "Anlam desteği (K51 taslağı; yalnızca kullanıcı izin verdiyse). soruldu: sohbetin son turları sunucuya gönderildi; dongu_dedi: değerlendirici döngü dedi; onarim_dedi: uzun bir onarım mesajında değerlendirici önceki cevabın karşılamadığını söyledi ve anlam kartı açılabilir; hata ve zaman_asimi: karar gelmedi, eklenti bugünkü kurallarla devam etti. Metin değil yalnızca sayı."
     }
   }
 }

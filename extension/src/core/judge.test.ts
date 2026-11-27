@@ -56,69 +56,111 @@ describe("parseVerdict", () => {
   });
 });
 
+/** Değerlendiricinin döngü kartı ayarda kapalı; eski yolu sınamak için geçici olarak açılır. */
+const withLoopCard = (fn: () => void) => {
+  const eski = JUDGE.loop_card;
+  try {
+    JUDGE.loop_card = true;
+    fn();
+  } finally {
+    JUDGE.loop_card = eski;
+  }
+};
+
 describe("judgeAction", () => {
-  it("yüksek güvenli döngü kartı açar ve halkayı koyulaştırır", () => {
-    expect(judgeAction(parseVerdict(sonuc()))).toEqual({ card: true, ring: 2, sameRequest: false, repeat: null });
+  it("döngü kartı kapalıyken değerlendiricinin kendi döngü kartı ve halkası çıkmaz", () => {
+    const a = judgeAction(parseVerdict(sonuc()));
+    expect(a.card).toBe(false);
+    expect(a.ring).toBe(0);
   });
-  it("orta güven yalnızca halkayı bir seviye yükseltir", () => {
+  it("döngü kartı açıkken yüksek güvenli döngü kart açar ve halkayı koyulaştırır", () => {
+    withLoopCard(() => expect(judgeAction(parseVerdict(sonuc()))).toEqual({ card: true, repair: false, ring: 2, sameRequest: false, repeat: null }));
+  });
+  it("döngü kartı açıkken orta güven yalnızca halkayı bir seviye yükseltir", () => {
     const g = (JUDGE.ring_threshold + JUDGE.card_threshold) / 2;
-    // Kanıtsız döngü (tıkanma ve özür yok): orta güven kart açmaz.
-    expect(judgeAction(parseVerdict(sonuc({ guven: g, tikanma: false })))).toEqual({ card: false, ring: 1, sameRequest: false, repeat: "karsilanmamis" });
+    withLoopCard(() =>
+      expect(judgeAction(parseVerdict(sonuc({ guven: g, tikanma: false })))).toEqual({
+        card: false,
+        repair: false,
+        ring: 1,
+        sameRequest: false,
+        repeat: "karsilanmamis",
+      }),
+    );
   });
-  it("metni boş gelen kart gösterilmez", () => {
-    expect(judgeAction(parseVerdict(sonuc({ oneri: "  " }))).card).toBe(false);
+  it("metni boş gelen döngü kartı gösterilmez", () => {
+    withLoopCard(() => expect(judgeAction(parseVerdict(sonuc({ oneri: "  " }))).card).toBe(false));
   });
-  it("karşılanmamış isteğin ilk yeniden yazımı benzer mesaj sayılır; döngü kartı değil aynı istek kartı açar", () => {
+  it("uzun onarım mesajında 'karşılamadı' anlam onarımı kartı açar; aynı istek kartının yerini alır", () => {
+    const v = parseVerdict(sonuc({ dongu: false, onceki_cevap_karsiladi: "hayir" }));
+    expect(judgeAction(v, true)).toEqual({ card: false, repair: true, ring: 0, sameRequest: false, repeat: null });
+    // Onarım kelimesi yoksa (ya da mesaj kısa onarım şeridine girdiyse) anlam onarımı yok.
+    expect(judgeAction(v, false).repair).toBe(false);
+    // Önceki cevap karşıladıysa onarım kartı yok.
+    expect(judgeAction(parseVerdict(sonuc({ dongu: false, onceki_cevap_karsiladi: "evet" })), true).repair).toBe(false);
+  });
+  it("karşılanmamış isteğin ilk yeniden yazımı benzer mesaj sayılır; aynı istek kartı açar", () => {
     const a = judgeAction(parseVerdict(sonuc({ dongu: false, guven: 0.3, tur: "ayni_istek_yeniden" })));
-    expect(a).toEqual({ card: false, ring: 0, sameRequest: true, repeat: "karsilanmamis" });
+    expect(a).toEqual({ card: false, repair: false, ring: 0, sameRequest: true, repeat: "karsilanmamis" });
   });
   it("cevaplanmış soruyu yeniden sorma (Yeşilay, tavuk) ikinci soruşta aynı istek kartı açar", () => {
     const a = judgeAction(parseVerdict(sonuc({ dongu: false, guven: 0.6, tikanma: false, onceki_cevap_karsiladi: "evet", tur: "ayni_istek_yeniden" })));
     expect(a.repeat).toBe("cevaplanmis");
     expect(a.card).toBe(false);
   });
-  it("aynı istek değilse ya da onay modundaysa aynı istek kartı yok", () => {
+  it("aynı istek değilse ya da onay modundaysa aynı istek ve onarım kartı yok", () => {
     expect(judgeAction(parseVerdict(sonuc({ ayni_istek: false, dongu: false }))).repeat).toBeNull();
     const eski = JUDGE.mode;
     try {
       JUDGE.mode = "onay";
       expect(judgeAction(parseVerdict(sonuc({ dongu: false }))).repeat).toBeNull();
+      expect(judgeAction(parseVerdict(sonuc({ dongu: false, onceki_cevap_karsiladi: "hayir" })), true).repair).toBe(false);
     } finally {
       JUDGE.mode = eski;
     }
   });
   it("karar yoksa hiçbir şey değişmez", () => {
-    expect(judgeAction(null)).toEqual({ card: false, ring: 0, sameRequest: false, repeat: null });
+    expect(judgeAction(null)).toEqual({ card: false, repair: false, ring: 0, sameRequest: false, repeat: null });
   });
 });
 
 describe("anlam desteği modları", () => {
   const v = (o: Record<string, unknown> = {}) => parseVerdict(sonuc(o));
-  it("onay modunda yeni kart açılmaz ama halka yükselebilir; onay eşiği uygulanır", () => {
-    const eski = JUDGE.mode;
+  it("yalnızca tur modelinin kartı onay bekler; onay döngü, tıkanma ya da 'karşılamadı' belirtisidir", () => {
+    expect(needsConfirm("model")).toBe(true);
+    for (const s of ["ozur", "tekrar", "norm", "anlam"]) expect(needsConfirm(s)).toBe(false);
+    expect(confirmsLoop(v({ dongu: true, tikanma: false, onceki_cevap_karsiladi: "evet" }))).toBe(true);
+    expect(confirmsLoop(v({ dongu: false, tikanma: true, onceki_cevap_karsiladi: "evet" }))).toBe(true);
+    expect(confirmsLoop(v({ dongu: false, tikanma: false, onceki_cevap_karsiladi: "hayir" }))).toBe(true);
+    expect(confirmsLoop(v({ dongu: false, tikanma: false, onceki_cevap_karsiladi: "evet" }))).toBe(false);
+    expect(confirmsLoop(null)).toBe(false);
+  });
+  it("eski güven kuralı ve modlar ayarla seçilebilir", () => {
+    const eskiMod = JUDGE.mode;
+    const eskiKural = JUDGE.confirm_rule;
     try {
-      JUDGE.mode = "onay";
-      expect(needsConfirm()).toBe(true);
-      expect(judgeAction(v()).card).toBe(false);
-      expect(judgeAction(v()).ring).toBe(2);
+      JUDGE.confirm_rule = "guven";
       expect(confirmsLoop(v({ guven: JUDGE.confirm_threshold }))).toBe(true);
       expect(confirmsLoop(v({ guven: JUDGE.confirm_threshold - 0.01 }))).toBe(false);
       expect(confirmsLoop(v({ dongu: false }))).toBe(false);
-      expect(confirmsLoop(null)).toBe(false);
-      JUDGE.mode = "ikisi";
-      expect(needsConfirm()).toBe(true);
-      expect(judgeAction(v()).card).toBe(true);
+      JUDGE.mode = "onay";
+      expect(needsConfirm("model")).toBe(true);
+      withLoopCard(() => {
+        expect(judgeAction(v()).card).toBe(false);
+        expect(judgeAction(v()).ring).toBe(2);
+      });
       JUDGE.mode = "bilinmeyen";
-      expect(needsConfirm()).toBe(false);
+      expect(needsConfirm("model")).toBe(false);
     } finally {
-      JUDGE.mode = eski;
+      JUDGE.mode = eskiMod;
+      JUDGE.confirm_rule = eskiKural;
     }
   });
 });
 
 describe("kart kuralı Python ikiziyle aynı (tests/fixtures/judge_action_parity.json)", () => {
   it.each(actionFixture.ornekler)("$ad", (o) => {
-    const a = judgeAction(parseVerdict({ sonuc: { tur: "yok", ...o.sonuc } }));
-    expect({ card: a.card, repeat: a.repeat }).toEqual(o.beklenen);
+    const a = judgeAction(parseVerdict({ sonuc: { tur: "yok", ...o.sonuc } }), o.onarim_kelimesi ?? false);
+    expect({ card: a.card, repair: a.repair, repeat: a.repeat }).toEqual(o.beklenen);
   });
 });

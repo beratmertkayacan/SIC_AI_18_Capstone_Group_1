@@ -15,11 +15,23 @@ export const JUDGE = config;
 export type JudgeMode = "ek_kart" | "onay" | "ikisi";
 export const judgeMode = (): JudgeMode => (JUDGE.mode === "onay" || JUDGE.mode === "ikisi" ? JUDGE.mode : "ek_kart");
 
-/** Kurallardan gelen kart, gösterilmeden önce değerlendiricinin onayını bekler mi? */
-export const needsConfirm = (): boolean => judgeMode() !== "ek_kart";
+const CONFIRM_SOURCES: readonly string[] = JUDGE.confirm_sources;
 
-/** Değerlendirici bu turda döngüyü yeterli güvenle onayladı mı? (onay ve ikisi modlarında) */
-export const confirmsLoop = (v: JudgeVerdict | null): boolean => v !== null && v.dongu && v.guven >= JUDGE.confirm_threshold;
+/**
+ * Bu kaynaktan gelen kart, gösterilmeden önce değerlendiricinin onayını bekler mi? Yalnızca confirm_sources
+ * listesindeki kaynaklar (bugün yalnızca tur modeli: WildFeedback'te en düşük isabetli kart kaynağı) bekler.
+ */
+export const needsConfirm = (source: string): boolean => judgeMode() !== "ek_kart" && CONFIRM_SOURCES.includes(source);
+
+/**
+ * Değerlendirici kartı onayladı mı? confirm_rule "isaret": döngü, tıkanma ya da "önceki cevap karşılamadı"
+ * belirtilerinden biri yeterli; "guven": yalnızca confirm_threshold güvenle döngü (eski kural).
+ */
+export const confirmsLoop = (v: JudgeVerdict | null): boolean => {
+  if (v === null) return false;
+  if (JUDGE.confirm_rule === "isaret") return v.dongu || v.tikanma || v.karsiladi === "hayir";
+  return v.dongu && v.guven >= JUDGE.confirm_threshold;
+};
 
 /** İçerik betiği ile arka plan çalışanı arasındaki mesajın adı ve biçimi (ağ kodu burada yok). */
 export const JUDGE_MESSAGE = "kafi-judge" as const;
@@ -115,8 +127,13 @@ export function parseVerdict(raw: unknown): JudgeVerdict | null {
 }
 
 export interface JudgeAction {
-  /** Çıkış kartı "anlam" kaynağıyla açılabilir */
+  /** Değerlendiricinin kendi gerekçesiyle açtığı döngü kartı (loop_card açıksa) */
   card: boolean;
+  /**
+   * Anlam onarımı: son mesaj onarım kelimesi taşıyan ama kısa onarım şeridine girmeyen bir mesaj ve değerlendirici
+   * önceki cevabın karşılamadığını söyledi. Kart "anlam" kaynağıyla açılabilir ve mesaj tekrar denemesi sayılır.
+   */
+  repair: boolean;
   /** Halkanın anlam desteğinden gelen seviyesi */
   ring: 0 | 1 | 2;
   /** Son mesaj, 3-gram'ın kaçırmış olabileceği bir yeniden yazım: benzer mesaj sayacına eklenir */
@@ -129,20 +146,33 @@ export interface JudgeAction {
   repeat: "cevaplanmis" | "karsilanmamis" | null;
 }
 
-/** Kararın ürüne etkisi. Döngü yoksa hiçbir şey değişmez; eşikler src/data/judge.json'da. */
-export function judgeAction(v: JudgeVerdict | null): JudgeAction {
-  if (!v) return { card: false, ring: 0, sameRequest: false, repeat: null };
-  // Döngü kartı: kanıtlı döngüde (tıkanma ya da özür döngüsü; Türkçe davranış setinde güven 0,7-0,8) düşük eşik,
-  // kanıtsız döngüde yüksek eşik (WildFeedback'te seçildi).
+/**
+ * Kararın ürüne etkisi; eşikler ve anahtarlar src/data/judge.json'da.
+ * repairWords: son kullanıcı mesajı onarım kelimesi taşıyor ve kısa onarım değil (içerik betiği hesaplar;
+ * mesaj metni bu dosyaya gelmez).
+ */
+export function judgeAction(v: JudgeVerdict | null, repairWords = false): JudgeAction {
+  if (!v) return { card: false, repair: false, ring: 0, sameRequest: false, repeat: null };
+  const opens = judgeMode() !== "onay";
+  // Döngü kartı (loop_card): kanıtlı döngüde (tıkanma ya da özür döngüsü) düşük eşik, kanıtsız döngüde yüksek eşik.
   const threshold = v.tikanma || v.ozurDongusu ? JUDGE.card_threshold_evidence : JUDGE.card_threshold;
-  const card = judgeMode() !== "onay" && v.dongu && v.guven >= threshold && v.gerekce !== "" && v.oneri !== "";
-  const ring = card || (v.dongu && v.guven >= JUDGE.card_threshold) ? 2 : v.dongu && v.guven >= JUDGE.ring_threshold ? 1 : 0;
+  const card = JUDGE.loop_card && opens && v.dongu && v.guven >= threshold && v.gerekce !== "" && v.oneri !== "";
+  const repair = JUDGE.repair_card && opens && !card && repairWords && v.karsiladi === "hayir";
+  // Halka: döngü kartı kapalıyken değerlendirici halkayı doğrudan koyulaştırmaz; anlam onarımı tekrar denemesi
+  // sayıldığı için halka kurallar üzerinden yükselir (yeniden oynatmada ölçülen biçim).
+  const ring = !JUDGE.loop_card
+    ? 0
+    : card || (v.dongu && v.guven >= JUDGE.card_threshold)
+      ? 2
+      : v.dongu && v.guven >= JUDGE.ring_threshold
+        ? 1
+        : 0;
   // Yeniden yazım sayacı yalnızca karşılanmamış bir isteğin yeniden sorulmasında; doğru cevaptan sonra
   // aynı soruyu başka dilde sormak döngü değildir (açık prova P1a).
   const sameRequest = v.ayniIstek && v.tur === "ayni_istek_yeniden";
   // Aynı istek kartı döngü kartının yerini almaz; onay modunda (yeni kart açılmaz) çıkmaz.
-  const repeat = card || judgeMode() === "onay" ? null : repeatKind(v);
-  return { card, ring, sameRequest, repeat };
+  const repeat = card || repair || !opens ? null : repeatKind(v);
+  return { card, repair, ring, sameRequest, repeat };
 }
 
 /**

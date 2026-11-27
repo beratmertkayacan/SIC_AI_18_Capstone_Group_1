@@ -80,13 +80,22 @@ def davranis_yukle(bolum: str) -> tuple[dict[str, list[dict]], dict[str, dict]]:
     )
 
 
-def davranis_kiyasla(sonuclar: dict[str, dict], beklenen: dict[str, dict]) -> dict:
-    """Kart kararı eklentideki kuralla (kart_eylemi) hesaplanır; kabul ölçütleri planla aynı."""
-    def davranis(k):
-        e = kart_eylemi(k)
-        return "dongu_karti" if e["card"] else "ayni_istek_karti" if e["repeat"] else "hicbiri"
+def onarim_kelimesi(turlar: list[dict] | None) -> bool:
+    """Eklentideki repairWords: son kullanıcı mesajı onarım kelimesi taşıyor ve kısa onarım değil."""
+    from kafiai.signals import is_short_repair
+    from kafiai.text import has_strong_repair
+    son = [t["metin"] for t in (turlar or []) if t.get("rol") == "k"]
+    return bool(son) and has_strong_repair(son[-1]) and not is_short_repair(son[-1])
 
-    tahmin = {vid: davranis(s["karar"]) for vid, s in sonuclar.items()}
+
+def davranis_kiyasla(sonuclar: dict[str, dict], beklenen: dict[str, dict], turlar: dict[str, list[dict]] | None = None) -> dict:
+    """Kart kararı eklentideki kuralla (kart_eylemi) hesaplanır; kabul ölçütleri planla aynı. Anlam onarımı
+    kartı da döngü kartı sayılır (ikisi de "aynı yerde dönüyorsun" kartıdır); bunun için vakanın turları gerekir."""
+    def davranis(vid, k):
+        e = kart_eylemi(k, onarim_kelimesi=onarim_kelimesi((turlar or {}).get(vid)))
+        return "dongu_karti" if e["card"] or e["repair"] else "ayni_istek_karti" if e["repeat"] else "hicbiri"
+
+    tahmin = {vid: davranis(vid, s["karar"]) for vid, s in sonuclar.items()}
     def oran(pay, payda):
         return {"pay": pay, "payda": payda, "yuzde": round(100 * pay / payda, 1) if payda else None}
     b = {vid: x["beklenen"] for vid, x in beklenen.items()}
@@ -277,7 +286,7 @@ def main() -> None:
     }
     if davranis_beklenen is not None:
         ozet["bolum"] = args.bolum
-        ozet["kiyas"] = davranis_kiyasla(sonuclar, davranis_beklenen)
+        ozet["kiyas"] = davranis_kiyasla(sonuclar, davranis_beklenen, ham)
         hedef = ROOT / "outputs" / f"judge_davranis_{args.bolum}_v{SPEC['surum']}_{SPEC['model']}.json"
     elif beklenen is not None:
         ozet["kiyas"] = senaryo_kiyasla(sonuclar, beklenen)

@@ -1,5 +1,5 @@
 {
- "not": "Kart kuralının iki dilde aynı olduğunun kanıtı: tests/test_judge.py ve extension/src/core/judge.test.ts aynı dosyayı okur. Ayar: extension/src/data/judge.json (mode ikisi, card_threshold 0.85).",
+ "not": "Kart kuralının iki dilde aynı olduğunun kanıtı: tests/test_judge.py ve extension/src/core/judge.test.ts aynı dosyayı okur. Ayar: extension/src/data/judge.json (mode ikisi, loop_card kapalı, repair_card açık). onarim_kelimesi: son kullanıcı mesajı onarım kelimesi taşıyor ve kısa onarım değil (içerik betiği hesaplar).",
  "ornekler": [
   {
    "ad": "yesilay_faaliyet",
@@ -17,6 +17,7 @@
    },
    "beklenen": {
     "card": false,
+    "repair": false,
     "repeat": "cevaplanmis"
    }
   },
@@ -36,6 +37,7 @@
    },
    "beklenen": {
     "card": false,
+    "repair": false,
     "repeat": "cevaplanmis"
    }
   },
@@ -55,6 +57,7 @@
    },
    "beklenen": {
     "card": false,
+    "repair": false,
     "repeat": null
    }
   },
@@ -74,6 +77,7 @@
    },
    "beklenen": {
     "card": false,
+    "repair": false,
     "repeat": null
    }
   },
@@ -93,6 +97,7 @@
    },
    "beklenen": {
     "card": false,
+    "repair": false,
     "repeat": "karsilanmamis"
    }
   },
@@ -111,8 +116,9 @@
     "ozur_dongusu": false
    },
    "beklenen": {
-    "card": true,
-    "repeat": null
+    "card": false,
+    "repair": false,
+    "repeat": "karsilanmamis"
    }
   },
   {
@@ -131,6 +137,7 @@
    },
    "beklenen": {
     "card": false,
+    "repair": false,
     "repeat": "cevaplanmis"
    }
   },
@@ -150,6 +157,7 @@
    },
    "beklenen": {
     "card": false,
+    "repair": false,
     "repeat": null
    }
   },
@@ -168,7 +176,113 @@
     "oneri": "İstersen hatanın tamamını paylaş."
    },
    "beklenen": {
-    "card": true,
+    "card": false,
+    "repair": false,
+    "repeat": "karsilanmamis"
+   }
+  },
+  {
+   "ad": "uzun_onarim_karsilamadi",
+   "onarim_kelimesi": true,
+   "sonuc": {
+    "ayni_istek": false,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": true,
+    "onceki_cevap_karsiladi": "hayir",
+    "dongu": false,
+    "guven": 0.6,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": true,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repair": true,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "uzun_onarim_karsiladi",
+   "onarim_kelimesi": true,
+   "sonuc": {
+    "ayni_istek": false,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": true,
+    "onceki_cevap_karsiladi": "evet",
+    "dongu": false,
+    "guven": 0.6,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": false,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repair": false,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "onarim_kelimesi_yok_karsilamadi",
+   "onarim_kelimesi": false,
+   "sonuc": {
+    "ayni_istek": false,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": true,
+    "onceki_cevap_karsiladi": "hayir",
+    "dongu": false,
+    "guven": 0.6,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": true,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repair": false,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "uzun_onarim_aynı_istek",
+   "onarim_kelimesi": true,
+   "sonuc": {
+    "ayni_istek": true,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": false,
+    "onceki_cevap_karsiladi": "hayir",
+    "dongu": false,
+    "guven": 0.6,
+    "gerekce": "",
+    "oneri": "",
+    "tikanma": true,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repair": true,
+    "repeat": null
+   }
+  },
+  {
+   "ad": "uzun_onarim_dongu_gerekceli",
+   "onarim_kelimesi": true,
+   "sonuc": {
+    "ayni_istek": false,
+    "ayni_bilgiye_donus": false,
+    "son_cevap_yeni_bilgi": true,
+    "onceki_cevap_karsiladi": "hayir",
+    "dongu": true,
+    "guven": 0.9,
+    "gerekce": "Aynı hata sürüyor.",
+    "oneri": "Hata çıktısını ekle.",
+    "tikanma": true,
+    "ozur_dongusu": false
+   },
+   "beklenen": {
+    "card": false,
+    "repair": true,
     "repeat": null
    }
   }

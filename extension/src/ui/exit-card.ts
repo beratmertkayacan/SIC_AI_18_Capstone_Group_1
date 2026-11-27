@@ -287,6 +287,15 @@ export const JUDGE_REPEAT_TEXT = {
     tip: "Tam olarak ne eksik kaldı? Bunu yazmak aynı cevabın yeniden gelmesini önler.",
   },
 } as const;
+/**
+ * Anlam onarımı kartının metni: kullanıcı uzun bir mesajla düzeltme istedi ve değerlendirici önceki cevabın
+ * işini görmediğini söyledi. Değerlendirici kendi gerekçesini yazdıysa o kullanılır; yazmadıysa bu metin.
+ */
+export const JUDGE_REPAIR_TEXT = {
+  why: "Son cevap istediğini karşılamamış görünüyor; aynı yerde düzeltmeye devam etmek çoğu zaman benzer bir cevap getirir.",
+  tip: "İstersen tam olarak neyin eksik kaldığını tek cümleyle yaz ya da isteklerini toplayıp yeni bir sohbette dene.",
+} as const;
+
 /** Anlam desteği kartında, önerinin nereden geldiğini dürüstçe söyleyen not. */
 export const JUDGE_NOTE =
   `Bu öneri, açtığın anlam desteğinden geliyor: son mesajlarının kısa bir bölümü değerlendirilmek için ${BRAND_NAME} sunucusuna gönderildi ve saklanmadı. Pencereden kapatabilirsin.`;

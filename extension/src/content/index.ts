@@ -56,7 +56,7 @@ import {
   type JudgeReply,
   type JudgeTurn,
 } from "../core/judge";
-import { JUDGE_REASON, JUDGE_REPEAT_ANSWERED, JUDGE_REPEAT_TEXT, JUDGE_REPEAT_UNMET } from "../ui/exit-card";
+import { JUDGE_REASON, JUDGE_REPAIR_TEXT, JUDGE_REPEAT_ANSWERED, JUDGE_REPEAT_TEXT, JUDGE_REPEAT_UNMET } from "../ui/exit-card";
 import { copyToClipboard } from "../ui/clipboard";
 import { ExitCard } from "../ui/exit-card";
 import { Ring } from "../ui/ring";
@@ -306,7 +306,27 @@ function main(): boolean {
     // Yalnızca sayı ve etiket; gerekçe ve öneri metni günlüğe yazılmaz.
     console.log(`[KafiAI] anlam: güven ${verdict.guven.toFixed(2)}, tür ${verdict.tur}, döngü ${verdict.dongu ? "evet" : "hayır"}, süre ${ms} ms`);
     if (verdict.dongu) record("judge", "dongu_dedi");
-    const action = judgeAction(verdict);
+    // Son mesaj onarım kelimesi taşıyor ama kısa onarım şeridine girmeyecek kadar uzun mu? Yalnızca evet/hayır
+    // olarak karar kuralına gider; metin değerlendirici koduna geçmez.
+    const lastText = userTexts[userTexts.length - 1] ?? "";
+    const repairWords = hasStrongRepair(lastText) && !isShortRepair(lastText);
+    const action = judgeAction(verdict, repairWords);
+    if (action.repair) {
+      // Anlam onarımı: kelime kuralının tek başına emin olamadığı uzun onarım, anlamdan doğrulandı.
+      record("judge", "onarim_dedi");
+      if (!action.sameRequest) {
+        signals.markLastSimilar();
+        policy.setRepeats(signals.recentSimilar);
+      }
+      judgeReason = {
+        key: JUDGE_REASON,
+        short: "Anlam desteği",
+        why: verdict.gerekce || JUDGE_REPAIR_TEXT.why,
+        tip: verdict.oneri || JUDGE_REPAIR_TEXT.tip,
+      };
+      policy.noteJudge(turn);
+      console.log("[KafiAI] anlam: uzun onarım mesajı, önceki cevap karşılamamış; kart denenecek");
+    }
     if (action.sameRequest) {
       // 3-gram'ın kaçırdığı yeniden yazım: benzer mesaj sinyali ve kart politikası güncellenir.
       signals.markLastSimilar();
@@ -336,7 +356,7 @@ function main(): boolean {
     updateRing();
     const waiting = cardWaitingTurn === turn;
     settleJudge(turn, confirmsLoop(verdict));
-    if ((action.card || repeatCard) && !waiting) maybeShowExitCard();
+    if ((action.card || action.repair || repeatCard) && !waiting) maybeShowExitCard();
   };
 
   /** Cevap bitti: kart koşulu sağlanıyorsa, kullanıcı yazmaya başlamadan çıkış kartını göster. */
@@ -345,7 +365,8 @@ function main(): boolean {
     const source = policy.triggerSource(session.turns);
     if (source === null) return;
     // Onay modu (K51 taslağı): bu turda değerlendiriciye soruldu ve karar henüz gelmedi; kart kararı bekler.
-    const awaitsJudge = needsConfirm() && source !== "anlam" && judgeAskedTurn === session.turns;
+    // Yalnızca confirm_sources listesindeki kaynaklar (bugün tur modeli) değerlendiricinin onayını bekler.
+    const awaitsJudge = needsConfirm(source) && judgeAskedTurn === session.turns;
     if (awaitsJudge && judgeSettledTurn !== session.turns) {
       cardWaitingTurn = session.turns;
       return;

@@ -84,16 +84,29 @@ def tekrar_turu(k: dict) -> str | None:
     return None if k.get("son_cevap_yeni_bilgi") is True else "cevaplanmis"
 
 
-def kart_eylemi(k: dict | None, ayar: dict | None = None) -> dict:
-    """judgeAction'ın kart kısmı: döngü kartı (card) ve aynı istek kartı (repeat)."""
+def onaylar(k: dict | None, ayar: dict | None = None) -> bool:
+    """confirmsLoop: değerlendirici kartı onayladı mı? "isaret": döngü, tıkanma ya da "karşılamadı" yeterli."""
     a = ayar or EKLENTI_AYAR
     if k is None:
-        return {"card": False, "repeat": None}
+        return False
+    if a.get("confirm_rule") == "isaret":
+        return k.get("dongu") is True or k.get("tikanma") is True or k.get("onceki_cevap_karsiladi") == "hayir"
+    return k.get("dongu") is True and k.get("guven", 0) >= a["confirm_threshold"]
+
+
+def kart_eylemi(k: dict | None, ayar: dict | None = None, onarim_kelimesi: bool = False) -> dict:
+    """judgeAction'ın kart kısmı: döngü kartı (card, loop_card açıksa), anlam onarımı (repair) ve aynı istek kartı (repeat).
+    onarim_kelimesi: son kullanıcı mesajı onarım kelimesi taşıyor ve kısa onarım değil."""
+    a = ayar or EKLENTI_AYAR
+    if k is None:
+        return {"card": False, "repair": False, "repeat": None}
     mod = a["mode"] if a["mode"] in ("onay", "ikisi") else "ek_kart"
+    acar = mod != "onay"
     gerekce = k.get("gerekce", "").strip() if k.get("dongu") is True else ""
     oneri = k.get("oneri", "").strip() if k.get("dongu") is True else ""
     guven = k.get("guven", 0)
     esik = a["card_threshold_evidence"] if (k.get("tikanma") is True or k.get("ozur_dongusu") is True) else a["card_threshold"]
-    card = mod != "onay" and k.get("dongu") is True and guven >= esik and gerekce != "" and oneri != ""
-    repeat = None if card or mod == "onay" else tekrar_turu(k)
-    return {"card": card, "repeat": repeat}
+    card = bool(a.get("loop_card", True)) and acar and k.get("dongu") is True and guven >= esik and gerekce != "" and oneri != ""
+    repair = bool(a.get("repair_card", False)) and acar and not card and onarim_kelimesi and k.get("onceki_cevap_karsiladi") == "hayir"
+    repeat = None if card or repair or not acar else tekrar_turu(k)
+    return {"card": card, "repair": repair, "repeat": repeat}

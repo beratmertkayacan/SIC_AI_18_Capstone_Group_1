@@ -1,5 +1,6 @@
 {
   "note": "Anlam desteği (K51 taslağı). mode: ek_kart = değerlendirici yeni kart açabilir (card_threshold); onay = kurallardan gelen kart ancak değerlendirici döngüyü confirm_threshold güvenle onaylarsa çıkar; ikisi = ikisi birden. Eşikler WildFeedback seçim örnekleminde seçildi (outputs/judge_replay_secim_acik.json). min_turn 2: aynı isteğin ikinci soruşu cevaptan sonra yakalanır. endpoint depoda boş; boşken hiçbir istek gönderilmez (yerel deneme: KAFI_JUDGE_URL ile derle).",
+  "rule_note": "Kart kuralı (WildFeedback yeniden oynatması, seçim örnekleminde seçildi, rapor örnekleminde doğrulandı): repair_card: kullanıcının mesajı onarım kelimesi taşıyor ama kısa onarım şeridine girmeyecek kadar uzunsa ve değerlendirici 'önceki cevap karşılamadı' derse kart açılır ve mesaj tekrar denemesi sayılır (bu kartların isabeti rapor örnekleminde %58). confirm_sources: yalnızca tur modelinden gelen kart değerlendiricinin onayını bekler; onay = döngü, tıkanma ya da 'karşılamadı' belirtilerinden biri (confirm_rule isaret). loop_card: değerlendiricinin kendi gerekçesiyle açtığı döngü kartı; WildFeedback'te isabeti %19 ile %28 olduğu için kapalı (Türkçe davranış setinde ise yararlıydı; ürün modeliyle WildFeedback ölçümü yapılınca yeniden bakılacak). Rapor örnekleminde 2.000 sohbet: kart isabeti %31,4 → %35,8, yakalama %24,4 → %31,1, isabetsiz kart 100 sohbette 11,7 → 11,05.",
   "endpoint": "",
   "token": "",
   "mode": "ikisi",
@@ -11,5 +12,11 @@
   "ring_threshold": 0.6,
   "confirm_threshold": 0.7,
   "repeat_cooldown_turns": 2,
-  "card_threshold_evidence": 0.6
+  "card_threshold_evidence": 0.6,
+  "loop_card": false,
+  "repair_card": true,
+  "confirm_sources": [
+    "model"
+  ],
+  "confirm_rule": "isaret"
 }
