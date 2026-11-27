@@ -53,6 +53,17 @@ def fold_turkish(normalized):
     return normalized.translate(_FOLD)
 
 
+_TURKISH_LETTERS = set("çğıöşüâîû")
+
+
+def has_turkish_letter(normalized):
+    """Sadeleştirilmiş kelimede Türkçe harf var mı? `text.ts` hasTurkishLetter ile aynı.
+
+    Hiç Türkçe harf yoksa kelime Türkçe klavye olmadan yazılmış olabilir ("baskenti").
+    """
+    return bool(set(normalized) & _TURKISH_LETTERS)
+
+
 def with_folded(items):
     """Kural listesine her ifadenin Türkçe karaktersiz hâlini de ekler (sıra korunur, tekrar yok)."""
     return list(dict.fromkeys(list(items) + [fold_turkish(i) for i in items]))
@@ -121,6 +132,8 @@ _REPEAT_RULES = json.loads(
     (Path(__file__).resolve().parents[2] / "extension" / "src" / "data" / "repeat-rules.json").read_text(encoding="utf-8")
 )
 _FILLER = set(with_folded(_REPEAT_RULES["filler"]))
+# Yalnızca mesajın başındaki dolgu dizisinde dolgu sayılan sözcükler ("Olmadı, ..."); ortada içeriktir.
+_LEADING_FILLER = set(with_folded(_REPEAT_RULES["leading_filler"]))
 
 
 _CHOICE = set(_REPEAT_RULES["choice_letters"])
@@ -156,26 +169,63 @@ def is_variation(text, score=0.0):
                 and _VARIATION["max_exact_words"] < words <= _VARIATION["template_words"])
 
 
+def _keyboard_words(text):
+    """Mesajın kelimeleri ve her kelimenin klavyesiz (Türkçe harfsiz) yazılıp yazılmadığı (repeat-detector.ts ile aynı).
+
+    Türkçe harf denetimi büyük I İngilizce kurala göre i yapılmış metne bakar: normalize_text "I"yı "ı"ya
+    çevirdiği için "Imparatorlugu" yoksa Türkçe harfli sayılırdı.
+    """
+    words = normalize_text(text).split()
+    plain = normalize_text((text or "").replace("I", "i")).split()
+    if len(plain) != len(words):
+        plain = words  # beklenmedik bölünme farkında güvenli taraf: kelimenin kendisine bak
+    return [(w, not has_turkish_letter(p)) for w, p in zip(words, plain)]
+
+
+def _has_digit(token):
+    return any(c.isdigit() for c in token)
+
+
 def new_content(new_text, previous_text):
-    """Yeni mesajın öncekinde karşılığı olmayan içerik kelimeleri (repeat-detector.ts ile aynı kural)."""
+    """Yeni mesajın öncekinde karşılığı olmayan içerik kelimeleri (repeat-detector.ts ile aynı kural).
+
+    Kelimeler yeni mesajdaki özgün yazımıyla döner. Türkçe karakterleri düz harfe indirilmiş eşleşme
+    ("baskenti" / "başkenti") yalnızca iki kelimeden en az biri klavyesiz yazılmışsa sayılır; ikisi de
+    Türkçe harfliyse ("kaslarımı" / "kaşlarımı") farklı kelimelerdir.
+    """
     stem = _REPEAT_RULES["stem_chars"]
-    prev = normalize_text(previous_text).split()
-    prev_set = set(prev)
-    prev_stems = {t[:stem] for t in prev if len(t) >= stem and not any(c.isdigit() for c in t)}
-    words = normalize_text(new_text).split()
+    prev = _keyboard_words(previous_text)
+    prev_set = {t for t, _ in prev}
+    prev_stems = {t[:stem] for t, _ in prev if len(t) >= stem and not _has_digit(t)}
+    # Düz harfe indirilmiş biçimler: tüm kelimelerden ve yalnızca klavyesiz yazılmış kelimelerden.
+    folded_all = {fold_turkish(t) for t, _ in prev}
+    folded_plain = {fold_turkish(t) for t, plain in prev if plain}
+    folded_stems_all = {fold_turkish(t)[:stem] for t, _ in prev if len(t) >= stem and not _has_digit(t)}
+    folded_stems_plain = {fold_turkish(t)[:stem] for t, plain in prev if plain and len(t) >= stem and not _has_digit(t)}
+    words = _keyboard_words(new_text)
     short = len(words) <= _REPEAT_RULES["choice_max_words"]
     out = []
-    for t in words:
+    leading = True  # mesajın başındaki dolgu dizisi sürüyor mu?
+    for t, plain in words:
+        if leading and t in _LEADING_FILLER:
+            continue
+        if t not in _FILLER:
+            leading = False
         if short and t in _CHOICE:
             # Kısa mesajda tek başına şık harfi içeriktir: "cevabım B" ile "cevabım C" farklı.
             if t not in prev_set:
                 out.append(t)
             continue
-        if t in _FILLER or not (len(t) >= _REPEAT_RULES["min_token_chars"] or any(c.isdigit() for c in t)):
+        if t in _FILLER or not (len(t) >= _REPEAT_RULES["min_token_chars"] or _has_digit(t)):
             continue
         if t in prev_set:
             continue
-        if not any(c.isdigit() for c in t) and len(t) >= stem and t[:stem] in prev_stems:
+        folded = fold_turkish(t)
+        # Yeni kelime klavyesizse öncekindeki her kelimeyle, değilse yalnızca klavyesiz olanlarla düz harfte eşleşir.
+        if folded in (folded_all if plain else folded_plain):
+            continue
+        if not _has_digit(t) and len(t) >= stem and (
+                t[:stem] in prev_stems or folded[:stem] in (folded_stems_all if plain else folded_stems_plain)):
             continue
         out.append(t)
     return out

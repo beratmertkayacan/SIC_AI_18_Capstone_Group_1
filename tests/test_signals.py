@@ -87,3 +87,13 @@ def test_same_short_message_streak():
     assert s.short_repeat_streak == 1
     s.note_user("Bu fonksiyonu daha okunur hale getirir misin lütfen", False)
     assert s.short_repeat_streak == 0
+
+
+def test_mark_last_similar_eklentiyle_ayni():
+    # Eklentideki markLastSimilar ile aynı: boş pencerede etkisiz, sonra son mesajın bayrağını açar.
+    s = ConversationSignals()
+    s.mark_last_similar()
+    assert s.recent_similar == 0
+    s.note_user("bu fonksiyonu yazar mısın lütfen", False)
+    s.mark_last_similar()
+    assert s.recent_similar == 1

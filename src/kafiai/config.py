@@ -62,7 +62,7 @@ EXT_SIMILARITY_THRESHOLD = 0.8
 EXT_SOFT_SIMILARITY_THRESHOLD = 0.6
 EXT_EXIT_CARD_MIN_TURNS = 9
 EXT_EXIT_CARD_MIN_REPEATS = 1
-EXT_EXIT_CARD_COOLDOWN_TURNS = 5
+EXT_EXIT_CARD_COOLDOWN_TURNS = 3  # K53: 5 → 3 (scripts/evaluate_thresholds.py); eklentide EXIT_CARD_COOLDOWN_TURNS
 # Cevaplar üst üste bu kadar kez özürle başlarsa çıkış kartı açılabilir (K32, eklentide APOLOGY_CARD_STREAK).
 EXT_APOLOGY_CARD_STREAK = 2
 

@@ -144,9 +144,15 @@ export function restatesRule(text: string): boolean {
   });
 }
 
-/** Kısa ve güçlü onarım ifadesi taşıyan mesaj mı ("olmadı", "yanlış", "hala hata")? */
+const REPAIR_MAX_CHARS: number = rules.short.repair_max_chars;
+
+/**
+ * Kısa ve güçlü onarım ifadesi taşıyan mesaj mı ("olmadı", "yanlış", "olmadi tekrar yap")?
+ * Sınır genel kısa mesaj sınırından (12) geniştir: orta uzunluktaki onarımlar da aynı isabetle şerit alır.
+ */
 export function isShortRepair(text: string): boolean {
-  return isShort(text) && hasStrongRepair(text) && !isExitMessage(text);
+  const length = Array.from(normalizeText(text)).length;
+  return length > 0 && length < REPAIR_MAX_CHARS && hasStrongRepair(text) && !isExitMessage(text);
 }
 
 export interface TopicContext {
@@ -204,6 +210,10 @@ export class ConversationSignals {
     const key = shortRepeatKey(text);
     if (isExitMessage(text) || key === null) return 0;
     if (this.turns > 0 && isShortRepair(text) && !isOfferDecline(text, this.answerAskedQuestion)) return 0;
+    // Soruyla biten cevaba verilen kısa onay ("evet", "tamam") bir teklife cevaptır, yönsüz tekrar değil:
+    // "Kısa devam" şeridi çıkmasın, onay zinciri önerisi ("Yön sende") kendi yolundan gelsin.
+    // Yalnızca gönderim öncesi önizleme değişir; noteUser'daki sayım Python ikiziyle aynı kalır.
+    if (this.answerAskedQuestion && isAffirmation(text)) return 0;
     return key === this.lastShortKey ? this.shortRepeatRun + 1 : 1;
   }
 
@@ -311,6 +321,14 @@ export class ConversationSignals {
   /** Son cevap bir soruyla mı bitti (yalın "hayır" o zaman şikayet sayılmaz)? */
   get lastAnswerAskedQuestion(): boolean {
     return this.answerAskedQuestion;
+  }
+
+  /**
+   * Anlam desteği son mesajı karşılanmamış bir isteğin yeniden yazımı saydı (K51 taslağı): 3-gram onu
+   * kaçırmış olsa da son mesajın benzer mesaj bayrağı açılır. Çıkış mesajından sonra bayrak yoktur.
+   */
+  markLastSimilar(): void {
+    if (this.recentFlags.length > 0) this.recentFlags[this.recentFlags.length - 1] = true;
   }
 
   /** Son birkaç mesajdan kaçı öncekine çok benziyordu (çıkış ya da konu değişince sıfırlanır). */

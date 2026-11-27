@@ -252,7 +252,7 @@
     },
     {
       "id": "duz_harf_kod_dongusu",
-      "anlatim": "Türkçe karakter kullanmadan yazan kullanıcı kodunun çalışmadığını söylüyor",
+      "anlatim": "Türkçe karakter kullanmadan yazan kullanıcı kodunun çalışmadığını söylüyor; \"kod calismiyor\" da kısa onarım sayılır (20 karakter sınırı), şerit art arda iki turda çıkmaz, \"olmadi\" yeniden şerit alır",
       "user": [
         "SQL ile en cok satan 5 urunu getiren sorgu yaz",
         "kod calismiyor",
@@ -267,7 +267,8 @@
       ],
       "beklenen": {
         "kisa_serit": 2,
-        "halka_en_az": 2
+        "halka_en_az": 2,
+        "kart": true
       }
     },
     {
@@ -447,6 +448,58 @@
       ],
       "beklenen": {
         "kural_hatirlatildi": true,
+        "kart": false
+      }
+    },
+    {
+      "id": "olmadi_ayni_istek",
+      "anlatim": "Beğenmediği cevap için aynı isteği başına 'Olmadı,' ekleyerek yeniden gönderiyor. Baştaki 'olmadı' dolgu sayılır (leading_filler) ve güçlü onarım ifadesi olduğu için gönderim bekletilir",
+      "user": [
+        "Müşteriye gönderilecek teslimat gecikmesi e-postasını daha kibar bir dille yeniden yaz",
+        "Olmadı, müşteriye gönderilecek teslimat gecikmesi e-postasını daha kibar bir dille yeniden yaz"
+      ],
+      "answers": [
+        "Sayın müşterimiz, ...",
+        "Değerli müşterimiz, ..."
+      ],
+      "beklenen": {
+        "serit": 1,
+        "halka_en_az": 1,
+        "kart": false,
+        "kart_serit_turunda": false
+      }
+    },
+    {
+      "id": "karaktersiz_yeniden_yazim",
+      "anlatim": "Aynı isteği bu kez bazı kelimeleri Türkçe karaktersiz yazarak yeniden gönderiyor ('yasayan', 'musterileri'). Klavyesiz kelime Türkçe harfli karşılığıyla eşleşir: mesaj benzer sayılır ve halka yükselir, ama birebir tekrar ya da onarım ifadesi olmadığı için gönderim bekletilmez",
+      "user": [
+        "Müşteriler tablosundan Ankara'da yaşayan müşterileri getiren SQL sorgusu yaz",
+        "Müşteriler tablosundan Ankara'da yasayan musterileri getiren SQL sorgusu yaz"
+      ],
+      "answers": [
+        "SELECT * FROM musteriler WHERE sehir = 'Ankara';",
+        "SELECT * FROM musteriler WHERE sehir = 'Ankara';"
+      ],
+      "beklenen": {
+        "serit": 0,
+        "halka_en_az": 1,
+        "halka_en_cok": 1,
+        "kart": false
+      }
+    },
+    {
+      "id": "teklife_uc_kelimelik_ret",
+      "anlatim": "Yapay zekanın teklif sorusuna verilen üç kelimelik ret ('hayır gerek yok') şikayet değildir; kısa onarım sınırı 20 karaktere çıksa da şerit çıkmaz (K40, K52)",
+      "user": [
+        "Haftalık koşu programı hazırlar mısın",
+        "hayır gerek yok"
+      ],
+      "answers": [
+        "İşte 4 haftalık program ... Beslenme planı da ekleyeyim mi?",
+        "Tamam, programın hazır."
+      ],
+      "beklenen": {
+        "kisa_serit": 0,
         "kart": false
       }
     }

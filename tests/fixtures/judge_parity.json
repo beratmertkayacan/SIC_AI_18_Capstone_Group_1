@@ -1,0 +1,344 @@
+{
+ "not": "server/scripts/make-parity-fixture.ts üretir; elle değiştirilmez.",
+ "govde": [
+  {
+   "girdi": {
+    "turlar": [
+     {
+      "rol": "k",
+      "metin": "Türkiye'nin başkenti neresi?"
+     }
+    ]
+   },
+   "turlar": [
+    {
+     "rol": "k",
+     "metin": "Türkiye'nin başkenti neresi?"
+    }
+   ],
+   "metin": "<sohbet>\n[Tur 1] SON kullanıcı mesajı:\nTürkiye'nin başkenti neresi?\n</sohbet>"
+  },
+  {
+   "girdi": {
+    "turlar": [
+     {
+      "rol": "k",
+      "metin": "bir"
+     },
+     {
+      "rol": "a",
+      "metin": "iki"
+     },
+     {
+      "rol": "k",
+      "metin": "üç"
+     },
+     {
+      "rol": "a",
+      "metin": "dört"
+     }
+    ]
+   },
+   "turlar": [
+    {
+     "rol": "k",
+     "metin": "bir"
+    },
+    {
+     "rol": "a",
+     "metin": "iki"
+    },
+    {
+     "rol": "k",
+     "metin": "üç"
+    },
+    {
+     "rol": "a",
+     "metin": "dört"
+    }
+   ],
+   "metin": "<sohbet>\n[Tur 1] Kullanıcı:\nbir\n\n[Tur 2] Asistan:\niki\n\n[Tur 3] SON kullanıcı mesajı:\nüç\n\n[Tur 4] Asistan:\ndört\n</sohbet>"
+  },
+  {
+   "girdi": {
+    "turlar": [
+     {
+      "rol": "k",
+      "metin": "Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 "
+     },
+     {
+      "rol": "a",
+      "metin": "Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 "
+     }
+    ]
+   },
+   "turlar": [
+    {
+     "rol": "k",
+     "metin": "Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışm"
+    },
+    {
+     "rol": "a",
+     "metin": "Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmı"
+    }
+   ],
+   "metin": "<sohbet>\n[Tur 1] SON kullanıcı mesajı:\nKod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışm\n\n[Tur 2] Asistan:\nKod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmıyor 🙃 Kod çalışmı\n</sohbet>"
+  },
+  {
+   "girdi": {
+    "turlar": [
+     {
+      "rol": "k",
+      "metin": "0. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "1. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "2. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "3. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "4. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "5. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "6. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "7. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "8. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "9. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "10. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "11. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "12. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "13. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "14. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "15. mesaj"
+     },
+     {
+      "rol": "k",
+      "metin": "16. mesaj"
+     },
+     {
+      "rol": "a",
+      "metin": "17. mesaj"
+     }
+    ]
+   },
+   "turlar": [
+    {
+     "rol": "k",
+     "metin": "2. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "3. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "4. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "5. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "6. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "7. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "8. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "9. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "10. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "11. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "12. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "13. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "14. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "15. mesaj"
+    },
+    {
+     "rol": "k",
+     "metin": "16. mesaj"
+    },
+    {
+     "rol": "a",
+     "metin": "17. mesaj"
+    }
+   ],
+   "metin": "<sohbet>\n[Tur 1] Kullanıcı:\n2. mesaj\n\n[Tur 2] Asistan:\n3. mesaj\n\n[Tur 3] Kullanıcı:\n4. mesaj\n\n[Tur 4] Asistan:\n5. mesaj\n\n[Tur 5] Kullanıcı:\n6. mesaj\n\n[Tur 6] Asistan:\n7. mesaj\n\n[Tur 7] Kullanıcı:\n8. mesaj\n\n[Tur 8] Asistan:\n9. mesaj\n\n[Tur 9] Kullanıcı:\n10. mesaj\n\n[Tur 10] Asistan:\n11. mesaj\n\n[Tur 11] Kullanıcı:\n12. mesaj\n\n[Tur 12] Asistan:\n13. mesaj\n\n[Tur 13] Kullanıcı:\n14. mesaj\n\n[Tur 14] Asistan:\n15. mesaj\n\n[Tur 15] SON kullanıcı mesajı:\n16. mesaj\n\n[Tur 16] Asistan:\n17. mesaj\n</sohbet>"
+  },
+  {
+   "girdi": {
+    "turlar": [
+     {
+      "rol": "a",
+      "metin": "yalnız asistan"
+     }
+    ]
+   },
+   "turlar": null,
+   "metin": null
+  },
+  {
+   "girdi": {
+    "turlar": [
+     {
+      "rol": "k",
+      "metin": 5
+     }
+    ]
+   },
+   "turlar": null,
+   "metin": null
+  },
+  {
+   "girdi": {
+    "yok": true
+   },
+   "turlar": null,
+   "metin": null
+  }
+ ],
+ "karar": [
+  {
+   "girdi": {
+    "ayni_istek": true,
+    "onceki_istek_turu": 1,
+    "onceki_cevap_karsiladi": "hayir",
+    "tikanma": true,
+    "ozur_dongusu": false,
+    "tur": "karsilanmayan_engel",
+    "dongu": true,
+    "guven": 0.8,
+    "gerekce": "  Aynı hata üçüncü kez geldi.  ",
+    "oneri": "İstersen hata metninin tamamını tek mesajda paylaş."
+   },
+   "cikti": {
+    "ayni_istek": true,
+    "onceki_istek_turu": 1,
+    "onceki_cevap_karsiladi": "hayir",
+    "tikanma": true,
+    "ozur_dongusu": false,
+    "tur": "karsilanmayan_engel",
+    "dongu": true,
+    "guven": 0.8,
+    "gerekce": "Aynı hata üçüncü kez geldi.",
+    "oneri": "İstersen hata metninin tamamını tek mesajda paylaş."
+   }
+  },
+  {
+   "girdi": {
+    "ayni_istek": true,
+    "onceki_istek_turu": 1,
+    "onceki_cevap_karsiladi": "hayir",
+    "tikanma": true,
+    "ozur_dongusu": false,
+    "tur": "karsilanmayan_engel",
+    "dongu": true,
+    "guven": 1.7,
+    "gerekce": "çççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççç",
+    "oneri": "İstersen ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂"
+   },
+   "cikti": {
+    "ayni_istek": true,
+    "onceki_istek_turu": 1,
+    "onceki_cevap_karsiladi": "hayir",
+    "tikanma": true,
+    "ozur_dongusu": false,
+    "tur": "karsilanmayan_engel",
+    "dongu": true,
+    "guven": 1,
+    "gerekce": "çççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççç",
+    "oneri": "İstersen ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ🙂ğ"
+   }
+  },
+  {
+   "girdi": {
+    "ayni_istek": true,
+    "onceki_istek_turu": 1,
+    "onceki_cevap_karsiladi": "hayir",
+    "tikanma": true,
+    "ozur_dongusu": false,
+    "tur": "karsilanmayan_engel",
+    "dongu": false,
+    "guven": -0.2,
+    "gerekce": "silinmeli",
+    "oneri": "silinmeli"
+   },
+   "cikti": {
+    "ayni_istek": true,
+    "onceki_istek_turu": 1,
+    "onceki_cevap_karsiladi": "hayir",
+    "tikanma": true,
+    "ozur_dongusu": false,
+    "tur": "karsilanmayan_engel",
+    "dongu": false,
+    "guven": 0,
+    "gerekce": "",
+    "oneri": ""
+   }
+  }
+ ]
+}

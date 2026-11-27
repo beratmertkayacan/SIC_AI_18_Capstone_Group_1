@@ -1,3 +1,4 @@
+import schema from "../data/counter-schema.json";
 import { COUNTS_V1_KEY, COUNTS_V2_KEY } from "./counters";
 
 /**
@@ -17,9 +18,50 @@ export interface Settings {
   suggestionsEnabled: boolean;
   /** Mesaj kutusunun kenarındaki halka gösterilsin mi? (K29) Öneriler kapalıyken zaten gösterilmez. */
   ringEnabled: boolean;
+  /** Araç çubuğu penceresinde "Bu hafta" özeti gösterilsin mi? Kapalıyken de sayılar tutulur. */
+  habitsEnabled: boolean;
+  /**
+   * Anlam desteği (K51 taslağı): açıksa cevap bittiğinde sohbetin son turları Kâfi sunucusuna gider ve
+   * bir dil modeli döngü olup olmadığını değerlendirir. Mesaj metni cihazdan çıkan TEK özellik; bu yüzden
+   * varsayılanı kapalı ve yalnızca kullanıcının açık izniyle açılır.
+   */
+  semanticEnabled: boolean;
+  /**
+   * Haftalık özetteki "İstersen…" önerilerinden susturulanlar: öneri kimliği → susturulduğu haftanın
+   * Pazartesisi ve kaç hafta susacağı. "Yerinde değildi" 4 hafta, "Kapat" yalnızca o hafta (1).
+   * Kimlikler koddaki sabit listeden (TIP_IDS); metin yazılmaz.
+   */
+  mutedTips: Record<string, MutedTip>;
+  /** "Özeti bugünden başlat" denen gün (YYYY-MM-DD); özet bu günden önceki sayıları okumaz. Yoksa null. */
+  habitsFrom: string | null;
 }
 
-export const DEFAULT_SETTINGS: Settings = { enabled: true, exitCardEnabled: true, suggestionsEnabled: true, ringEnabled: true };
+export interface MutedTip {
+  since: string;
+  weeks: number;
+}
+
+/** Haftalık özetin önerebileceği önerilerin kimlikleri (habits-text.ts içindeki pickTip ile aynı liste). */
+export const TIP_IDS: string[] = [
+  "kart_kapat",
+  "taze_baslat",
+  "kisa_duzeltme",
+  "yon_sende",
+  ...schema.dimensions.task.map((t) => `gorev_${t}`),
+];
+/** Susturmanın geçerli süreleri (hafta): "Kapat" 1, "Yerinde değildi" 4. */
+export const MUTE_WEEKS = { kapat: 1, yerinde_degil: 4 } as const;
+
+export const DEFAULT_SETTINGS: Settings = {
+  enabled: true,
+  exitCardEnabled: true,
+  suggestionsEnabled: true,
+  ringEnabled: true,
+  habitsEnabled: true,
+  semanticEnabled: false,
+  mutedTips: {},
+  habitsFrom: null,
+};
 
 /** chrome.storage.local ile uyumlu en küçük arayüz (testte bellekteki sahtesi kullanılır). */
 export interface KeyValueStorage {
@@ -34,6 +76,27 @@ export const PENDING_FRESH_KEY = "kafiai.pending_fresh";
 /** Depoda bulunabilecek anahtarların tamamı (gizlilik testi bu listeyi kullanır). */
 export const STORAGE_KEYS = [SETTINGS_KEY, COUNTS_V2_KEY, COUNTS_V1_KEY, PENDING_FRESH_KEY];
 
+/** Gerçek bir takvim günü mü? (YYYY-MM-DD; "2026-02-30" gibi olmayan günler reddedilir.) */
+function isDay(v: unknown): v is string {
+  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const [y, m, d] = v.split("-").map(Number) as [number, number, number];
+  const date = new Date(y, m - 1, d, 12);
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+}
+
+/** Susturma listesinden yalnızca bilinen kimlikler ve geçerli değerler kalır; gerisi atılır. */
+function parseMuted(raw: unknown): Record<string, MutedTip> {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
+  const allowed: number[] = Object.values(MUTE_WEEKS);
+  const out: Record<string, MutedTip> = {};
+  for (const [id, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (!TIP_IDS.includes(id) || typeof v !== "object" || v === null) continue;
+    const { since, weeks } = v as Record<string, unknown>;
+    if (isDay(since) && typeof weeks === "number" && allowed.includes(weeks)) out[id] = { since, weeks };
+  }
+  return out;
+}
+
 /** Depodan gelen her şeye güvenilmez: bilinmeyen alanlar atılır, bozuk değerler varsayılana döner. */
 export function parseSettings(raw: unknown): Settings {
   const r = typeof raw === "object" && raw !== null ? (raw as Record<string, unknown>) : {};
@@ -43,6 +106,10 @@ export function parseSettings(raw: unknown): Settings {
     suggestionsEnabled:
       typeof r.suggestionsEnabled === "boolean" ? r.suggestionsEnabled : DEFAULT_SETTINGS.suggestionsEnabled,
     ringEnabled: typeof r.ringEnabled === "boolean" ? r.ringEnabled : DEFAULT_SETTINGS.ringEnabled,
+    habitsEnabled: typeof r.habitsEnabled === "boolean" ? r.habitsEnabled : DEFAULT_SETTINGS.habitsEnabled,
+    semanticEnabled: r.semanticEnabled === true,
+    mutedTips: parseMuted(r.mutedTips),
+    habitsFrom: isDay(r.habitsFrom) ? r.habitsFrom : DEFAULT_SETTINGS.habitsFrom,
   };
 }
 

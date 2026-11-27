@@ -1,0 +1,425 @@
+{
+  "orneklem": "secim (rapor orneklemi tohum 42 disindan tohum 7), ilk N sohbet",
+  "sohbet": 3000,
+  "kullanici_turu": 17291,
+  "tum_turlarda_dsat_yuzde": 4.97,
+  "kodlanan_mesaj": 15874,
+  "kodlama_suresi_sn": 132.7,
+  "politika": "sonra; yalnizca benzer karari degisir, yeni icerik suzgeci ve 0,99 bekletme 3-gram ile",
+  "secenekler": {
+    "3gram_0.80": {
+      "benzer_tur_yuzde": 3.325,
+      "benzer_tur_sayi": 575,
+      "benzer_tur_dsat_isabet_yuzde": 21.91,
+      "serit_100_sohbette": 13.37,
+      "halka2_tur_yuzde": 9.4,
+      "halka2_isabet_yuzde": 27.94,
+      "kart_100_sohbette": 17.93,
+      "kart_isabet_yuzde": 30.3,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 428,
+          "isabet_yuzde": 23.6
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 9,
+          "isabet_yuzde": 33.33
+        }
+      },
+      "dsat_yakalama_yuzde": 26.6,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "minilm_0.70": {
+      "benzer_tur_yuzde": 3.678,
+      "benzer_tur_sayi": 636,
+      "benzer_tur_dsat_isabet_yuzde": 20.28,
+      "serit_100_sohbette": 13.5,
+      "halka2_tur_yuzde": 9.5,
+      "halka2_isabet_yuzde": 27.75,
+      "kart_100_sohbette": 17.83,
+      "kart_isabet_yuzde": 29.91,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 426,
+          "isabet_yuzde": 23.47
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 8,
+          "isabet_yuzde": 12.5
+        }
+      },
+      "dsat_yakalama_yuzde": 26.06,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "minilm_0.75": {
+      "benzer_tur_yuzde": 3.58,
+      "benzer_tur_sayi": 619,
+      "benzer_tur_dsat_isabet_yuzde": 20.68,
+      "serit_100_sohbette": 13.5,
+      "halka2_tur_yuzde": 9.46,
+      "halka2_isabet_yuzde": 27.83,
+      "kart_100_sohbette": 17.8,
+      "kart_isabet_yuzde": 29.96,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 426,
+          "isabet_yuzde": 23.47
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 7,
+          "isabet_yuzde": 14.29
+        }
+      },
+      "dsat_yakalama_yuzde": 26.06,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "minilm_0.80": {
+      "benzer_tur_yuzde": 3.493,
+      "benzer_tur_sayi": 604,
+      "benzer_tur_dsat_isabet_yuzde": 21.03,
+      "serit_100_sohbette": 13.5,
+      "halka2_tur_yuzde": 9.43,
+      "halka2_isabet_yuzde": 27.91,
+      "kart_100_sohbette": 17.8,
+      "kart_isabet_yuzde": 29.96,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 426,
+          "isabet_yuzde": 23.47
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 7,
+          "isabet_yuzde": 14.29
+        }
+      },
+      "dsat_yakalama_yuzde": 26.06,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "minilm_0.85": {
+      "benzer_tur_yuzde": 3.302,
+      "benzer_tur_sayi": 571,
+      "benzer_tur_dsat_isabet_yuzde": 21.54,
+      "serit_100_sohbette": 13.4,
+      "halka2_tur_yuzde": 9.36,
+      "halka2_isabet_yuzde": 27.94,
+      "kart_100_sohbette": 17.83,
+      "kart_isabet_yuzde": 30.09,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 427,
+          "isabet_yuzde": 23.65
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 7,
+          "isabet_yuzde": 14.29
+        }
+      },
+      "dsat_yakalama_yuzde": 26.06,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "minilm_0.90": {
+      "benzer_tur_yuzde": 3.123,
+      "benzer_tur_sayi": 540,
+      "benzer_tur_dsat_isabet_yuzde": 21.85,
+      "serit_100_sohbette": 13.37,
+      "halka2_tur_yuzde": 9.32,
+      "halka2_isabet_yuzde": 28.0,
+      "kart_100_sohbette": 17.87,
+      "kart_isabet_yuzde": 30.22,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 427,
+          "isabet_yuzde": 23.65
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 78,
+          "isabet_yuzde": 58.97
+        },
+        "norm": {
+          "sayi": 7,
+          "isabet_yuzde": 14.29
+        }
+      },
+      "dsat_yakalama_yuzde": 26.06,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "birlesim_0.70": {
+      "benzer_tur_yuzde": 3.742,
+      "benzer_tur_sayi": 647,
+      "benzer_tur_dsat_isabet_yuzde": 20.25,
+      "serit_100_sohbette": 13.53,
+      "halka2_tur_yuzde": 9.53,
+      "halka2_isabet_yuzde": 27.69,
+      "kart_100_sohbette": 17.9,
+      "kart_isabet_yuzde": 30.17,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 426,
+          "isabet_yuzde": 23.47
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 10,
+          "isabet_yuzde": 30.0
+        }
+      },
+      "dsat_yakalama_yuzde": 26.6,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "birlesim_0.75": {
+      "benzer_tur_yuzde": 3.655,
+      "benzer_tur_sayi": 632,
+      "benzer_tur_dsat_isabet_yuzde": 20.73,
+      "serit_100_sohbette": 13.53,
+      "halka2_tur_yuzde": 9.5,
+      "halka2_isabet_yuzde": 27.77,
+      "kart_100_sohbette": 17.87,
+      "kart_isabet_yuzde": 30.22,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 426,
+          "isabet_yuzde": 23.47
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 9,
+          "isabet_yuzde": 33.33
+        }
+      },
+      "dsat_yakalama_yuzde": 26.6,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "birlesim_0.80": {
+      "benzer_tur_yuzde": 3.597,
+      "benzer_tur_sayi": 622,
+      "benzer_tur_dsat_isabet_yuzde": 21.06,
+      "serit_100_sohbette": 13.53,
+      "halka2_tur_yuzde": 9.49,
+      "halka2_isabet_yuzde": 27.79,
+      "kart_100_sohbette": 17.87,
+      "kart_isabet_yuzde": 30.22,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 426,
+          "isabet_yuzde": 23.47
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 9,
+          "isabet_yuzde": 33.33
+        }
+      },
+      "dsat_yakalama_yuzde": 26.6,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "birlesim_0.85": {
+      "benzer_tur_yuzde": 3.464,
+      "benzer_tur_sayi": 599,
+      "benzer_tur_dsat_isabet_yuzde": 21.2,
+      "serit_100_sohbette": 13.43,
+      "halka2_tur_yuzde": 9.45,
+      "halka2_isabet_yuzde": 27.85,
+      "kart_100_sohbette": 17.9,
+      "kart_isabet_yuzde": 30.35,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 427,
+          "isabet_yuzde": 23.65
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 9,
+          "isabet_yuzde": 33.33
+        }
+      },
+      "dsat_yakalama_yuzde": 26.6,
+      "tekrarlayan_dsat_sohbeti": 188
+    },
+    "birlesim_0.90": {
+      "benzer_tur_yuzde": 3.389,
+      "benzer_tur_sayi": 586,
+      "benzer_tur_dsat_isabet_yuzde": 21.5,
+      "serit_100_sohbette": 13.43,
+      "halka2_tur_yuzde": 9.42,
+      "halka2_isabet_yuzde": 27.93,
+      "kart_100_sohbette": 17.9,
+      "kart_isabet_yuzde": 30.35,
+      "kart_kaynaga_gore": {
+        "model": {
+          "sayi": 427,
+          "isabet_yuzde": 23.65
+        },
+        "tekrar": {
+          "sayi": 24,
+          "isabet_yuzde": 58.33
+        },
+        "ozur": {
+          "sayi": 77,
+          "isabet_yuzde": 58.44
+        },
+        "norm": {
+          "sayi": 9,
+          "isabet_yuzde": 33.33
+        }
+      },
+      "dsat_yakalama_yuzde": 26.6,
+      "tekrarlayan_dsat_sohbeti": 188
+    }
+  },
+  "benzer_karari_ciftler": {
+    "tum_ciftler": {
+      "sayi": 41087,
+      "dsat_sohbet_yuzde": 16.01,
+      "dsat_tur_yuzde": 8.26
+    },
+    "3gram_benzer_suzgecli": {
+      "sayi": 1290,
+      "dsat_sohbet_yuzde": 33.41,
+      "dsat_tur_yuzde": 24.42
+    },
+    "yalniz_minilm_suzgecli_0.70": {
+      "sayi": 124,
+      "dsat_sohbet_yuzde": 21.77,
+      "dsat_tur_yuzde": 12.9
+    },
+    "yalniz_minilm_suzgecli_0.75": {
+      "sayi": 94,
+      "dsat_sohbet_yuzde": 18.09,
+      "dsat_tur_yuzde": 11.7
+    },
+    "yalniz_minilm_suzgecli_0.80": {
+      "sayi": 67,
+      "dsat_sohbet_yuzde": 16.42,
+      "dsat_tur_yuzde": 11.94
+    },
+    "yalniz_minilm_suzgecli_0.85": {
+      "sayi": 34,
+      "dsat_sohbet_yuzde": 8.82,
+      "dsat_tur_yuzde": 5.88
+    },
+    "yalniz_minilm_suzgecli_0.90": {
+      "sayi": 16,
+      "dsat_sohbet_yuzde": 6.25,
+      "dsat_tur_yuzde": 0.0
+    },
+    "3gram_benzer_suzgecsiz": {
+      "sayi": 4226,
+      "dsat_sohbet_yuzde": 17.18,
+      "dsat_tur_yuzde": 11.48
+    },
+    "yalniz_minilm_suzgecsiz_0.70": {
+      "sayi": 3481,
+      "dsat_sohbet_yuzde": 13.19,
+      "dsat_tur_yuzde": 7.21
+    },
+    "yalniz_minilm_suzgecsiz_0.75": {
+      "sayi": 2278,
+      "dsat_sohbet_yuzde": 12.73,
+      "dsat_tur_yuzde": 6.76
+    },
+    "yalniz_minilm_suzgecsiz_0.80": {
+      "sayi": 1420,
+      "dsat_sohbet_yuzde": 11.69,
+      "dsat_tur_yuzde": 6.41
+    },
+    "yalniz_minilm_suzgecsiz_0.85": {
+      "sayi": 805,
+      "dsat_sohbet_yuzde": 11.68,
+      "dsat_tur_yuzde": 6.34
+    },
+    "yalniz_minilm_suzgecsiz_0.90": {
+      "sayi": 320,
+      "dsat_sohbet_yuzde": 11.56,
+      "dsat_tur_yuzde": 5.94
+    }
+  },
+  "fizibilite": {
+    "parametre": 117653760,
+    "gomme_matrisi_boyutu": [
+      250037,
+      384
+    ],
+    "gomme_matrisi_parametre": 96014208,
+    "gomme_payi_yuzde": 81.6,
+    "fp32_mb_tahmin": 470.6,
+    "fp16_mb_tahmin": 235.3,
+    "int8_mb_tahmin": 117.7,
+    "cikti_boyutu": 384,
+    "tek_cumle_gecikme_ms_ortalama": 15.63,
+    "tek_cumle_gecikme_ms_medyan": 15.48,
+    "olcum_ortami": "arm64 Darwin, torch 2.15.0, 4 iş parçacığı, Python CPU"
+  },
+  "toplam_sure_sn": 519.2
+}

@@ -6,7 +6,9 @@ import { detectTheme } from "./theme";
  * Halkanın görünümü (K29). Mesaj kutusunun sağ üst köşesinin hemen üstünde duran 18 piksellik marka
  * işareti (logodaki üç yay); seviye arttıkça yaylar belirginleşir. Shadow DOM içinde çizilir, sitenin stilinden etkilenmez; tema sayfanın arka planından seçilir.
  * Seviye değiştiğinde ton yavaşça koyulaşır; yükselişte bir kez hafifçe nabız atar, sürekli hareket yok.
- * Fareyle üzerine gelince ya da klavyeyle odaklanınca tek satır açıklama görünür.
+ * Fareyle üzerine gelince ya da klavyeyle odaklanınca tek satır açıklama görünür; Esc ile kapanır (imleç yerinden oynamadan).
+ * Seviye 0'da bile işaret açık zeminde odaklanabilir bir denetim olarak seçilebilir kalır (yaklaşık 2,7:1); seviyeler
+ * arasındaki sıra korunur: 0 < 1 < 2.
  */
 
 const SIZE = 18;
@@ -28,9 +30,9 @@ button.ring {
 }
 button.ring svg { display: block; }
 button.ring path { transition: opacity .6s ease; }
-.wrap[data-level="0"] path { opacity: .28; }
-.wrap[data-level="1"] path { opacity: .55; }
-.wrap[data-level="1"] path[data-arc="0"] { opacity: .95; }
+.wrap[data-level="0"] path { opacity: .68; }
+.wrap[data-level="1"] path { opacity: .85; }
+.wrap[data-level="1"] path[data-arc="0"] { opacity: 1; }
 .wrap[data-level="2"] path { opacity: 1; }
 .wrap[data-level="2"] button.ring { background: var(--halo); }
 button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -47,6 +49,7 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   transition: opacity .15s ease, transform .15s ease;
 }
 .wrap:hover .tip, .wrap:focus-within .tip { opacity: 1; transform: none; }
+.wrap.tip-off .tip { opacity: 0; transform: translateY(4px); }
 @media (prefers-reduced-motion: reduce) {
   button.ring, button.ring path, .tip { transition: none; }
   .wrap.pulse button.ring { animation: none; }
@@ -58,6 +61,7 @@ export class Ring {
   private wrap: HTMLDivElement | null = null;
   private button: HTMLButtonElement | null = null;
   private tip: HTMLDivElement | null = null;
+  private onKey: ((e: KeyboardEvent) => void) | null = null;
   private level: RingLevel = 0;
 
   get visible(): boolean {
@@ -102,6 +106,8 @@ export class Ring {
   }
 
   hide(): void {
+    if (this.onKey) document.removeEventListener("keydown", this.onKey, true);
+    this.onKey = null;
     this.host?.remove();
     this.host = null;
     this.wrap = null;
@@ -134,8 +140,33 @@ export class Ring {
       explained = true;
       onExplain?.();
     };
-    wrap.addEventListener("mouseenter", explain);
-    button.addEventListener("focus", explain);
+    // İpucu açıkken (fare üstünde ya da odakta) Esc onu kapatır; fare çıkınca ya da odak gidince yeniden açılabilir.
+    // Olay durdurulmaz: sayfadaki şerit ya da kart da aynı Esc ile kapanabilsin.
+    let hovered = false;
+    let focused = false;
+    const reset = () => {
+      if (!hovered && !focused) wrap.classList.remove("tip-off");
+    };
+    wrap.addEventListener("mouseenter", () => {
+      hovered = true;
+      explain();
+    });
+    wrap.addEventListener("mouseleave", () => {
+      hovered = false;
+      reset();
+    });
+    button.addEventListener("focus", () => {
+      focused = true;
+      explain();
+    });
+    button.addEventListener("blur", () => {
+      focused = false;
+      reset();
+    });
+    this.onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && (hovered || focused)) wrap.classList.add("tip-off");
+    };
+    document.addEventListener("keydown", this.onKey, true);
     document.body.appendChild(host);
     this.host = host;
     this.wrap = wrap;

@@ -50,5 +50,9 @@ def test_insight_event_keys_valid():
     from kafiai.counters import is_valid_cell_key
     assert is_valid_cell_key("insight|na|pencere")
     assert is_valid_cell_key("insight|kod|ayrinti")
+    # Haftalık özetteki "İstersen…" önerisine tepki: öneri kimliği sayaca girmez, yalnızca tepki.
+    assert is_valid_cell_key("insight|na|oneri_yerinde_degil")
+    assert is_valid_cell_key("insight|na|oneri_kapat")
+    assert not is_valid_cell_key("insight|na|oneri_kart_kapat")
     assert is_valid_cell_key("card|chatgpt|kod|4-6|gosterildi_elle")
     assert is_valid_cell_key("strip|gemini|soru|gizlendi_kisisel")

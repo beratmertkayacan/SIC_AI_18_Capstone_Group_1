@@ -2,6 +2,34 @@
 
 Projenin iş paketleri burada bölüm bölüm kayıtlı; en yeni bölüm en üstte. Kararların gerekçeleri [`docs/05_architecture_decisions.md`](docs/05_architecture_decisions.md) içinde K numaralarıyla, güncel sonuçlar [`docs/10_deployment.md`](docs/10_deployment.md) içinde.
 
+## Teslim turu: anlam desteği, ölçümlü son kurallar ve yayın hazırlığı (19 ile 27 Kasım)
+
+### Eklendi
+
+- **Anlam desteği** (K51): varsayılanı kapalı, izinle çalışan değerlendirici. Sunucu `server/api/judge.ts` (Vercel), istem ve şema `server/judge-spec.json` (Sonnet 5.5, ret durumunda sunucu tarafı yedek model), Python ikizi `src/kafiai/judge.py` ve iki dilde parite testleri. Eklentide tek ağ noktası `background/judge-client.ts`; depodaki ayarda adres boş.
+- Aynı istek kartı: aynı istek ya da aynı bilgi, başka sözcüklerle ya da araya başka sorular girdikten sonra ikinci kez sorulunca, önceki cevabın karşılayıp karşılamadığına göre netleştirme sorusu.
+- **Anlam onarımı kartı** (K52): onarım kelimesi taşıyan uzun bir mesajda değerlendirici "önceki cevap karşılamadı" derse kart açılır ve mesaj tekrar denemesi sayılır. Sayaç `judge onarim_dedi`.
+- Türkçe davranış seti (129 vaka, ayar ve test yarıları) ve değerlendirme modu (`scripts/evaluate_judge.py`), WildFeedback hibrit yeniden oynatması (`scripts/evaluate_judge_replay.py`), açık etiketleme provası (`prova/`).
+- Haftalık özet, öneri susturma ve özet başlangıç günü ayarları.
+- Eşik tarama betiği `scripts/evaluate_thresholds.py` ve sonuçları `outputs/thresholds_*.json`.
+- Gizlilik politikası `docs/PRIVACY.md`; mağaza paketi komutu `npm run package` (kaynak haritası olmadan zip).
+
+### Değişti
+
+- Kısa onarım şeridinin sınırı 12'den 20 karaktere çıktı (`short.repair_max_chars`, K52): rapor örnekleminde şerit 100 sohbette 0,81'den 1,88'e çıktı, isabet aynı kaldı (%58,3 → %58,4); isabetsiz kart değişmedi (13,19 → 13,20). Soruya verilen üç kelimelik ret ("hayır gerek yok") şerit almasın diye teklif reddinin kelime sınırı 3'e çıktı.
+- Anlam desteği açıkken yalnızca tur modelinin kartı değerlendiricinin onayını bekliyor; onay için döngü, tıkanma ya da "karşılamadı" belirtilerinden biri yeterli. Değerlendiricinin kendi döngü kartı ayarla kapatıldı (`loop_card`). Rapor örnekleminde (2.000 sohbet) kart isabeti %31,4 → %35,8, yakalama %24,4 → %31,1, isabetsiz kart 100 sohbette 11,7 → 11,05.
+- Kart bekleme süresi 5 turdan 3 tura indi (K53): eşik taraması (`scripts/evaluate_thresholds.py`) sonucunda rapor örnekleminde kart 100 sohbette 19,1 → 23,8, isabet %30,8 → %30,2; eklenen kartların isabeti %28. Tur modeli eşiği (0,30), kanıt şartı ve benzerlik eşiği değişmedi; düşürmek ölçüldü ve alınmadı.
+- Manifest açıklaması Chrome Web Store'un 132 karakter sınırına göre kısaltıldı; sunucuda Node 22 sabitlendi; sunucu yorumları güncel modele ve tur sınırına göre düzeltildi.
+- README, `docs/05` (K51, K52), `docs/06` ve `docs/10` (sunucu kurulumu, mağaza paketi) güncellendi.
+
+### Denenip alınmayanlar
+
+- İlk hata raporunda model kartını kapatan kapı (yakalama 6,6 puan düştü), aynı istek kuralında "son cevap yeni bilgi verdiyse kart yok" (davranış setinde 66/67 → 63/67), kural hatırlatma listesine yalın "dedim" (Türkçe veride hiç geçmiyor). Ayrıntılar K52'de.
+
+### Testler
+
+- Python 195, eklenti 740 (46 dosya), sunucu 5; tip kontrolleri temiz. Temiz mağaza paketinde `connect-src 'none'`, yerel adres yok, tek ağ çağrısı arka plandaki değerlendirici istemcisinde ve adres boş.
+
 ## Son tur: genelleme, kuralın hatırlatılması ve belgeler (18 Kasım)
 
 ### Eklendi

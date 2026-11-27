@@ -3,7 +3,7 @@ import rules from "../data/repeat-rules.json";
 import { ngramVector, cosine } from "./similarity";
 import { isBareContinue } from "./intents";
 import { hasStrongRepair } from "./strong-repair";
-import { foldTurkish, normalizeText, withFolded } from "./text";
+import { foldTurkish, hasTurkishLetter, normalizeText, withFolded } from "./text";
 
 export interface RepeatCheck {
   /** Bu mesaj, yakın zamanda gönderilen birinin neredeyse aynısı mı? (şerit çıkar) */
@@ -34,9 +34,24 @@ interface Remembered {
   vec: Map<number, number>;
   tokens: Set<string>;
   stems: Set<string>;
+  /** Kelimelerin Türkçe karakterleri düz harfe indirilmiş biçimleri (tüm kelimeler). */
+  foldedTokens: Set<string>;
+  /** Aynısı, yalnızca klavyesiz (Türkçe harfsiz) yazılmış kelimelerden. */
+  foldedPlainTokens: Set<string>;
+  /** Düz harfe indirilmiş kökler (tüm kelimeler / yalnızca klavyesiz kelimeler). */
+  foldedStems: Set<string>;
+  foldedPlainStems: Set<string>;
+}
+
+interface KeyboardWord {
+  word: string;
+  /** Kelimede hiç Türkçe harf yok mu (Türkçe klavye olmadan yazılmış olabilir mi)? */
+  plain: boolean;
 }
 
 const FILLER = new Set<string>(withFolded(rules.filler));
+// Yalnızca mesajın başındaki dolgu dizisinde dolgu sayılan sözcükler ("Olmadı, ..."); ortada içeriktir.
+const LEADING_FILLER = new Set<string>(withFolded(rules.leading_filler));
 const hasDigit = (t: string) => /\p{N}/u.test(t);
 const STEM = rules.stem_chars;
 const CHOICE = new Set<string>(rules.choice_letters);
@@ -71,21 +86,51 @@ export function isVariation(text: string, score = 0): boolean {
   return !(score >= v.exact_similarity && words > v.max_exact_words && words <= v.template_words);
 }
 
-function remembered(normalized: string): Remembered {
-  const tokens = normalized.split(" ").filter((t) => t !== "");
+/**
+ * Mesajın kelimeleri ve her kelimenin klavyesiz yazılıp yazılmadığı (Python: extension_similarity._keyboard_words).
+ * Türkçe harf denetimi büyük I'yı İngilizce kurala göre i yapılmış metne bakar: normalizeText "I"yı "ı"ya
+ * çevirdiği için "Imparatorlugu" yoksa Türkçe harfli sayılırdı.
+ */
+function keyboardWords(text: string): KeyboardWord[] {
+  const words = normalizeText(text).split(" ").filter((t) => t !== "");
+  let plain = normalizeText(text.replace(/I/g, "i")).split(" ").filter((t) => t !== "");
+  // Beklenmedik bölünme farkında güvenli taraf: kelimenin kendisine bak.
+  if (plain.length !== words.length) plain = words;
+  return words.map((word, i) => ({ word, plain: !hasTurkishLetter(plain[i] ?? word) }));
+}
+
+const stemOf = (t: string) => Array.from(t).slice(0, STEM).join("");
+const hasStem = (t: string) => Array.from(t).length >= STEM && !hasDigit(t);
+
+function remembered(text: string): Remembered {
+  const words = keyboardWords(text);
+  const tokens = words.map((w) => w.word);
+  const plainTokens = words.filter((w) => w.plain).map((w) => w.word);
   return {
-    vec: ngramVector(normalized),
+    vec: ngramVector(normalizeText(text)),
     tokens: new Set(tokens),
-    stems: new Set(tokens.filter((t) => Array.from(t).length >= STEM && !hasDigit(t)).map((t) => Array.from(t).slice(0, STEM).join(""))),
+    stems: new Set(tokens.filter(hasStem).map(stemOf)),
+    foldedTokens: new Set(tokens.map(foldTurkish)),
+    foldedPlainTokens: new Set(plainTokens.map(foldTurkish)),
+    foldedStems: new Set(tokens.filter(hasStem).map((t) => stemOf(foldTurkish(t)))),
+    foldedPlainStems: new Set(plainTokens.filter(hasStem).map((t) => stemOf(foldTurkish(t)))),
   };
 }
 
-/** Yeni mesajın öncekinde karşılığı olmayan içerik kelimeleri (Python: extension_similarity.new_content). */
-export function newContent(normalizedNew: string, previous: Remembered): string[] {
+/**
+ * Yeni mesajın öncekinde karşılığı olmayan içerik kelimeleri (Python: extension_similarity.new_content).
+ * text ham mesajdır; kelimeler yeni mesajdaki özgün yazımıyla döner. Türkçe karakterleri düz harfe indirilmiş
+ * eşleşme ("baskenti" / "başkenti") yalnızca iki kelimeden en az biri klavyesiz yazılmışsa sayılır; ikisi de
+ * Türkçe harfliyse ("kaslarımı" / "kaşlarımı") farklı kelimelerdir.
+ */
+export function newContent(text: string, previous: Remembered): string[] {
   const out: string[] = [];
-  const words = normalizedNew.split(" ").filter((t) => t !== "");
+  const words = keyboardWords(text);
   const short = words.length <= rules.choice_max_words;
-  for (const t of words) {
+  let leading = true; // mesajın başındaki dolgu dizisi sürüyor mu?
+  for (const { word: t, plain } of words) {
+    if (leading && LEADING_FILLER.has(t)) continue;
+    if (!FILLER.has(t)) leading = false;
     if (short && CHOICE.has(t)) {
       // Kısa mesajda tek başına şık harfi içeriktir: "cevabım B" ile "cevabım C" farklı.
       if (!previous.tokens.has(t)) out.push(t);
@@ -95,7 +140,15 @@ export function newContent(normalizedNew: string, previous: Remembered): string[
     const chars = Array.from(t);
     if (chars.length < rules.min_token_chars && !hasDigit(t)) continue;
     if (previous.tokens.has(t)) continue;
-    if (!hasDigit(t) && chars.length >= STEM && previous.stems.has(chars.slice(0, STEM).join(""))) continue;
+    const folded = foldTurkish(t);
+    // Yeni kelime klavyesizse öncekindeki her kelimeyle, değilse yalnızca klavyesiz olanlarla düz harfte eşleşir.
+    if ((plain ? previous.foldedTokens : previous.foldedPlainTokens).has(folded)) continue;
+    if (
+      hasStem(t) &&
+      (previous.stems.has(stemOf(t)) || (plain ? previous.foldedStems : previous.foldedPlainStems).has(stemOf(folded)))
+    ) {
+      continue;
+    }
     out.push(t);
   }
   return out;
@@ -128,7 +181,7 @@ export class RepeatDetector {
       score = Math.max(score, s);
       if (s >= SIMILARITY_THRESHOLD) {
         aboveThreshold = true;
-        if (newContent(normalized, previous).length === 0) {
+        if (newContent(text, previous).length === 0) {
           similar = true;
           matches += 1;
           if (s >= rules.hold_exact_similarity) exact = true;
@@ -148,7 +201,7 @@ export class RepeatDetector {
   remember(text: string): void {
     const normalized = normalizeText(text);
     if (Array.from(normalized).length < MIN_NORMALIZED_CHARS || isBareContinue(text)) return;
-    this.recent.push(remembered(normalized));
+    this.recent.push(remembered(text));
     if (this.recent.length > RECENT_MESSAGES) this.recent.shift();
   }
 

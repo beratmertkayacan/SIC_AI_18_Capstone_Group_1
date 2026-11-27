@@ -115,13 +115,17 @@ import { isVariation, newContent, rememberForTest } from "./repeat-detector";
 describe("şerit kuralı: yeni içerik getiren mesaj tekrar sayılmaz", () => {
   it("Python ile aynı kararı verir", () => {
     for (const row of repeatFixture) {
-      const d = new RepeatDetector();
-      d.remember(row.previous);
-      const r = d.check(row.new);
-      expect([row.new, r.similar]).toEqual([row.new, row.repeat]);
-      expect([row.new, r.hold]).toEqual([row.new, row.hold]);
+      // Benzerliği tam eşikte olan satırlar (ör. 0,80) yalnızca new_content için tutulur; kayan nokta
+      // farkı şerit kararını çevirebileceği için repeat/hold alanı taşımazlar.
+      if ("repeat" in row && "hold" in row) {
+        const d = new RepeatDetector();
+        d.remember(row.previous);
+        const r = d.check(row.new);
+        expect([row.new, r.similar]).toEqual([row.new, row.repeat]);
+        expect([row.new, r.hold]).toEqual([row.new, row.hold]);
+      }
       expect([row.new, isVariation(row.new)]).toEqual([row.new, row.variation]);
-      expect(newContent(normalizeText(row.new), rememberForTest(normalizeText(row.previous)))).toEqual(row.new_content);
+      expect([row.new, newContent(row.new, rememberForTest(row.previous))]).toEqual([row.new, row.new_content]);
     }
   });
 
@@ -184,7 +188,36 @@ describe("şık harfleri", () => {
   });
 
   it("uzun mesajda tek harf içerik sayılmaz", () => {
-    const prev = rememberForTest(normalizeText("give me a short summary of this article about the economy"));
-    expect(newContent(normalizeText("give me short summary of this article about the economy a"), prev)).toEqual([]);
+    const prev = rememberForTest("give me a short summary of this article about the economy");
+    expect(newContent("give me short summary of this article about the economy a", prev)).toEqual([]);
+  });
+});
+
+describe("onarım sözcükleri ve klavyesiz yazım", () => {
+  const nc = (yeni: string, onceki: string) => newContent(yeni, rememberForTest(onceki));
+
+  it("'soruyorum' ve 'sordum' her yerde dolgudur", () => {
+    expect(nc("Tekrar soruyorum: Fransa'nın başkenti neresi?", "Fransa'nın başkenti neresi?")).toEqual([]);
+    // "sordum" ve "ama" dolgu olduğu için "olmadı" hâlâ baştaki dolgu dizisinde.
+    expect(nc("Sordum ama olmadı, bu kodu düzelt", "bu kodu düzelt")).toEqual([]);
+    expect(nc("Hocama proje konusunu sordum, ne cevap vereyim?", "Hocama proje konusunu sordu, ne cevap vereyim?")).toEqual([]);
+  });
+
+  it("'olmadı' yalnızca mesajın başındaki dolgu dizisinde dolgudur", () => {
+    expect(nc("Olmadı, bu kodu düzelt", "bu kodu düzelt")).toEqual([]);
+    expect(nc("Yine olmadi, bu kodu düzelt", "bu kodu düzelt")).toEqual([]);
+    expect(nc("Deney neden başarılı olmadı, açıkla", "Deney neden başarılı oldu, açıkla")).toEqual(["olmadı"]);
+    expect(nc("Olmadı, şimdi 2. soruyu çöz", "1. soruyu çöz")).toEqual(["şimdi", "2"]);
+  });
+
+  it("klavyesiz kelime Türkçe harfli karşılığıyla eşleşir, özgün yazım döner", () => {
+    expect(nc("Avustralya'nin baskenti neresidir?", "Avustralya'nın başkenti neresidir?")).toEqual([]);
+    expect(nc("Osmanli Imparatorlugu ne zaman kuruldu?", "Osmanlı İmparatorluğu ne zaman kuruldu?")).toEqual([]);
+    expect(nc("Müşteriler tablosundan yasayan musterileri getir", "Müşteriler tablosundan yaşayan müşterileri getir")).toEqual([]);
+  });
+
+  it("iki kelime de Türkçe harfliyse düz harfte eşleşmez", () => {
+    expect(nc("Kaslarımı nasıl şekillendiririm?", "Kaşlarımı nasıl şekillendiririm?")).toEqual(["kaslarımı"]);
+    expect(nc("Dış kaplama fiyatları ne kadar?", "Diş kaplama fiyatları ne kadar?")).toEqual(["dış"]);
   });
 });

@@ -48,6 +48,24 @@ export interface AdapterHandlers {
   onEdit?(): void;
 }
 
+/**
+ * Ekrandaki son kullanıcı mesajı ile son yapay zeka cevabı, aynı anda okunur (deney: kısıt kontrolü,
+ * src/core/constraint-probe.ts). Metinler yalnızca bellekte kullanılır; hiçbir yere yazılmaz, günlüğe girmez.
+ */
+export interface ExchangeSnapshot {
+  /** Son kullanıcı öğesinin sayfa anahtarı (ChatGPT: "…:0:user"); yoksa null. */
+  userKey: string | null;
+  userText: string;
+  /** Son cevap öğesinin sayfa anahtarı (ChatGPT: "…:1:assistant"); yoksa null. */
+  assistantKey: string | null;
+  /** Cevabın tamamı (kısaltılmamış); cevap yoksa null. */
+  assistantText: string | null;
+  /** Cevap öğesi sayfada kullanıcı öğesinden sonra mı geliyor? */
+  assistantAfterUser: boolean;
+  /** Okuma anında yapay zeka cevap üretiyor muydu? */
+  generating: boolean;
+}
+
 /** Her yapay zeka sitesi için sayfa yapısını bilen küçük bir katman. */
 export interface Adapter {
   readonly name: string;
@@ -75,6 +93,13 @@ export interface Adapter {
    * bellekte, cevabın özürle başlayıp başlamadığına bakmak için kullanılır; hiçbir yere yazılmaz.
    */
   lastResponse?(): string | null;
+  /**
+   * Son kullanıcı mesajı ve son cevap, anahtarları ve tam metinleriyle birlikte (deney: kısıt kontrolü).
+   * Cevap metni ile kimliği aynı öğeden okunur. Destekleyen adaptörler verir; diğerlerinde tanımsız.
+   */
+  lastExchange?(): ExchangeSnapshot | null;
+  /** Anahtarı verilen cevap öğesi (deney: kısıt notu, notun yerleşeceği yer). Bulunamazsa null. */
+  responseElement?(key: string): Element | null;
   /** Yeni (boş) bir sohbetin adresi. */
   newChatUrl(): string;
   /** Mesaj kutusu: arayüzü yerleştirmek için çapa ve kutunun boş olup olmadığı. Kutu yoksa null. */

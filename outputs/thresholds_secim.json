@@ -1,0 +1,405 @@
+{
+ "UYARI": "Yalnızca sayılar. Eşik seçimi seçim örnekleminde; rapor örnekleminde yalnızca seçilenler koşulur.",
+ "not": "Bu tarama K53'ten önce yapıldı: 'bugun' adayı o günkü 5 turluk bekleme süresidir; bekleme_3 seçildi (K53).",
+ "orneklem": "secim",
+ "adaylar": {
+  "bugun": {},
+  "yuksek_0.20": {
+   "yuksek": 0.2
+  },
+  "yuksek_0.25": {
+   "yuksek": 0.25
+  },
+  "yuksek_0.35": {
+   "yuksek": 0.35
+  },
+  "kanitsiz_0.30": {
+   "kanit": false
+  },
+  "kanitsiz_0.35": {
+   "kanit": false,
+   "yuksek": 0.35
+  },
+  "bekleme_3": {
+   "bekleme": 3
+  },
+  "bekleme_2": {
+   "bekleme": 2
+  },
+  "benzerlik_0.75": {
+   "benzerlik": 0.75
+  },
+  "benzerlik_0.70": {
+   "benzerlik": 0.7
+  },
+  "oneri_0.14": {
+   "oneri": 0.14
+  },
+  "yuksek_0.25+bekleme_3": {
+   "yuksek": 0.25,
+   "bekleme": 3
+  }
+ },
+ "sonuc": {
+  "bugun": {
+   "kart_100": 19.23,
+   "kart_isabet": 30.76,
+   "yakalama": 32.9,
+   "isabetsiz_100": 13.31,
+   "isabetli_100": 5.92,
+   "kaynak": {
+    "model": [
+     3104,
+     26.8
+    ],
+    "tekrar": [
+     224,
+     50.89
+    ],
+    "ozur": [
+     469,
+     48.83
+    ],
+    "norm": [
+     49,
+     16.33
+    ]
+   },
+   "halka2_tur": 9.55,
+   "halka2_isabet": 28.67,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "yuksek_0.20": {
+   "kart_100": 26.55,
+   "kart_isabet": 25.64,
+   "yakalama": 41.89,
+   "isabetsiz_100": 19.74,
+   "isabetli_100": 6.81,
+   "kaynak": {
+    "model": [
+     4801,
+     23.66
+    ],
+    "tekrar": [
+     101,
+     51.49
+    ],
+    "ozur": [
+     381,
+     44.62
+    ],
+    "norm": [
+     26,
+     11.54
+    ]
+   },
+   "halka2_tur": 12.85,
+   "halka2_isabet": 24.74,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "yuksek_0.25": {
+   "kart_100": 22.12,
+   "kart_isabet": 28.25,
+   "yakalama": 36.13,
+   "isabetsiz_100": 15.87,
+   "isabetli_100": 6.25,
+   "kaynak": {
+    "model": [
+     3762,
+     25.04
+    ],
+    "tekrar": [
+     190,
+     49.47
+    ],
+    "ozur": [
+     435,
+     47.36
+    ],
+    "norm": [
+     38,
+     21.05
+    ]
+   },
+   "halka2_tur": 11.06,
+   "halka2_isabet": 26.51,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "yuksek_0.35": {
+   "kart_100": 17.45,
+   "kart_isabet": 32.51,
+   "yakalama": 29.44,
+   "isabetsiz_100": 11.78,
+   "isabetli_100": 5.67,
+   "kaynak": {
+    "model": [
+     2657,
+     27.47
+    ],
+    "tekrar": [
+     270,
+     52.22
+    ],
+    "ozur": [
+     506,
+     50.4
+    ],
+    "norm": [
+     58,
+     15.52
+    ]
+   },
+   "halka2_tur": 8.62,
+   "halka2_isabet": 30.02,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "kanitsiz_0.30": {
+   "kart_100": 20.75,
+   "kart_isabet": 28.77,
+   "yakalama": 34.13,
+   "isabetsiz_100": 14.78,
+   "isabetli_100": 5.97,
+   "kaynak": {
+    "model": [
+     3414,
+     24.75
+    ],
+    "tekrar": [
+     224,
+     50.89
+    ],
+    "ozur": [
+     465,
+     48.82
+    ],
+    "norm": [
+     47,
+     17.02
+    ]
+   },
+   "halka2_tur": 10.13,
+   "halka2_isabet": 27.58,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "kanitsiz_0.35": {
+   "kart_100": 18.18,
+   "kart_isabet": 31.37,
+   "yakalama": 29.9,
+   "isabetsiz_100": 12.48,
+   "isabetli_100": 5.7,
+   "kaynak": {
+    "model": [
+     2807,
+     26.29
+    ],
+    "tekrar": [
+     270,
+     52.22
+    ],
+    "ozur": [
+     503,
+     50.3
+    ],
+    "norm": [
+     57,
+     15.79
+    ]
+   },
+   "halka2_tur": 8.85,
+   "halka2_isabet": 29.49,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "bekleme_3": {
+   "kart_100": 23.82,
+   "kart_isabet": 30.39,
+   "yakalama": 32.9,
+   "isabetsiz_100": 16.58,
+   "isabetli_100": 7.24,
+   "kaynak": {
+    "model": [
+     3979,
+     26.97
+    ],
+    "tekrar": [
+     224,
+     50.89
+    ],
+    "ozur": [
+     506,
+     49.6
+    ],
+    "norm": [
+     56,
+     17.86
+    ]
+   },
+   "halka2_tur": 9.55,
+   "halka2_isabet": 28.67,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "bekleme_2": {
+   "kart_100": 29.73,
+   "kart_isabet": 29.39,
+   "yakalama": 32.9,
+   "isabetsiz_100": 20.99,
+   "isabetli_100": 8.74,
+   "kaynak": {
+    "model": [
+     5120,
+     26.39
+    ],
+    "tekrar": [
+     224,
+     50.89
+    ],
+    "ozur": [
+     535,
+     50.65
+    ],
+    "norm": [
+     66,
+     16.67
+    ]
+   },
+   "halka2_tur": 9.55,
+   "halka2_isabet": 28.67,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "benzerlik_0.75": {
+   "kart_100": 19.24,
+   "kart_isabet": 30.74,
+   "yakalama": 32.9,
+   "isabetsiz_100": 13.33,
+   "isabetli_100": 5.91,
+   "kaynak": {
+    "model": [
+     3104,
+     26.8
+    ],
+    "tekrar": [
+     224,
+     50.89
+    ],
+    "ozur": [
+     469,
+     48.83
+    ],
+    "norm": [
+     51,
+     15.69
+    ]
+   },
+   "halka2_tur": 9.59,
+   "halka2_isabet": 28.56,
+   "halka1_tur": 21.66,
+   "serit_100": 10.55,
+   "serit_isabet": 19.75
+  },
+  "benzerlik_0.70": {
+   "kart_100": 19.23,
+   "kart_isabet": 30.7,
+   "yakalama": 32.74,
+   "isabetsiz_100": 13.33,
+   "isabetli_100": 5.9,
+   "kaynak": {
+    "model": [
+     3101,
+     26.77
+    ],
+    "tekrar": [
+     223,
+     51.12
+    ],
+    "ozur": [
+     469,
+     48.83
+    ],
+    "norm": [
+     54,
+     14.81
+    ]
+   },
+   "halka2_tur": 9.62,
+   "halka2_isabet": 28.47,
+   "halka1_tur": 21.78,
+   "serit_100": 10.66,
+   "serit_isabet": 20.12
+  },
+  "oneri_0.14": {
+   "kart_100": 19.27,
+   "kart_isabet": 30.72,
+   "yakalama": 32.9,
+   "isabetsiz_100": 13.35,
+   "isabetli_100": 5.92,
+   "kaynak": {
+    "model": [
+     3099,
+     26.78
+    ],
+    "tekrar": [
+     224,
+     50.89
+    ],
+    "ozur": [
+     469,
+     48.83
+    ],
+    "norm": [
+     62,
+     17.74
+    ]
+   },
+   "halka2_tur": 9.55,
+   "halka2_isabet": 28.67,
+   "halka1_tur": 24.29,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  },
+  "yuksek_0.25+bekleme_3": {
+   "kart_100": 27.73,
+   "kart_isabet": 27.68,
+   "yakalama": 36.13,
+   "isabetsiz_100": 20.05,
+   "isabetli_100": 7.68,
+   "kaynak": {
+    "model": [
+     4846,
+     24.95
+    ],
+    "tekrar": [
+     190,
+     49.47
+    ],
+    "ozur": [
+     468,
+     47.86
+    ],
+    "norm": [
+     42,
+     19.05
+    ]
+   },
+   "halka2_tur": 11.06,
+   "halka2_isabet": 26.51,
+   "halka1_tur": 21.51,
+   "serit_100": 10.53,
+   "serit_isabet": 19.66
+  }
+ }
+}

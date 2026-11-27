@@ -14,7 +14,7 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 | K08 | Eğitim verisi WildChat 4.8M, hazır etiket kaynağı WildFeedback olur | Kabul |
 | K09 | Eklentinin ilk sürümü modelsiz, kural tabanlı çalışır; kesinti yalnızca benzer mesajda olur | Değiştirildi (K17) |
 | K10 | Siteler ortak bir adaptör arayüzüyle desteklenir; sayfa yapısı tanınmazsa eklenti sessizce devre dışı kalır | Kabul |
-| K11 | Mesaj metni yalnızca bellekte tutulur; eklentide ağ isteği yapan kod yoktur | Kabul (düzeltildi) |
+| K11 | Mesaj metni yalnızca bellekte tutulur; eklentide ağ isteği yapan kod yoktur | Kabul (düzeltildi; izinli istisna K51) |
 | K12 | Ayarlar araç çubuğu penceresinde, yalnızca Türkçe; saklanan tek veri iki ayar ve günlük sayaçlar | Değiştirildi (K18) |
 | K13 | Çıkış kartı eşikleri geçicidir, WildChat ile kalibre edilecek | Değiştirildi (K14) |
 | K14 | Eşikler WildChat ile kalibre edildi: şerit 0,8, yumuşak tekrar 0,6, çıkış kartı görev normuna göre | Kabul |
@@ -54,6 +54,9 @@ Bu belge projede verdiğimiz teknik kararları ve nedenlerini kayıt altına al�
 | K48 | Yeniden hatırlatılan kural kartta not olarak söylenir ve Taze başlat taslağının başına girer | Kabul |
 | K49 | "Yön sende" önerisine yönü doğrudan veren ikinci düğme; eşik 3 kalır | Kabul |
 | K50 | Kapsam sadeleştirmesi: yapılmayan işler ürün ve belgelerden çıkarılır | Kabul |
+| K51 | İzinle çalışan anlam desteği: K11 istisnası, sunucu ve değerlendirici | Kabul |
+| K52 | Son tur ölçümü: orta uzunlukta onarım şeridi, anlam onarımı kartı ve model kartı onayı | Kabul |
+| K53 | Eşik taraması: kart bekleme süresi 5 turdan 3 tura iner; diğer eşikler kalır | Kabul |
 
 ---
 
@@ -632,4 +635,76 @@ Planda kalan tek dağıtım adımı Chrome Web Store yayını (Bölüm 10).
 **Neden.** Belgeler yalnızca gerçekten yapılmış ve ölçülmüş şeyleri anlatır; okuyucu hangi özelliğin var olduğunu tek bakışta görür.
 
 **Bedeli.** Bazı özgün fikirler (öğrenme sorusu, destek yolu) bu dönemde ürüne girmedi. Bunlar Bölüm 4'te özgün önerinin parçası olarak anılır.
+
+## K51. İzinle çalışan anlam desteği: K11 istisnası, sunucu ve değerlendirici
+
+**Bağlam.** Karakter 3-gram benzerliği aynı isteğin başka sözcüklerle, başka dilde ya da araya başka sorular girdikten sonra sorulmasını göremiyor; uzun bir düzeltme mesajının gerçekten şikayet olup olmadığını da kelime listesi tek başına ayıramıyor. Açık provada (prova/) cihazda çalışan çok dilli bir anlam modeli (MiniLM) de denendi: dil değişimindeki tekrarı buluyor ama aynı konudaki farklı soruya gerçek tekrardan yüksek puan veriyor ve ilk kez söylenen koşulu hatırlatılan koşuldan ayıramıyor. Bu ayrımlar önceki cevabı okumayı gerektiriyor.
+
+**Karar.**
+1. Varsayılanı kapalı bir "Anlam desteği" anahtarı eklenir. Açıkken, bir cevap bittiğinde sohbetin son en fazla 16 turu (kullanıcı mesajı en fazla 1.000 karakter, cevabın ilk 600 ve son 200 karakteri) arka plan çalışanı üzerinden Kâfi sunucusuna gider. Kişisel sohbetlerde hiç gönderilmez. Bu, K11'in tek ve izinli istisnasıdır.
+2. Sunucu (`server/api/judge.ts`, Vercel) metni Claude'a sorar ve yapılandırılmış bir karar döner: aynı istek mi, önceki cevap karşıladı mı, tıkanma, özür döngüsü, aynı bilgiye dönüş, son cevap yeni bilgi verdi mi, döngü ve güven. İstem, şema ve model tek dosyada: `server/judge-spec.json`. Metin diske ya da günlüğe yazılmaz; API anahtarı yalnızca sunucuda durur.
+3. Eklentide ağ isteği yalnızca `background/judge-client.ts` içinde, çerezsiz yapılır. Depodaki ayarda adres boştur; adres boşken hiçbir istek gönderilmez ve manifestte `connect-src 'none'` kalır. Ağ testi (`no-network.test.ts`) arka planda tam bir `fetch` dışında hiçbir ağ API'sine izin vermez.
+4. Değerlendiricinin kararı ürüne üç yoldan girer: aynı istek kartı (ikinci soruşta "Bunu az önce de sormuştun"), 3-gram'ın kaçırdığı yeniden yazımın benzer mesaj sayılması ve kart kuralı (K52).
+5. Model seçimi Türkçe davranış setinde yapıldı (129 uydurma vaka, ayar ve test yarıları). Test yarısında Sonnet 5.5 kart kararında 60/62, Haiku 5.5 59/62 doğru; ilerleyen ve kişisel sohbetlerde yersiz kart ikisinde de 0/27. Sonnet seçildi; ret durumunda sunucu tarafı yedek model açık.
+
+**Neden.** Anlam düzeyindeki ayrımlar kullanıcıya en çok yarayacak yerde (aynı isteği farklı biçimde sormak, uzun düzeltmeler) kelime kurallarının kör noktası. İzinli ve dar kapsamlı bir istisna, gizlilik sözünü varsayılan kullanıcı için değiştirmeden bu boşluğu kapatıyor.
+
+**Bedeli.** Özellik açıkken metin üçüncü bir tarafa (Anthropic) gider; bu `docs/PRIVACY.md` ve pencere metinlerinde açıkça söylenir. Sunucu maliyeti ve kötüye kullanım riski doğar; oran sınırı ve boyut sınırı var, kalıcı oran sınırı Vercel tarafında kurulmalı. Davranış seti küçük ve kuralları yazanlarca hazırlandı; genel doğruluk değildir.
+
+## K52. Son tur ölçümü: orta uzunlukta onarım şeridi, anlam onarımı kartı ve model kartı onayı
+
+**Bağlam.** Son turda hedef, yersiz müdahaleyi artırmadan isabeti ve yakalamayı yükseltmekti. Ölçüt olarak "isabetsiz kart" (100 sohbette, memnuniyetsizliğe denk gelmeyen kart) eklendi. Adaylar WildFeedback'in seçim örnekleminde (tohum 7, 20.000 sohbet) seçildi, rapor örnekleminde (tohum 42) doğrulandı. Değerlendirici adayları önbellekteki kararlarla (istem v0.3, Haiku 5.5; her örneklemde ilk 2.000 sohbet, istenen turların yaklaşık üçte ikisi) API çağrısı yapmadan oynatıldı. Bu kararlar sırasında ayrıca bir kural zorlama denemesi (37 sentetik sohbet) yapıldı.
+
+**Karar.**
+1. **Orta uzunlukta onarım şeridi.** Kısa onarım şeridinin sınırı 12'den 20 karaktere çıkar (`signal-rules.json` `short.repair_max_chars`); karşılaştırma için kullanılan genel kısa mesaj sınırı 12 kalır. "olmadi tekrar yap", "still not working" gibi mesajlar artık şerit alır. Seçim örnekleminde 12, 20, 25, 30, 40 denendi; 25 ve üstünde isabet düştü. Sınır genişleyince soruyla biten bir cevaba verilen üç kelimelik ret ("hayır gerek yok") şerit almaya başladı; bu yüzden teklif reddinin kelime sınırı 2'den 3'e çıktı (`decline_max_words`). Tablo bu düzeltmeyle birlikte resmi yeniden oynatmadan (`outputs/replay_eval.json`).
+
+   | Rapor örneklemi (20.000) | Önce | Sonra |
+   |---|---|---|
+   | Kısa onarım şeridi, 100 sohbette | 0,81 | 1,88 |
+   | Kısa onarım şeridi isabeti | %58,3 | %58,4 |
+   | Kart isabeti / yakalama | %31,1 / %32,3 | %30,8 / %31,9 |
+   | İsabetsiz kart, 100 sohbette | 13,19 | 13,20 |
+
+2. **Anlam onarımı kartı.** Kullanıcının mesajı onarım kelimesi taşıyor ama şeride girmeyecek kadar uzunsa ve değerlendirici "önceki cevap karşılamadı" derse kart açılır ve mesaj tekrar denemesi sayılır. Önbellekteki kararlarda onarım kelimeli uzun mesajlarda (40 karakter üstü) kelimenin tek başına isabeti %25 ile %27, değerlendiricinin "karşılamadı" dediği turlarda %45 ile %58; bu turlardaki memnuniyetsizliğin %60 ile %79'u yakalanıyor.
+3. **Model kartı onayı.** Değerlendirici açıkken yalnızca tur modelinden gelen kart onay bekler; onay için döngü, tıkanma ya da "karşılamadı" belirtilerinden biri yeterli (`confirm_sources`, `confirm_rule`). Özür, düzeltme alınmadı ve uzun sohbet kartları beklemez.
+4. **Değerlendiricinin kendi döngü kartı kapalı** (`loop_card: false`). WildFeedback'te bu kartın isabeti 0,85 güven eşiğinde %19 ile %28; tıkanma kanıtıyla 0,6 eşiğinde %17 ve isabetsiz kartı ikiye katlıyor.
+
+   | Rapor örneklemi (2.000, anlam desteği açık, iki tarafta da 20 karakter sınırı) | Bugünkü hibrit | Yeni kural |
+   |---|---|---|
+   | Kart, 100 sohbette | 17,05 | 17,20 |
+   | Kart isabeti | %31,4 | %35,8 |
+   | Yakalama | %24,4 | %31,1 |
+   | İsabetsiz kart, 100 sohbette | 11,7 | 11,05 |
+
+   Seçim örnekleminde de aynı yönde: isabet %29,1 → %31,1, yakalama %18,5 → %22,3, isabetsiz kart 10,95 → 10,95.
+
+**Denenip alınmayanlar.**
+1. İlk hata raporunda model kartını kapatan kapı (önceki turlarda benzer mesaj, onarım ya da özür yoksa model kartı yok): rapor örnekleminde isabetsiz kart 13,2 → 11,5 ama yakalama %32,3 → %25,7. Yakalama kaybı büyük olduğu için alınmadı; anlam desteği açıkken model kartı onayı aynı yanlış alarmı daha az kayıpla eliyor.
+2. Değerlendiricinin aynı istek kuralında "son cevap yeni bilgi verdiyse karşılanmamış kart açma": davranış setinin ayar yarısında 66/67 → 63/67; alınmadı.
+3. Kural hatırlatma listesine yalın "dedim": Türkçe veride (1.921 tur) hiç geçmiyor, ölçülemedi; alınmadı.
+
+**Neden.** Üç değişiklik birlikte, değerlendirici açıkken bugünkü hibritten daha az isabetsiz kartla 6,7 puan daha fazla memnuniyetsizliği yakalıyor; değerlendirici kapalıyken kısa onarım şeridi aynı isabetle iki kattan fazla yardım ediyor.
+
+**Bedeli.** Türkçe davranış setinde döngü vakalarının çoğu artık döngü kartı yerine "aynı istek, karşılanmamış" kartını alıyor: kart türüne göre doğru karar ayar yarısında 66/67 → 59/67, test yarısında 60/62 → 56/62; kart var ya da yok ayrımında yalnızca bir döngü vakası kartsız kalıyor ve yersiz kart değişmiyor. WildFeedback ölçümü eski istem ve Haiku ile; üründeki Sonnet ve v0.7 istemle yeniden oynatma yapılınca döngü kartı anahtarı yeniden değerlendirilmeli. Rapor örneklemindeki 2.000 sohbette tekrarlayan memnuniyetsizlik yaşanan sohbet sayısı 135; yakalama farkları birkaç sohbete dayanıyor.
+
+## K53. Eşik taraması: kart bekleme süresi 5 turdan 3 tura iner; diğer eşikler kalır
+
+**Bağlam.** Kartın daha hassas olması istendi: daha çok kart, ama yersiz kartın orantısız artmaması. Kartı belirleyen eşikler tek tek tarandı (`scripts/evaluate_thresholds.py`; seçim örnekleminde 12 aday, rapor örnekleminde en iyi üçü). Ölçüt olarak ortalama isabetin yanında "eklenen kartların isabeti" kullanıldı: eşik değişince gelen yeni kartların yüzde kaçı memnuniyetsizliğe denk geliyor (taban %5).
+
+**Sonuçlar (rapor örneklemi, 20.000 sohbet).**
+
+| Aday | Kart, 100 sohbette | İsabet | Yakalama | İsabetsiz kart | Eklenen kartların isabeti |
+|---|---|---|---|---|---|
+| Önceki (bekleme 5, model eşiği 0,30) | 19,06 | %30,8 | %31,9 | 13,2 | |
+| **Bekleme 3** | 23,77 | %30,2 | %31,9 | 16,6 | %28 |
+| Model eşiği 0,25 | 21,96 | %28,0 | %35,6 | 15,8 | %10 |
+| İkisi birden | 27,55 | %27,5 | %35,6 | 20,0 | %20 |
+
+Seçim örnekleminde ayrıca: model eşiği 0,20 (kart 26,6, isabet %25,6, yakalama %41,9), 0,35 (17,5, %32,5, %29,4), kanıt şartını kaldırmak (eklenen kartların isabeti %3, tabanın altında), benzerlik eşiği 0,75 ya da 0,70 ve öneri eşiği 0,14 (etkisiz). Sayılar `outputs/thresholds_secim.json` ve `outputs/thresholds_rapor.json`.
+
+**Karar.** Kart kapandıktan ya da yok sayıldıktan sonraki bekleme süresi 5 turdan 3 tura iner (`EXIT_CARD_COOLDOWN_TURNS`, Python `EXT_EXIT_CARD_COOLDOWN_TURNS`). Tur modelinin 0,30 eşiği, kanıt şartı, benzerlik eşiği ve öneri eşiği değişmez.
+
+**Neden.** Bekleme süresini kısaltmak döngü süren sohbette kartın daha erken yeniden gelmesini sağlıyor; eklenen kartlar ortalama kart kadar isabetli. Model eşiğini düşürmek daha çok farklı döngü yakalıyor ama eklenen kartların isabeti tabanın yalnızca iki katı.
+
+**Bedeli.** İsabetsiz kart 100 sohbette 13,2'den 16,6'ya çıkıyor ve aynı sohbette kart daha sık görünüyor; kullanıcı "Bir daha gösterme" ile kapatabilir. Yakalama değişmiyor: ilk kartın zamanı aynı kalıyor, yalnızca sonraki kartlar erkene geliyor. Aynı istek kartının kendi bekleme süresi (`repeat_cooldown_turns`, 2) değişmedi.
 

@@ -71,6 +71,7 @@ p { margin: 0 0 8px; }
 .hint, .note { color: var(--muted); font-size: 13px; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
 .spacer { flex: 1 1 auto; }
+.links { display: inline-flex; gap: 4px; flex-wrap: nowrap; margin-left: auto; }
 button {
   font: inherit; font-size: 13.5px; cursor: pointer; border-radius: 999px; padding: 6px 14px;
   border: 1px solid transparent; background: var(--primary); color: var(--primary-fg);

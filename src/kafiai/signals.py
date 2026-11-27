@@ -114,9 +114,14 @@ def short_repeat_key(text):
     return normalize_text(text) if is_short(text) else None
 
 
+_REPAIR_MAX_CHARS = RULES["short"]["repair_max_chars"]
+
+
 def is_short_repair(text):
-    """Kısa ve güçlü onarım ifadesi taşıyan mesaj ("olmadı", "yanlış", "hala hata")."""
-    return is_short(text) and _strong_repair(text) and not is_exit_message(text)
+    """Kısa ve güçlü onarım ifadesi taşıyan mesaj ("olmadı", "yanlış", "olmadi tekrar yap").
+    Sınır genel kısa mesaj sınırından (12) geniştir: orta uzunluktaki onarımlar da aynı isabetle şerit alır."""
+    n = normalize_text(text)
+    return 0 < len(n) < _REPAIR_MAX_CHARS and _strong_repair(text) and not is_exit_message(text)
 
 
 def is_new_topic(text, recent, segment_task):
@@ -243,6 +248,11 @@ class ConversationSignals:
             self.vague_streak = 0
             self.clean_run = 0
             self.recovered = True
+
+    def mark_last_similar(self):
+        """Anlam desteği son mesajı karşılanmamış isteğin yeniden yazımı saydı (K51 taslağı); eklentide markLastSimilar."""
+        if self.recent_flags:
+            self.recent_flags[-1] = True
 
     @property
     def recent_similar(self):

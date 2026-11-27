@@ -34,9 +34,18 @@ export interface RingSignals {
   shortRepair?: boolean;
   /** Kullanıcı düzeltme istedi ama son cevap öncekinin neredeyse aynısı */
   ignoredRepair?: boolean;
+  /** Anlam desteğinin seviyesi (src/core/judge.ts; yalnızca kullanıcı izin verdiyse) */
+  judgeRing?: 0 | 1 | 2;
+  /** Anlam desteğinin gerekçesi; halka onun yüzünden koyulaştıysa üzerine gelince bu görünür */
+  judgeWhy?: string;
 }
 
 export function ringLevel(s: RingSignals): RingLevel {
+  const rules = ruleLevel(s);
+  return Math.max(rules, s.judgeRing ?? 0) as RingLevel;
+}
+
+function ruleLevel(s: RingSignals): RingLevel {
   const apology = s.apologyStreak ?? 0;
   const vague = s.vagueStreak ?? 0;
   if (s.prediction?.level === "yuksek" || s.similarCount >= 2 || apology >= 2 || s.ignoredRepair) return 2;
@@ -48,6 +57,7 @@ export function ringLevel(s: RingSignals): RingLevel {
 export function ringText(s: RingSignals): string {
   const level = ringLevel(s);
   if (level === 0) return "Şu an dikkat çeken bir şey yok.";
+  if ((s.judgeRing ?? 0) > ruleLevel(s) && s.judgeWhy) return s.judgeWhy;
   if (s.ignoredRepair) return "Düzeltme istedin ama son cevap öncekinin neredeyse aynısı; model düzeltmeyi almamış olabilir.";
   if ((s.apologyStreak ?? 0) >= 2) return "Son cevaplar üst üste özürle başladı; model aynı yerde dönüyor olabilir.";
   if (s.similarCount >= 2) return `Son mesajlarından ${s.similarCount} tanesi öncekilere çok benziyor.`;

@@ -1,0 +1,140 @@
+{
+ "UYARI": "Yalnızca sayılar. Eşik seçimi seçim örnekleminde; rapor örnekleminde yalnızca seçilenler koşulur.",
+ "not": "Bu tarama K53'ten önce yapıldı: 'bugun' adayı o günkü 5 turluk bekleme süresidir; bekleme_3 seçildi (K53).",
+ "orneklem": "rapor",
+ "adaylar": {
+  "bugun": {},
+  "bekleme_3": {
+   "bekleme": 3
+  },
+  "yuksek_0.25": {
+   "yuksek": 0.25
+  },
+  "yuksek_0.25+bekleme_3": {
+   "yuksek": 0.25,
+   "bekleme": 3
+  }
+ },
+ "sonuc": {
+  "bugun": {
+   "kart_100": 19.06,
+   "kart_isabet": 30.77,
+   "yakalama": 31.92,
+   "isabetsiz_100": 13.2,
+   "isabetli_100": 5.86,
+   "kaynak": {
+    "model": [
+     3098,
+     27.53
+    ],
+    "ozur": [
+     486,
+     45.06
+    ],
+    "tekrar": [
+     193,
+     50.26
+    ],
+    "norm": [
+     35,
+     11.43
+    ]
+   },
+   "halka2_tur": 9.44,
+   "halka2_isabet": 29.87,
+   "halka1_tur": 21.47,
+   "serit_100": 10.14,
+   "serit_isabet": 21.54
+  },
+  "bekleme_3": {
+   "kart_100": 23.77,
+   "kart_isabet": 30.21,
+   "yakalama": 31.92,
+   "isabetsiz_100": 16.59,
+   "isabetli_100": 7.18,
+   "kaynak": {
+    "model": [
+     4003,
+     27.5
+    ],
+    "ozur": [
+     513,
+     45.42
+    ],
+    "tekrar": [
+     194,
+     50.0
+    ],
+    "norm": [
+     43,
+     11.63
+    ]
+   },
+   "halka2_tur": 9.44,
+   "halka2_isabet": 29.87,
+   "halka1_tur": 21.47,
+   "serit_100": 10.14,
+   "serit_isabet": 21.54
+  },
+  "yuksek_0.25": {
+   "kart_100": 21.96,
+   "kart_isabet": 28.04,
+   "yakalama": 35.55,
+   "isabetsiz_100": 15.8,
+   "isabetli_100": 6.16,
+   "kaynak": {
+    "model": [
+     3772,
+     25.42
+    ],
+    "ozur": [
+     452,
+     43.14
+    ],
+    "tekrar": [
+     143,
+     52.45
+    ],
+    "norm": [
+     26,
+     11.54
+    ]
+   },
+   "halka2_tur": 10.85,
+   "halka2_isabet": 27.62,
+   "halka1_tur": 21.47,
+   "serit_100": 10.14,
+   "serit_isabet": 21.54
+  },
+  "yuksek_0.25+bekleme_3": {
+   "kart_100": 27.55,
+   "kart_isabet": 27.54,
+   "yakalama": 35.55,
+   "isabetsiz_100": 19.96,
+   "isabetli_100": 7.59,
+   "kaynak": {
+    "model": [
+     4857,
+     25.3
+    ],
+    "ozur": [
+     476,
+     43.91
+    ],
+    "tekrar": [
+     144,
+     52.08
+    ],
+    "norm": [
+     32,
+     12.5
+    ]
+   },
+   "halka2_tur": 10.85,
+   "halka2_isabet": 27.62,
+   "halka1_tur": 21.47,
+   "serit_100": 10.14,
+   "serit_isabet": 21.54
+  }
+ }
+}

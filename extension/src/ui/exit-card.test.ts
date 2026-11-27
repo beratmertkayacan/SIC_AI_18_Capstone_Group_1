@@ -1,6 +1,17 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ExitCard, exitCardMessage, MODEL_NOTE, modelCardMessage } from "./exit-card";
+import reasonTable from "../data/model-reasons.json";
+import {
+  ExitCard,
+  exitCardMessage,
+  FRESH_START_REASONS,
+  FRESH_START_TIP,
+  MANUAL_SHORT_MESSAGE,
+  MODEL_CHIP,
+  MODEL_NOTE,
+  modelCardMessage,
+  NEVER_MESSAGE,
+} from "./exit-card";
 
 function shadowOf(): ShadowRoot {
   return document.querySelector<HTMLElement>('[data-kafiai="exit-card"]')!.shadowRoot!;
@@ -27,7 +38,7 @@ describe("ExitCard", () => {
 
   it("tur sayısını söyler ve üç düğme sunar", () => {
     card.show(document.body, 7, null, actions());
-    expect(visibleText()).toContain("Bu sohbet 7. turunda.");
+    expect(visibleText()).toContain("Bu sohbet 7. mesajında.");
     for (const label of ["Taze başlat", "Kısa ara ver", "Kapat"]) expect(buttonByText(label)).toBeTruthy();
   });
 
@@ -85,6 +96,19 @@ describe("ExitCard", () => {
     expect(a.onDismiss).toHaveBeenCalledWith("taze");
   });
 
+  it("taze başlat başarılıyken Escape ek bir kapatma saymaz (H3)", async () => {
+    const a = actions();
+    card.show(document.body, 7, null, a);
+    expect(card.ended).toBe(false);
+    buttonByText("Taze başlat").click();
+    buttonByText("Kopyala ve yeni sohbet aç").click();
+    await flush();
+    expect(card.ended).toBe(true);
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(card.visible).toBe(false);
+    expect(a.onDismiss.mock.calls).toEqual([["taze"]]);
+  });
+
   it("kopyalama başarısız olursa kart açık kalır ve açıklar", async () => {
     const a = actions(false);
     card.show(document.body, 7, null, a);
@@ -126,35 +150,40 @@ describe("ExitCard: Bir daha gösterme", () => {
     card.show(document.body, 7, null, a);
     buttonByText("Bir daha gösterme").click();
     expect(onNever).toHaveBeenCalledTimes(1);
-    expect(visibleText()).toContain("Kâfi AI penceresinden yeniden açabilirsin");
+    expect(visibleText()).toContain(NEVER_MESSAGE);
+    expect(visibleText()).toContain("yeni sohbet önerisi bir daha gösterilmeyecek");
+    expect(visibleText()).toContain("Ayarlar'dan yeniden açabilirsin");
     expect(card.visible).toBe(true);
   });
 
-  it("onay görünümünde Kapat ve Escape ek bir kapatma olarak sayılmaz", () => {
+  it("onay görünümünde Kapat ve Escape ek bir kapatma sayılmaz ama odağı geri verir (C7)", () => {
     const a = { ...actions(), onNever: vi.fn() };
     card.show(document.body, 7, null, a);
     buttonByText("Bir daha gösterme").click();
+    expect(card.ended).toBe(true); // üstünden gönderim de "kapat" sayılmaz
     buttonByText("Kapat").click();
     expect(card.visible).toBe(false);
 
     card.show(document.body, 7, null, a);
+    expect(card.ended).toBe(false); // yeni kart temiz başlar
     buttonByText("Bir daha gösterme").click();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(card.visible).toBe(false);
-    expect(a.onDismiss).not.toHaveBeenCalled();
+    // "gosterme" sayılmaz; index.ts bu yolda yalnızca odağı mesaj kutusuna döndürür.
+    expect(a.onDismiss.mock.calls).toEqual([["gosterme"], ["gosterme"]]);
   });
 });
 
 describe("exitCardMessage", () => {
   it("görev türü biliniyorsa normu söyler", () => {
     const text = exitCardMessage(9, { label: "Kod yazma ve hata ayıklama", median_turns: 3, p75_turns: 5, p90_turns: 8 });
-    expect(text).toContain("Kod yazma ve hata ayıklama sohbetlerinin çoğu 5 turda ya da daha kısa sürede bitiyor");
-    expect(text).toContain("bu sohbet 9. turunda");
+    expect(text).toContain("Kod yazma ve hata ayıklama sohbetlerinin çoğu 5 mesajda ya da daha kısa sürede bitiyor");
+    expect(text).toContain("bu sohbet 9. mesajında");
   });
 
   it("görev türü bilinmiyorsa ya da 'Diğer' ise yalnızca tur sayısını söyler", () => {
-    expect(exitCardMessage(7, null)).toMatch(/^Bu sohbet 7\. turunda\./);
-    expect(exitCardMessage(7, { label: "Diğer", median_turns: 3, p75_turns: 5, p90_turns: 8 })).toMatch(/^Bu sohbet 7\. turunda\./);
+    expect(exitCardMessage(7, null)).toMatch(/^Bu sohbet 7\. mesajında\./);
+    expect(exitCardMessage(7, { label: "Diğer", median_turns: 3, p75_turns: 5, p90_turns: 8 })).toMatch(/^Bu sohbet 7\. mesajında\./);
   });
 });
 
@@ -163,11 +192,27 @@ describe("ExitCard model gerekçesiyle", () => {
   afterEach(() => card.hide());
   const reason = { key: "last_strong_repair", short: "kısa", why: "Son mesajında olmadı dedin.", tip: "Ne beklediğini yaz." };
 
-  it("gerekçeyi, öneriyi ve modelin cihazda çalıştığını söyler", () => {
+  it("gerekçeyi, yeni sohbete uyan öneriyi ve tahminin cihazda çalıştığını söyler", () => {
     card.show(document.body, 3, null, actions(), reason);
     expect(visibleText()).toContain(modelCardMessage(reason));
     expect(visibleText()).toContain(MODEL_NOTE);
-    expect(visibleText()).not.toContain("Bu sohbet 3. turunda.");
+    expect(visibleText()).not.toContain("Bu sohbet 3. mesajında.");
+  });
+
+  it("çip ve not 'model' sözcüğünü bizim tahmin aracımız için kullanmaz (C4)", () => {
+    card.show(document.body, 3, null, actions(), reason);
+    expect(visibleText()).toContain("Kâfi AI'ın tahmini");
+    expect(MODEL_CHIP).toBe("Kâfi AI'ın tahmini");
+    expect(MODEL_NOTE).toBe(
+      "Bu öneri, mesajlarına bakan ve cihazında çalışan küçük bir tahmin aracından geliyor; mesajların cihazından çıkmaz.",
+    );
+    expect(visibleText().toLowerCase()).not.toContain("model");
+  });
+
+  it("yeni sohbeti desteklemeyen gerekçede tip yerine sabit cümle gösterilir (C5)", () => {
+    card.show(document.body, 3, null, actions(), reason);
+    expect(visibleText()).toContain(`${reason.why} ${FRESH_START_TIP}`);
+    expect(visibleText()).not.toContain(reason.tip);
   });
 
   it("'Yerinde değildi' geri bildirimi verir ve kartı kapatır", () => {
@@ -175,13 +220,33 @@ describe("ExitCard model gerekçesiyle", () => {
     card.show(document.body, 3, null, a, reason);
     buttonByText("Yerinde değildi").click();
     expect(a.onNotRelevant).toHaveBeenCalledOnce();
-    expect(a.onDismiss).toHaveBeenCalledWith("kapat");
+    // Ek bir "kapat" sayılmasın diye kendi türüyle kapanır (H2).
+    expect(a.onDismiss.mock.calls).toEqual([["yerinde_degil"]]);
     expect(card.visible).toBe(false);
   });
 
   it("gerekçe yoksa 'Yerinde değildi' düğmesi çıkmaz", () => {
     card.show(document.body, 7, null, { ...actions(), onNotRelevant: vi.fn() });
     expect(buttonByText("Yerinde değildi")).toBeUndefined();
+  });
+
+  it("'İsteği netleştir' boş bir kalıp ekler ve kartı kendi türüyle kapatır (K51 taslağı)", () => {
+    const a = { ...actions(), onClarify: vi.fn(() => true) };
+    card.show(document.body, 3, null, a, reason);
+    buttonByText("İsteği netleştir").click();
+    expect(a.onClarify).toHaveBeenCalledWith(expect.stringMatching(/: $/));
+    expect(a.onDismiss.mock.calls).toEqual([["netlestir"]]);
+    expect(card.visible).toBe(false);
+  });
+
+  it("kalıp eklenemezse kart açık kalır; gerekçesiz kartta düğme çıkmaz", () => {
+    const a = { ...actions(), onClarify: vi.fn(() => false) };
+    card.show(document.body, 3, null, a, reason);
+    buttonByText("İsteği netleştir").click();
+    expect(card.visible).toBe(true);
+    card.hide();
+    card.show(document.body, 7, null, { ...actions(), onClarify: vi.fn(() => true) });
+    expect(buttonByText("İsteği netleştir")).toBeUndefined();
   });
 });
 
@@ -202,5 +267,64 @@ describe("ExitCard: sohbet sinyalleri (K32)", () => {
     card.show(document.body, 12, null, { ...actions(), focusedDraft: () => true });
     buttonByText("Taze başlat").click();
     expect(visibleText()).toContain("yalnızca son konudaki isteklerini aldım");
+  });
+});
+
+describe("modelCardMessage: hangi gerekçenin önerisi kartta kalır (C5)", () => {
+  const all = Object.keys((reasonTable as { reasons: Record<string, unknown> }).reasons);
+  const make = (key: string) => ({ key, short: "k", why: "Durum.", tip: "Gerekçenin kendi önerisi." });
+
+  it("yeni sohbeti destekleyen gerekçe listesi sabittir", () => {
+    expect([...FRESH_START_REASONS].sort()).toEqual(["genel", "n_strong_repairs", "ozur", "tekrar", "turn"]);
+    for (const key of FRESH_START_REASONS) expect(all).toContain(key);
+  });
+
+  it("listedeki gerekçeler kendi önerisini, öbürleri sabit cümleyi gösterir", () => {
+    const others = [
+      "first_words_log",
+      "last_words_log",
+      "first_lines",
+      "last_lines",
+      "has_code",
+      "task_kod",
+      "n_exact",
+      "last_sim",
+      "last_short",
+      "last_strong_repair",
+    ];
+    // model-reasons.json'daki her gerekçe iki listeden birinde: yeni bir gerekçe eklenirse test hatırlatır.
+    expect([...all].sort()).toEqual([...FRESH_START_REASONS, ...others].sort());
+    for (const key of FRESH_START_REASONS) expect(modelCardMessage(make(key))).toBe("Durum. Gerekçenin kendi önerisi.");
+    for (const key of others) expect(modelCardMessage(make(key))).toBe(`Durum. ${FRESH_START_TIP}`);
+  });
+});
+
+describe("ExitCard: elle açılış (C3)", () => {
+  const card = new ExitCard();
+  afterEach(() => card.hide());
+  const norm = { label: "Kod yazma ve hata ayıklama", median_turns: 3, p75_turns: 5, p90_turns: 8 };
+
+  it("tur sayısı normun altında ya da eşitken 'Yeni sohbet' der ve mola önermez", () => {
+    for (const turns of [2, 5]) {
+      card.show(document.body, turns, norm, actions(), null, { manual: true });
+      expect(visibleText()).toContain("Yeni sohbet");
+      expect(visibleText()).toContain(MANUAL_SHORT_MESSAGE);
+      expect(visibleText()).not.toContain("Uzun sohbet");
+      expect(buttonByText("Kısa ara ver")).toBeUndefined();
+      expect(buttonByText("Taze başlat")).toBeTruthy();
+    }
+  });
+
+  it("norm aşıldıysa uzun sohbet metni ve mola düğmesi kalır", () => {
+    card.show(document.body, 9, norm, actions(), null, { manual: true });
+    expect(visibleText()).toContain("Uzun sohbet");
+    expect(visibleText()).toContain(exitCardMessage(9, norm));
+    expect(buttonByText("Kısa ara ver")).toBeTruthy();
+  });
+
+  it("kendiliğinden açılan kart elle seçeneği olmadan eskisi gibi davranır", () => {
+    card.show(document.body, 2, norm, actions());
+    expect(visibleText()).toContain("Uzun sohbet");
+    expect(buttonByText("Kısa ara ver")).toBeTruthy();
   });
 });

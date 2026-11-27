@@ -28,3 +28,11 @@ export function foldTurkish(normalized: string): string {
 export function withFolded(list: readonly string[]): string[] {
   return [...new Set([...list, ...list.map(foldTurkish)])];
 }
+
+/**
+ * Sadeleştirilmiş kelimede Türkçe harf var mı? Hiç yoksa kelime Türkçe klavye olmadan yazılmış
+ * olabilir ("baskenti"). Python: extension_similarity.has_turkish_letter.
+ */
+export function hasTurkishLetter(normalized: string): boolean {
+  return /[çğıöşüâîû]/.test(normalized);
+}

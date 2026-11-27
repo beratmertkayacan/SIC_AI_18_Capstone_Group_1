@@ -270,5 +270,163 @@
   "repeat": true,
   "variation": false,
   "hold": true
+ },
+ {
+  "new": "Olmadı, şimdi 2. soruyu çöz",
+  "previous": "1. soruyu çöz",
+  "similarity": 0.611111,
+  "new_content": [
+   "şimdi",
+   "2"
+  ],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Tekrar soruyorum: Almanya'nın başkenti neresi?",
+  "previous": "Tekrar soruyorum: Fransa'nın başkenti neresi?",
+  "similarity": 0.838758,
+  "new_content": [
+   "almanya"
+  ],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Deney neden başarılı olmadı, açıkla",
+  "previous": "Deney neden başarılı oldu, açıkla",
+  "similarity": 0.869626,
+  "new_content": [
+   "olmadı"
+  ],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Write a reply to the customer asking about the delay",
+  "previous": "Write a reply to the customer complaining about the delay",
+  "similarity": 0.87831,
+  "new_content": [
+   "asking"
+  ],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Yine olmadı, Osmanlı İmparatorluğu ne zaman kuruldu?",
+  "previous": "Osmanlı İmparatorluğu ne zaman kuruldu?",
+  "similarity": 0.877734,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": true
+ },
+ {
+  "new": "Hala olmadı, bu kodu düzelt, çalışmıyor",
+  "previous": "Bu kodu düzelt, çalışmıyor",
+  "similarity": 0.83205,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": true
+ },
+ {
+  "new": "Sordum ama olmadı: şu cümleyi İngilizceye çevir: Toplantı yarın saat üçe ertelendi.",
+  "previous": "Şu cümleyi İngilizceye çevir: Toplantı yarın saat üçe ertelendi.",
+  "similarity": 0.88651,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": true
+ },
+ {
+  "new": "Olmadı, farklı bir başlık öner",
+  "previous": "Farklı bir başlık öner",
+  "similarity": 0.880716,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": true
+ },
+ {
+  "new": "Still not working. Write a polite email to my professor asking for an extension",
+  "previous": "Write a polite email to my professor asking for an extension",
+  "similarity": 0.90211,
+  "new_content": [
+   "not",
+   "working"
+  ],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Kaslarımı nasıl şekillendiririm?",
+  "previous": "Kaşlarımı nasıl şekillendiririm?",
+  "similarity": 0.909091,
+  "new_content": [
+   "kaslarımı"
+  ],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Dış kaplama fiyatları ne kadar?",
+  "previous": "Diş kaplama fiyatları ne kadar?",
+  "similarity": 0.90625,
+  "new_content": [
+   "dış"
+  ],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Avustralya'nın baskenti neresidir?",
+  "previous": "Avustralya'nın başkenti neresidir?",
+  "similarity": 0.909091,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Olmadi, Avustralya'nin baskenti neresidir?",
+  "previous": "Avustralya'nın başkenti neresidir?",
+  "similarity": 0.743151,
+  "new_content": [],
+  "repeat": false,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Müşteriler tablosundan Ankara'da yasayan musterileri getiren SQL sorgusu yaz.",
+  "previous": "Müşteriler tablosundan Ankara'da yaşayan müşterileri getiren SQL sorgusu yaz.",
+  "similarity": 0.936766,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Yenilenebilir enerji hakkında 10 slaytlik bir sunum taslagi hazırla.",
+  "previous": "Yenilenebilir enerji hakkında 10 slaytlık bir sunum taslağı hazırla.",
+  "similarity": 0.921132,
+  "new_content": [],
+  "repeat": true,
+  "variation": false,
+  "hold": false
+ },
+ {
+  "new": "Osmanli Imparatorlugu ne zaman kuruldu?",
+  "previous": "Osmanlı İmparatorluğu ne zaman kuruldu?",
+  "similarity": 0.8,
+  "new_content": [],
+  "variation": false
  }
 ]

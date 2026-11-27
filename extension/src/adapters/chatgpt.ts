@@ -3,7 +3,7 @@ import { ResponseWatcher } from "../core/response-watcher";
 import type { Adapter, AdapterHandlers } from "./types";
 import { appendInline } from "./insert";
 import { SendConfirmer } from "./send-confirmer";
-import { lastOf, responseText } from "./response-text";
+import { fullResponseText, lastOf, responseText } from "./response-text";
 
 /** Bekletilen gönderim (varsa) ve "bir sonraki girişimi engelleme" bayrağı. */
 let heldComposer: HTMLElement | null = null;
@@ -24,6 +24,9 @@ const COMPOSER_SELECTOR = '[contenteditable="true"][role="textbox"]';
 
 /** Sayfadaki kullanıcı mesajı birimleri (Ekim 2026'da ölçüldü: anahtar ":user" ile biter). */
 const USER_MESSAGE_SELECTOR = '[data-content-search-unit-key$=":user"]';
+
+/** Anahtarı olan cevap birimleri (deney: kısıt kontrolü). Anahtarsız cevap öğesi kimliksiz sayılır ve kullanılmaz. */
+const ASSISTANT_KEY_SELECTOR = '[data-content-search-unit-key$=":assistant"]';
 
 const STOP_LABEL = /^(durdur|stop|arrêter|detener|parar|stoppen|stopp|fermare|остановить)/i;
 
@@ -153,6 +156,32 @@ export const chatgptAdapter: Adapter = {
 
   lastResponse() {
     return responseText(lastOf('[data-content-search-unit-key$=":assistant"], [data-message-author-role="assistant"]'), ".sr-only");
+  },
+
+  lastExchange() {
+    // Deney (kısıt kontrolü): son kullanıcı öğesi ve son cevap öğesi aynı anda okunur. Cevabın metni ile
+    // anahtarı aynı öğeden gelir; yalnızca ekranda yer kaplayan öğeler alınır (readHistory ile aynı kural).
+    const shown = (el: HTMLElement) => el.getClientRects().length > 0;
+    const user = Array.from(document.querySelectorAll<HTMLElement>(USER_MESSAGE_SELECTOR)).filter(shown).at(-1);
+    if (!user) return null;
+    const answer = Array.from(document.querySelectorAll<HTMLElement>(ASSISTANT_KEY_SELECTOR)).filter(shown).at(-1);
+    return {
+      userKey: user.getAttribute("data-content-search-unit-key"),
+      userText: (user.innerText || user.textContent || "").trim(),
+      assistantKey: answer?.getAttribute("data-content-search-unit-key") ?? null,
+      assistantText: fullResponseText(answer, ".sr-only"),
+      assistantAfterUser: answer !== undefined && (user.compareDocumentPosition(answer) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
+      generating: isGenerating(document),
+    };
+  },
+
+  responseElement(key: string) {
+    // Deney (kısıt notu): notun yerleşeceği cevap öğesi; anahtarla birebir eşleşen ve ekranda yer kaplayan.
+    return (
+      Array.from(document.querySelectorAll<HTMLElement>(ASSISTANT_KEY_SELECTOR)).find(
+        (el) => el.getAttribute("data-content-search-unit-key") === key && el.getClientRects().length > 0,
+      ) ?? null
+    );
   },
 
   readHistory() {
