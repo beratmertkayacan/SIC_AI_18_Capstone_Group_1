@@ -144,9 +144,15 @@ export function restatesRule(text: string): boolean {
   });
 }
 
-/** Kısa ve güçlü onarım ifadesi taşıyan mesaj mı ("olmadı", "yanlış", "hala hata")? */
+const REPAIR_MAX_CHARS: number = rules.short.repair_max_chars;
+
+/**
+ * Kısa ve güçlü onarım ifadesi taşıyan mesaj mı ("olmadı", "yanlış", "olmadi tekrar yap")?
+ * Sınır genel kısa mesaj sınırından (12) geniştir: orta uzunluktaki onarımlar da aynı isabetle şerit alır.
+ */
 export function isShortRepair(text: string): boolean {
-  return isShort(text) && hasStrongRepair(text) && !isExitMessage(text);
+  const length = Array.from(normalizeText(text)).length;
+  return length > 0 && length < REPAIR_MAX_CHARS && hasStrongRepair(text) && !isExitMessage(text);
 }
 
 export interface TopicContext {

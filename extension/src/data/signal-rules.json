@@ -35,9 +35,12 @@
   "short": {
     "note": "Karşılaştırılamayacak kadar kısa mesajlar (12 karakterden az). Güçlü onarım ifadesi taşıyan kısa mesaj ('olmadı', 'yanlış', 'hala hata') tekrar denemesi gibi sayılır: WildFeedback'te o turda memnuniyetsizlik %45,8 (genel %5,8). Aynı kısa mesajın ('devam', 'alternatif') üst üste gelmesi tek başına memnuniyetsizlik göstermiyor (%4,9); yalnızca repeat_streak kez üst üste gelince halka bir kademe yükselir. Sayıların kaynağı: scripts/evaluate_short_messages.py (outputs/short_messages.json).",
     "repeat_streak": 3,
+    "repair_max_chars": 20,
+    "repair_note": "Kısa onarım şeridinin uzunluk sınırı (sadeleştirilmiş metinde karakter): 'olmadi tekrar yap', 'still not working' gibi orta uzunluktaki onarımlar da şerit alır. Karşılaştırma için kullanılan genel kısa mesaj sınırı (12) değişmez. WildFeedback yeniden oynatmasında seçim örnekleminde 12, 20, 25, 30, 40 denendi; 20'de şerit 100 sohbette 0,96'dan 2,20'ye çıkarken isabet aynı kaldı (%52,6 → %53,0), 25 ve üstünde isabet düştü. Rapor örnekleminde 0,81 → 1,88, isabet %58,3 → %58,4; kart isabeti ve yakalaması yarım puandan az değişti (scripts/evaluate_replay.py).",
     "decline_note": "Yapay zekanın cevabı bir soruyla bittiyse ('Grafik de ekleyeyim mi?') yalnızca 'hayır' ya da 'no' demek bir teklifi geri çevirmektir, şikayet değildir: kısa onarım sayılmaz. WildFeedback'te yalın 'no/hayır' mesajlarında memnuniyetsizlik önceki cevap soruyla bittiğinde %4,9, bitmediğinde %57,9. Cevabın sonundaki soru, cevabın son tail_chars karakterine bakılarak bulunur (yalnızca bellekte).",
     "decline_words": ["hayır", "no", "nope", "nah", "yok"],
-    "decline_max_words": 2,
+    "decline_max_words": 3,
+    "decline_max_words_note": "3 kelime: kısa onarım sınırı 20 karaktere çıkınca (K52) 'hayır gerek yok' gibi üç kelimelik retler de bu sınırın içine girdi; teklife verilen ret şikayet sayılmamaya devam etsin diye.",
     "tail_chars": 200,
     "repeat_strip_note": "Aynı kısa mesajın ('devam') repeat_streak kez üst üste gelmesi halkayı yükseltmez; gönderim öncesi şerit çıkar ve neyle, nasıl devam etmesini istediğini yazmayı önerir. Sohbet başına bir kez (Mert'in kararı, 14 Kasım). WildFeedback'te bu tekrarlarda memnuniyetsizlik onaylarda %2,2, diğerlerinde %4,7 (taban %5,85); şerit bir döngü uyarısı değil, yönü kullanıcıya geri veren bir öneri."
   },

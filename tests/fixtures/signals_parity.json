@@ -198,6 +198,26 @@
       [
         "emin misin",
         true
+      ],
+      [
+        "olmadi tekrar yap",
+        true
+      ],
+      [
+        "still not working",
+        true
+      ],
+      [
+        "yine yanlış oldu",
+        true
+      ],
+      [
+        "hala ayni sey oluyor",
+        false
+      ],
+      [
+        "bu kodda bir hata var mı acaba",
+        false
       ]
     ],
     "bare_continue": [

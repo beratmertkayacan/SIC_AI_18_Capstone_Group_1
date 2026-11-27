@@ -252,7 +252,7 @@
     },
     {
       "id": "duz_harf_kod_dongusu",
-      "anlatim": "Türkçe karakter kullanmadan yazan kullanıcı kodunun çalışmadığını söylüyor; kısa onarım şeridi art arda iki turda çıkmaz, üçüncü turda kartın sırası gelir",
+      "anlatim": "Türkçe karakter kullanmadan yazan kullanıcı kodunun çalışmadığını söylüyor; \"kod calismiyor\" da kısa onarım sayılır (20 karakter sınırı), şerit art arda iki turda çıkmaz, \"olmadi\" yeniden şerit alır",
       "user": [
         "SQL ile en cok satan 5 urunu getiren sorgu yaz",
         "kod calismiyor",
@@ -266,7 +266,7 @@
         "Özür dilerim ..."
       ],
       "beklenen": {
-        "kisa_serit": 1,
+        "kisa_serit": 2,
         "halka_en_az": 2,
         "kart": true
       }
@@ -484,6 +484,22 @@
         "serit": 0,
         "halka_en_az": 1,
         "halka_en_cok": 1,
+        "kart": false
+      }
+    },
+    {
+      "id": "teklife_uc_kelimelik_ret",
+      "anlatim": "Yapay zekanın teklif sorusuna verilen üç kelimelik ret ('hayır gerek yok') şikayet değildir; kısa onarım sınırı 20 karaktere çıksa da şerit çıkmaz (K40, K52)",
+      "user": [
+        "Haftalık koşu programı hazırlar mısın",
+        "hayır gerek yok"
+      ],
+      "answers": [
+        "İşte 4 haftalık program ... Beslenme planı da ekleyeyim mi?",
+        "Tamam, programın hazır."
+      ],
+      "beklenen": {
+        "kisa_serit": 0,
         "kart": false
       }
     }
