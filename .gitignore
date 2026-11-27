@@ -27,6 +27,7 @@ server/node_modules/
 server/.vercel/
 outputs/judge_cache/
 extension/dist/
+extension/*.zip
 
 # Sayfa görüntüleri (ham hâlleri git dışında; temizlenmişleri extension/test-snapshots/)
 snapshots_raw/

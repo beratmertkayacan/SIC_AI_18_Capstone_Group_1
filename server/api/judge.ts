@@ -3,7 +3,7 @@ import { kararDuzelt, sohbetMetni, SPEC, turlariAl, type Karar } from "../lib/ju
 
 /**
  * Kâfi anlam desteği: eklentinin arka plan çalışanı sohbetin son turlarını buraya gönderir, biz de
- * Claude Haiku'ya sorup yapılandırılmış bir karar döneriz.
+ * Claude'a (model server/judge-spec.json içinde, bugün Sonnet 5.5) sorup yapılandırılmış bir karar döneriz.
  *
  * Gizlilik: sohbet metni hiçbir yere yazılmaz, günlüğe yalnızca süre ve durum düşer. API anahtarı
  * yalnızca bu sunucunun ortam değişkenindedir (ANTHROPIC_API_KEY), eklentiye hiç gitmez.
@@ -12,7 +12,7 @@ import { kararDuzelt, sohbetMetni, SPEC, turlariAl, type Karar } from "../lib/ju
  */
 
 const client = new Anthropic();
-const MAX_BODY = 24_000; // bayt; 12 tur × en fazla 1.000 karakter ve biraz pay
+const MAX_BODY = 24_000; // karakter; 16 tur (kullanıcı en fazla 1.000, cevap en fazla 800 karakter) ve biraz pay
 
 // Sunucusuz ortamda bellek örnekler arasında paylaşılmaz; bu sınır en iyi çaba, kaba kötüye kullanıma karşı.
 const WINDOW_MS = 60_000;
